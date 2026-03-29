@@ -1,0 +1,51 @@
+@use 'variables' as *;
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+
+  &__step {
+    display: flex;
+    align-items: center;
+  }
+
+  &__dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: $font-mono;
+    flex-shrink: 0;
+    transition: all $transition-base;
+
+    .step-indicator__step--idle & {
+      background: $bg-card;
+      border: 1px solid $border;
+      color: $text-muted;
+    }
+
+    .step-indicator__step--active & {
+      background: $accent;
+      border: 1px solid $accent;
+      color: #fff;
+    }
+
+    .step-indicator__step--done & {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid $color-approved;
+      color: $color-approved;
+    }
+  }
+
+  &__line {
+    height: 1px;
+    width: 28px;
+    background: $border;
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+}

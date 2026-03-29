@@ -1,0 +1,513 @@
+@use 'variables' as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__section-hint {
+    font-size: 13px;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-secondary;
+    letter-spacing: 0.03em;
+  }
+
+  &__required {
+    color: $color-rejected;
+    margin-left: 2px;
+  }
+
+  &__input {
+    width: 100%;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: $text-primary;
+    font-size: 14px;
+    font-family: $font-ui;
+    outline: none;
+    transition: border-color $transition-fast;
+    appearance: none;
+
+    &:focus {
+      border-color: $accent;
+    }
+
+    &::placeholder {
+      color: $text-muted;
+    }
+
+    &--textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+
+    &--select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A8399' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+
+      option {
+        background: $bg-card;
+        color: $text-primary;
+      }
+    }
+
+    &--price {
+      padding-left: 8px;
+    }
+  }
+
+  // ── Tag input ────────────────────────────────
+  &__tag-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-height: 44px;
+    cursor: text;
+    transition: border-color $transition-fast;
+
+    &:focus-within {
+      border-color: $accent;
+    }
+  }
+
+  &__tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__tag-remove {
+    font-size: 14px;
+    color: $text-muted;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $color-rejected;
+    }
+  }
+
+  &__tag-text {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: $text-primary;
+    font-size: 13px;
+    font-family: $font-ui;
+    min-width: 80px;
+    flex: 1;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+
+  &__tag-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  &__tag-suggestion {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    border: 1px solid $border;
+    color: $text-secondary;
+    background: transparent;
+    transition: all $transition-fast;
+
+    &:hover {
+      border-color: $color-tag-freeform;
+      color: $color-tag-freeform;
+    }
+  }
+
+  // ── Toggle ───────────────────────────────────
+  &__toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+
+    input[type='checkbox'] {
+      display: none;
+    }
+  }
+
+  &__toggle-track {
+    width: 40px;
+    height: 22px;
+    border-radius: 11px;
+    background: $border;
+    position: relative;
+    flex-shrink: 0;
+    transition: background $transition-base;
+
+    .form__toggle input:checked ~ & {
+      background: $accent;
+    }
+  }
+
+  &__toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: $text-muted;
+    transition: all $transition-base;
+
+    .form__toggle input:checked ~ .form__toggle-track & {
+      left: 21px;
+      background: #fff;
+    }
+  }
+
+  &__toggle-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    span:first-child {
+      font-size: 14px;
+      font-weight: 500;
+      color: $text-primary;
+    }
+  }
+
+  &__toggle-hint {
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  // ── Line items ───────────────────────────────
+  &__line-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__line-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  &__line-item-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: $border;
+    color: $text-muted;
+    font-size: 11px;
+    font-family: $font-mono;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 11px;
+  }
+
+  &__line-item-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__line-item-price-row {
+    display: flex;
+    align-items: center;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color $transition-fast;
+
+    &:focus-within {
+      border-color: $accent;
+    }
+  }
+
+  &__currency-prefix {
+    padding: 0 10px;
+    color: $text-muted;
+    font-family: $font-mono;
+    font-size: 13px;
+    border-right: 1px solid $border;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    background: $bg-card;
+  }
+
+  &__line-item-remove {
+    font-size: 18px;
+    color: $text-muted;
+    padding: 4px;
+    margin-top: 10px;
+    transition: color $transition-fast;
+    flex-shrink: 0;
+
+    &:hover {
+      color: $color-rejected;
+    }
+  }
+
+  &__add-item {
+    font-size: 13px;
+    font-weight: 600;
+    color: $accent;
+    border: 1px dashed $accent;
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    transition: all $transition-fast;
+    background: $accent-dim;
+
+    &:hover {
+      background: rgba(79, 142, 247, 0.18);
+    }
+  }
+
+  &__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 8px;
+  }
+
+  &__total-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-secondary;
+  }
+
+  &__total-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: $text-primary;
+  }
+
+  // ── Dropzone ─────────────────────────────────
+  &__dropzone {
+    border: 2px dashed $border;
+    border-radius: 12px;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:hover {
+      border-color: $accent;
+      background: $accent-dim;
+    }
+  }
+
+  &__dropzone-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-secondary;
+  }
+
+  &__dropzone-hint {
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  &__file-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__file-name {
+    font-size: 13px;
+    color: $text-primary;
+    font-weight: 500;
+  }
+
+  &__file-size {
+    font-size: 11px;
+    color: $text-muted;
+    font-family: $font-mono;
+  }
+
+  &__file-remove {
+    font-size: 18px;
+    color: $text-muted;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $color-rejected;
+    }
+  }
+
+  // ── Review ───────────────────────────────────
+  &--review {
+    gap: 0;
+  }
+}
+
+.review {
+  &__section {
+    padding: 16px 0;
+    border-bottom: 1px solid $border-subtle;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $text-muted;
+    margin-bottom: 12px;
+  }
+
+  &__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  &__label {
+    font-size: 12px;
+    color: $text-secondary;
+    flex-shrink: 0;
+  }
+
+  &__value {
+    font-size: 13px;
+    color: $text-primary;
+    font-weight: 500;
+    text-align: right;
+
+    &--flag {
+      color: $color-pending;
+    }
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13px;
+    color: $text-secondary;
+
+    &--total {
+      border-top: 1px solid $border;
+      padding-top: 10px;
+      margin-top: 2px;
+      color: $text-primary;
+      font-weight: 700;
+      font-size: 15px;
+    }
+  }
+
+  &__item-desc {
+    flex: 1;
+  }
+
+  &__item-num {
+    color: $text-muted;
+    margin-right: 6px;
+    font-family: $font-mono;
+    font-size: 11px;
+  }
+
+  &__item-price {
+    white-space: nowrap;
+    color: $text-primary;
+  }
+
+  &__files {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__file {
+    font-size: 12px;
+    color: $text-secondary;
+    padding: 4px 0;
+  }
+}

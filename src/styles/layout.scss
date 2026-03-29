@@ -1,0 +1,17 @@
+@use 'variables' as *;
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;     // Mobile-first, centered on desktop
+  margin: 0 auto;
+  position: relative;
+}
+
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: $bottom-nav-height;
+  overscroll-behavior: contain;
+}

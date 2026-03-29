@@ -1,0 +1,223 @@
+@use 'variables' as *;
+
+.po-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  overflow: hidden;
+  transition: border-color $transition-base;
+  cursor: pointer;
+
+  &--expanded {
+    border-color: $accent;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 0;
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__number {
+    font-size: 11px;
+    color: $text-secondary;
+    letter-spacing: 0.04em;
+  }
+
+  &__ceo-flag {
+    font-size: 9px;
+    font-family: $font-mono;
+    font-weight: 600;
+    color: $color-pending;
+    border: 1px solid $color-pending;
+    border-radius: 3px;
+    padding: 1px 4px;
+    letter-spacing: 0.06em;
+  }
+
+  &__chevron {
+    color: $text-muted;
+    display: flex;
+    align-items: center;
+    transition: color $transition-fast;
+
+    .po-card--expanded & {
+      color: $accent;
+    }
+  }
+
+  &__title {
+    padding: 6px 14px 4px;
+    font-size: 15px;
+    font-weight: 600;
+    color: $text-primary;
+    line-height: 1.3;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px 12px;
+    flex-wrap: wrap;
+  }
+
+  &__dept {
+    font-size: 11px;
+    color: $text-secondary;
+    background: $border;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+
+  &__date {
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__total {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    margin-left: auto;
+  }
+
+  // ── Expanded body ────────────────────────────
+  &__body {
+    border-top: 1px solid $border-subtle;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__description {
+    font-size: 13px;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+
+  &__section-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $text-muted;
+    margin-bottom: 8px;
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: $text-secondary;
+
+    &--total {
+      border-top: 1px solid $border;
+      padding-top: 8px;
+      margin-top: 2px;
+      color: $text-primary;
+      font-weight: 600;
+    }
+  }
+
+  &__item-price {
+    color: $text-primary;
+    white-space: nowrap;
+    margin-left: 12px;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  // ── CEO actions ──────────────────────────────
+  &__actions {
+    display: flex;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  &__action-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all $transition-fast;
+
+    &--approve {
+      background: rgba(34, 197, 94, 0.12);
+      color: $color-approved;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+
+      &:hover {
+        background: rgba(34, 197, 94, 0.2);
+      }
+    }
+
+    &--reject {
+      background: rgba(239, 68, 68, 0.1);
+      color: $color-rejected;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+
+      &:hover {
+        background: rgba(239, 68, 68, 0.18);
+      }
+    }
+  }
+
+  // ─── Additions to po-card.scss ───────────────────────────────────────────────
+// Paste these inside the .po-card { } block, alongside the existing rules.
+
+  // Trimmed description in expanded summary (2 lines max)
+  &__description--trimmed {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  // View Full Details button
+  &__view-details {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: $accent;
+    border: 1px solid rgba($accent, 0.25);
+    background: rgba($accent, 0.06);
+    transition: all $transition-fast;
+    margin-top: 4px;
+
+    &:hover {
+      background: rgba($accent, 0.12);
+      border-color: rgba($accent, 0.4);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}

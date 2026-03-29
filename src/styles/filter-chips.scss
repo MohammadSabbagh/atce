@@ -1,0 +1,35 @@
+@use 'variables' as *;
+
+.filter-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  &__chip {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid $border;
+    color: $text-secondary;
+    background: transparent;
+    transition: all $transition-fast;
+    white-space: nowrap;
+
+    &:hover {
+      border-color: $accent;
+      color: $text-primary;
+    }
+
+    &--active {
+      background: $accent-dim;
+      border-color: $accent;
+      color: $accent;
+    }
+  }
+}

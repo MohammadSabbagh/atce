@@ -1,0 +1,352 @@
+@use 'variables' as *;
+
+.ceo-dashboard {
+  padding: 28px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+
+  // ── Header ───────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  &__greeting {
+    font-size: 13px;
+    color: $text-secondary;
+    margin-bottom: 4px;
+  }
+
+  &__name {
+    font-size: 24px;
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1.1;
+  }
+
+  &__role-badge {
+    font-size: 10px;
+    font-weight: 700;
+    font-family: $font-mono;
+    letter-spacing: 0.08em;
+    color: $color-pending;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 6px;
+    padding: 4px 10px;
+    margin-top: 4px;
+  }
+
+  // ── Section ──────────────────────────────────
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: $text-primary;
+  }
+
+  &__section-link {
+    font-size: 12px;
+    font-weight: 500;
+    color: $accent;
+    transition: opacity $transition-fast;
+
+    &:hover { opacity: 0.75; }
+  }
+
+  // ── PO stat cards ─────────────────────────────
+  &__po-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  // ── Dept bars ─────────────────────────────────
+  &__dept-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $card-radius;
+    padding: 16px;
+  }
+
+  // ── ER list ───────────────────────────────────
+  &__er-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__empty {
+    font-size: 13px;
+    color: $text-muted;
+    text-align: center;
+    padding: 24px;
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: $card-radius;
+  }
+}
+
+// ── CEO stat card ─────────────────────────────────
+.ceo-stat-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: default;
+  transition: border-color $transition-fast;
+
+  &--pending {
+    cursor: pointer;
+    border-color: rgba(245, 158, 11, 0.2);
+
+    &:hover {
+      border-color: $color-pending;
+    }
+
+    .ceo-stat-card__icon {
+      background: rgba(245, 158, 11, 0.1);
+      color: $color-pending;
+    }
+
+    .ceo-stat-card__value {
+      color: $color-pending;
+    }
+  }
+
+  &--value {
+    border-color: rgba(79, 142, 247, 0.15);
+
+    .ceo-stat-card__icon {
+      background: $accent-dim;
+      color: $accent;
+    }
+
+    .ceo-stat-card__value {
+      color: $text-primary;
+      font-size: 18px;
+    }
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: $text-muted;
+  }
+
+  &__icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: 11px;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+}
+
+// ── Dept bar ──────────────────────────────────────
+.dept-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__name {
+    font-size: 12px;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+
+  &__value {
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__track {
+    height: 4px;
+    background: $border;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    background: $accent;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+}
+
+// ── ER card ───────────────────────────────────────
+.er-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color $transition-fast;
+
+  &:hover {
+    border-color: $color-fulfilled;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__number {
+    font-size: 10px;
+    color: $text-muted;
+    letter-spacing: 0.04em;
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__dept {
+    font-size: 11px;
+    color: $text-secondary;
+    background: $border;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+
+  &__positions {
+    font-size: 11px;
+    color: $text-secondary;
+  }
+
+  &__salary {
+    font-size: 11px;
+    color: $text-secondary;
+  }
+
+  &__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    align-self: flex-end;
+    font-size: 12px;
+    font-weight: 600;
+    color: $color-fulfilled;
+    transition: opacity $transition-fast;
+
+    &:hover { opacity: 0.75; }
+  }
+}
+
+// ── PO compact card overrides (extends er-card) ───────
+.er-card--po {
+  cursor: pointer;
+  &:active { opacity: 0.85; }
+}
+
+.er-card__ceo-flag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: $font-mono;
+  color: $color-pending;
+  border: 1px solid $color-pending;
+  border-radius: 4px;
+  padding: 1px 5px;
+  opacity: 0.85;
+}
+
+.er-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.er-card__tag {
+  font-size: 0.7rem;
+  font-family: $font-mono;
+  color: $color-tag-freeform;
+  background: rgba($color-tag-freeform, 0.1);
+  border: 1px solid rgba($color-tag-freeform, 0.25);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.er-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  justify-content: flex-end;
+}
+
+.er-card__action-btn {
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: $font-ui;
+  transition: opacity $transition-fast;
+
+  &:active { opacity: 0.7; }
+
+  &--reject {
+    background: rgba($color-rejected, 0.15);
+    color: $color-rejected;
+    border: 1px solid rgba($color-rejected, 0.3);
+  }
+
+  &--approve {
+    background: $color-approved;
+    color: #000;
+  }
+}

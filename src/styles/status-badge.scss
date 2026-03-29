@@ -1,0 +1,34 @@
+@use 'variables' as *;
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: $font-mono;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+
+  &--pending {
+    color: $color-pending;
+    background: rgba(245, 158, 11, 0.12);
+  }
+  &--approved {
+    color: $color-approved;
+    background: rgba(34, 197, 94, 0.12);
+  }
+  &--rejected {
+    color: $color-rejected;
+    background: rgba(239, 68, 68, 0.1);
+  }
+  &--fulfilled {
+    color: $color-fulfilled;
+    background: rgba(168, 85, 247, 0.12);
+  }
+  &--open {
+    color: $color-open;
+    background: rgba(59, 130, 246, 0.12);
+  }
+}

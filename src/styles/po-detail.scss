@@ -1,0 +1,457 @@
+// styles/po-detail.scss
+@use 'variables' as *;
+
+.po-detail {
+  min-height: 100dvh;
+  background: $bg-base;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+
+  // ── Header ──────────────────────────────────────────────
+  &__header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(6, 8, 13, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid $border;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid $border;
+    background: transparent;
+    color: $text-secondary;
+    flex-shrink: 0;
+    transition: all $transition-fast;
+
+    &:hover {
+      border-color: rgba(255,255,255,0.15);
+      color: $text-primary;
+    }
+  }
+
+  &__header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__po-number {
+    font-family: $font-mono;
+    font-size: 11px;
+    color: $text-muted;
+    letter-spacing: 0.05em;
+  }
+
+  &__header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // ── Content ─────────────────────────────────────────────
+  &__content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  // ── Cards / sections ────────────────────────────────────
+  &__card {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $card-radius;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  &__section-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $text-muted;
+    margin-bottom: 8px;
+  }
+
+  // ── Overview card ────────────────────────────────────────
+  &__overview-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1.3;
+    flex: 1;
+  }
+
+  &__meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &__meta-chip {
+    font-size: 11px;
+    color: $text-secondary;
+    background: $border;
+    border-radius: 5px;
+    padding: 3px 8px;
+  }
+
+  &__meta-date {
+    font-family: $font-mono;
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__ceo-flag {
+    font-size: 10px;
+    font-family: $font-mono;
+    font-weight: 600;
+    color: $color-pending;
+    border: 1px solid $color-pending;
+    border-radius: 4px;
+    padding: 2px 6px;
+    letter-spacing: 0.06em;
+  }
+
+  &__description {
+    font-size: 13px;
+    color: $text-secondary;
+    line-height: 1.6;
+  }
+
+  &__creator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: $text-muted;
+
+    strong {
+      color: $text-secondary;
+      font-weight: 500;
+    }
+  }
+
+  // ── Line items ────────────────────────────────────────────
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: $text-secondary;
+    padding: 8px 0;
+    border-bottom: 1px solid $border-subtle;
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+  }
+
+  &__item-desc {
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  &__item-price {
+    font-family: $font-mono;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+  }
+
+  &__total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid $border;
+    margin-top: 4px;
+  }
+
+  &__total-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-secondary;
+  }
+
+  &__total-value {
+    font-family: $font-mono;
+    font-size: 18px;
+    font-weight: 700;
+    color: $text-primary;
+    letter-spacing: -0.5px;
+  }
+
+  // ── Tags ──────────────────────────────────────────────────
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  // ── Attachments ───────────────────────────────────────────
+  &__attachments {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__attachment {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid $border-subtle;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: border-color $transition-fast;
+
+    &:hover {
+      border-color: rgba(255,255,255,0.12);
+    }
+  }
+
+  &__attachment-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  &__attachment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__attachment-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__attachment-size {
+    font-family: $font-mono;
+    font-size: 10px;
+    color: $text-muted;
+  }
+
+  &__attachment-arrow {
+    color: $text-muted;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  &__no-attachments {
+    font-size: 13px;
+    color: $text-muted;
+    font-style: italic;
+  }
+
+  // ── Audit trail (Finance) ────────────────────────────────
+  &__audit {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  &__audit-item {
+    display: flex;
+    gap: 12px;
+    position: relative;
+    padding-bottom: 16px;
+
+    &:last-child {
+      padding-bottom: 0;
+
+      .po-detail__audit-line {
+        display: none;
+      }
+    }
+  }
+
+  &__audit-dot-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 16px;
+  }
+
+  &__audit-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid $border;
+    background: $bg-card;
+    flex-shrink: 0;
+    margin-top: 3px;
+    position: relative;
+    z-index: 1;
+
+    &--created  { border-color: #6366f1; background: rgba(99,102,241,0.2); }
+    &--approved { border-color: $color-approved; background: rgba(34,197,94,0.15); }
+    &--rejected { border-color: $color-rejected; background: rgba(239,68,68,0.15); }
+    &--submitted { border-color: $color-pending; background: rgba(245,158,11,0.15); }
+  }
+
+  &__audit-line {
+    width: 1px;
+    flex: 1;
+    background: $border-subtle;
+    margin-top: 4px;
+  }
+
+  &__audit-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 1px;
+  }
+
+  &__audit-action {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    text-transform: capitalize;
+  }
+
+  &__audit-by {
+    font-size: 12px;
+    color: $text-muted;
+  }
+
+  &__audit-time {
+    font-family: $font-mono;
+    font-size: 10px;
+    color: $text-muted;
+    margin-top: 2px;
+  }
+
+  // ── Bottom action bar (CEO) ───────────────────────────────
+  &__action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: rgba(6, 8, 13, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid $border;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 10px;
+  }
+
+  &__action-btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all $transition-fast;
+
+    &--approve {
+      background: rgba(34, 197, 94, 0.12);
+      color: $color-approved;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+
+      &:hover { background: rgba(34, 197, 94, 0.2); }
+      &:active { transform: scale(0.98); }
+    }
+
+    &--reject {
+      background: rgba(239, 68, 68, 0.1);
+      color: $color-rejected;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+
+      &:hover { background: rgba(239, 68, 68, 0.18); }
+      &:active { transform: scale(0.98); }
+    }
+  }
+
+  // ── Decided state (after CEO acts) ───────────────────────
+  &__decided {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    width: 100%;
+
+    &--approved {
+      background: rgba(34, 197, 94, 0.08);
+      color: $color-approved;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    &--rejected {
+      background: rgba(239, 68, 68, 0.08);
+      color: $color-rejected;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+  }
+
+  // ── Not found ─────────────────────────────────────────────
+  &__not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60dvh;
+    gap: 12px;
+    color: $text-muted;
+    font-size: 14px;
+    text-align: center;
+    padding: 24px;
+  }
+}
