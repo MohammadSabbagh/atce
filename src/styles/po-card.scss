@@ -86,7 +86,7 @@
     font-size: 13px;
     font-weight: 600;
     color: $text-primary;
-    margin-left: auto;
+    margin-right: auto;
   }
 
   // ── Expanded body ────────────────────────────
@@ -138,7 +138,7 @@
   &__item-price {
     color: $text-primary;
     white-space: nowrap;
-    margin-left: 12px;
+    margin-right: 12px;
   }
 
   &__tags {

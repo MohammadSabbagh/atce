@@ -1,45 +1,100 @@
-import { useState, useMemo } from 'react'
-import { MOCK_PURCHASE_ORDERS } from '@/lib/mockData'
+// src/features/po/hooks/usePOList.js
+
+import { useState, useEffect, useMemo } from 'react'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
 const ALL = 'all'
 
+const PO_SELECT = `
+  id,
+  po_number,
+  title,
+  description,
+  date,
+  department,
+  requires_ceo,
+  status,
+  total,
+  created_at,
+  approved_at,
+  released_at,
+  created_by,
+  creator:profiles!created_by(full_name),
+  tags:po_tags(tag),
+  line_items:po_line_items(id, description, price, sort_order)
+`
+
 export function usePOList() {
   const { profile, role } = useAuth()
+  const [allPOs, setAllPOs]       = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [error, setError]         = useState(null)
   const [statusFilter, setStatusFilter] = useState(ALL)
-  const [deptFilter, setDeptFilter] = useState(ALL)
-  const [expandedId, setExpandedId] = useState(null)
+  const [deptFilter, setDeptFilter]     = useState(ALL)
+  const [expandedId, setExpandedId]     = useState(null)
 
-  // Role-aware base set
-  const basePOs = useMemo(() => {
-    switch (role) {
-      case 'purchase_manager':
-      case 'secretary':
-        return MOCK_PURCHASE_ORDERS.filter(
-          (po) => po.created_by === profile.id
-        )
-      case 'ceo':
-        return MOCK_PURCHASE_ORDERS.filter((po) => po.requires_ceo)
-      case 'finance':
-        return MOCK_PURCHASE_ORDERS
-      default:
-        return []
+  useEffect(() => {
+    if (!profile?.id || !role) return
+    fetchPOs()
+  }, [profile?.id, role])
+
+  async function fetchPOs() {
+    setLoading(true)
+    setError(null)
+
+    try {
+      let query = supabase
+        .from('purchase_orders')
+        .select(PO_SELECT)
+        .order('created_at', { ascending: false })
+
+      // Role-aware server-side filtering
+      switch (role) {
+        case 'purchase_manager':
+        case 'secretary':
+          // RLS handles access — both roles see all POs
+          break
+        case 'ceo':
+          // CEO sees all POs — requires_ceo filter only applies in the approvals queue
+          break
+        case 'finance':
+          // Finance sees all — no filter
+          break
+        default:
+          setAllPOs([])
+          setLoading(false)
+          return
+      }
+
+      const { data, error: fetchError } = await query
+      if (fetchError) throw fetchError
+        setAllPOs((data ?? []).map(po => ({
+          ...po,
+          tags: po.tags?.map(t => typeof t === 'string' ? t : t.tag) ?? []
+        })))
+
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
-  }, [role, profile?.id])
+  }
 
+  // Client-side filter chips
   const filtered = useMemo(() => {
-    return basePOs.filter((po) => {
+    return allPOs.filter((po) => {
       const statusMatch = statusFilter === ALL || po.status === statusFilter
-      const deptMatch = deptFilter === ALL || po.department === deptFilter
+      const deptMatch   = deptFilter === ALL   || po.department === deptFilter
       return statusMatch && deptMatch
     })
-  }, [basePOs, statusFilter, deptFilter])
+  }, [allPOs, statusFilter, deptFilter])
 
-  // Departments present in current base set (for filter chips)
+  // Departments present in the current role's base set
   const availableDepts = useMemo(() => {
-    const depts = [...new Set(basePOs.map((po) => po.department))]
+    const depts = [...new Set(allPOs.map((po) => po.department))]
     return depts.sort()
-  }, [basePOs])
+  }, [allPOs])
 
   const toggleExpand = (id) => {
     setExpandedId((prev) => (prev === id ? null : id))
@@ -47,12 +102,13 @@ export function usePOList() {
 
   return {
     pos: filtered,
+    loading,
+    error,
     expandedId,
     toggleExpand,
-    statusFilter,
-    setStatusFilter,
-    deptFilter,
-    setDeptFilter,
+    statusFilter, setStatusFilter,
+    deptFilter,   setDeptFilter,
     availableDepts,
+    refetch: fetchPOs,
   }
 }

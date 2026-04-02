@@ -1,238 +1,198 @@
-// features/finance/FinanceDashboard.jsx
+import { useFinancePOs } from './hooks/useFinancePOs'
+import { S } from '@/lib/strings'
+import StatCard from '@/components/ui/StatCard'
+import NavIcon from '@/components/layout/NavIcon'
+import StatusBadge from '@/components/ui/StatusBadge'
+import { formatCurrency, formatDate } from '@/lib/utils'
+import '@/styles/finance-dashboard.scss'
 
-import { useFinancePOs } from './hooks/useFinancePOs';
-import styles from './FinanceDashboard.module.scss';
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const fmt = (n) =>
-  '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-
-const fmtTime = (date) =>
-  date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-const fmtDate = (iso) =>
-  new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-function LiveChip({ lastUpdate }) {
-  return (
-    <div className={styles.liveChip}>
-      <span className={styles.liveDot} />
-      LIVE
-    </div>
-  );
-}
-
-function StatCard({ label, value, sub, modifier, badge }) {
-  return (
-    <div className={`${styles.statCard} ${modifier ? styles[modifier] : ''}`}>
-      <span className={styles.statLabel}>{label}</span>
-      <span className={styles.statValue}>{value}</span>
-      {badge && <span className={`${styles.statBadge} ${styles[badge.cls]}`}>{badge.text}</span>}
-      {sub && <span className={styles.statSub}>{sub}</span>}
-    </div>
-  );
-}
-
-function DeptBar({ dept, value, approved, count, maxValue }) {
-  const fillPct = maxValue > 0 ? (value / maxValue) * 100 : 0;
-  const approvedPct = value > 0 ? (approved / value) * 100 : 0;
-
-  return (
-    <div className={styles.deptRow}>
-      <div className={styles.deptMeta}>
-        <span className={styles.deptName}>{dept}</span>
-        <span className={styles.deptTotal}>{fmt(value)}</span>
-      </div>
-      <div className={styles.deptBarTrack}>
-        <div className={styles.deptBarFill} style={{ width: `${fillPct}%` }} />
-        <div
-          className={styles.deptBarApproved}
-          style={{ width: `${fillPct * (approvedPct / 100)}%` }}
-        />
-      </div>
-      <span className={styles.deptCount}>{count} order{count !== 1 ? 's' : ''}</span>
-    </div>
-  );
-}
-
-function POCard({ po }) {
-  const tags = po.tags ?? [];
-  return (
-    <div className={`${styles.poCard} ${styles[`poCard--${po.status}`]}`}>
-      <div className={styles.poCardTop}>
-        <div className={styles.poCardLeft}>
-          <span className={styles.poNumber}>{po.po_number}</span>
-          <span className={styles.poTitle}>{po.title}</span>
-        </div>
-        <span className={`${styles.statusBadge} ${styles[`statusBadge--${po.status}`]}`}>
-          {po.status}
-        </span>
-      </div>
-
-      <div className={styles.poCardMeta}>
-        <div className={styles.poMeta}>
-          <span>{po.department}</span>
-          <span className={styles.metaDot} />
-          <span>{fmtDate(po.date)}</span>
-          {po.creator?.full_name && (
-            <>
-              <span className={styles.metaDot} />
-              <span>{po.creator.full_name}</span>
-            </>
-          )}
-        </div>
-        <span className={styles.poTotal}>{fmt(po.total)}</span>
-      </div>
-
-      {(tags.length > 0 || po.requires_ceo) && (
-        <div className={styles.poTags}>
-          {po.requires_ceo && (
-            <span className={styles.ceoFlag}>⚑ CEO</span>
-          )}
-          {tags.map((t) => (
-            <span key={t.tag} className={styles.tag}>#{t.tag}</span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── STATUS FILTER CHIPS ──────────────────────────────────────────────────────
 const STATUS_FILTERS = [
-  { value: 'all', label: 'All' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'rejected', label: 'Rejected' },
-];
+  { value: 'all',      label: S.filters.all },
+  { value: 'pending',  label: S.status.pending },
+  { value: 'approved', label: S.status.approved },
+  { value: 'rejected', label: S.status.rejected },
+]
 
-// ─── Main component ───────────────────────────────────────────────────────────
 export default function FinanceDashboard() {
   const {
-    pos, allPos, isLive, lastUpdate,
+    pos, isLive, lastUpdate,
     statusFilter, setStatusFilter,
     deptFilter, setDeptFilter,
     stats, deptBreakdown, maxDeptValue, departments,
-  } = useFinancePOs();
+  } = useFinancePOs()
+
+  const fmtTime = (date) =>
+    date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })
 
   return (
-    <div className={styles.page}>
+    <div className="finance-dashboard">
 
       {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <span className={styles.headerTitle}>Finance Overview</span>
-          <span className={styles.headerSub}>Read-only · All departments</span>
+      <div className="finance-dashboard__header">
+        <div className="finance-dashboard__header-left">
+          <h1 className="finance-dashboard__title">{S.dashboard.financeTitle}</h1>
+          <span className="finance-dashboard__subtitle">
+            {S.finance.readOnly} · {S.finance.allDepts}
+          </span>
         </div>
-        <LiveChip lastUpdate={lastUpdate} />
+        <div className="finance-live-chip">
+          <span className="finance-live-chip__dot" />
+          {S.finance.live}
+        </div>
       </div>
 
-      <div className={styles.content}>
+      <div className="finance-dashboard__content">
 
         {/* Last updated */}
-        <div className={styles.updateBar}>
-          <span className={styles.updateDot} />
-          Updated {fmtTime(lastUpdate)}
+        <div className="finance-dashboard__update-bar">
+          <span className="finance-dashboard__update-dot" />
+          {S.dashboard.updatedAt} {fmtTime(lastUpdate)}
         </div>
 
-        {/* Stats grid */}
-        <div className={styles.statsGrid}>
+        {/* Stat cards */}
+        <div className="finance-dashboard__stats">
           <StatCard
-            label="Total Orders"
+            label={S.stats.totalOrders}
             value={stats.totalCount}
-            modifier="statCard--total"
-            sub={`${stats.rejectedCount} rejected`}
+            variant="neutral"
+            icon={<NavIcon name="list" size={18} />}
           />
           <StatCard
-            label="Total Value"
-            value={fmt(stats.totalValue)}
-            modifier="statCard--value"
-            sub="all statuses"
+            label={S.stats.totalValue}
+            value={formatCurrency(stats.totalValue)}
+            variant="accent"
+            icon={<NavIcon name="activity" size={18} />}
           />
           <StatCard
-            label="Approved"
-            value={fmt(stats.approvedValue)}
-            modifier="statCard--approved"
-            badge={{ cls: 'statBadge--approved', text: '✓ cleared' }}
+            label={S.stats.approved}
+            value={formatCurrency(stats.approvedValue)}
+            variant="approved"
+            icon={<NavIcon name="check-circle" size={18} />}
           />
           <StatCard
-            label="Pending"
-            value={fmt(stats.pendingValue)}
-            modifier="statCard--pending"
-            badge={{ cls: 'statBadge--pending', text: '⏳ awaiting' }}
+            label={S.stats.pending}
+            value={formatCurrency(stats.pendingValue)}
+            variant="pending"
+            icon={<NavIcon name="clock" size={18} />}
           />
         </div>
 
         {/* Department breakdown */}
-        <div className={styles.deptSection}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>By Department</span>
-            <span className={styles.sectionCount}>{deptBreakdown.length} active</span>
+        <div className="finance-dashboard__dept-section">
+          <div className="finance-dashboard__section-header">
+            <span className="finance-dashboard__section-title">{S.dashboard.byDepartment}</span>
+            <span className="finance-dashboard__section-count">
+              {deptBreakdown.length} {S.finance.active}
+            </span>
           </div>
-          {deptBreakdown.map((d) => (
-            <DeptBar
-              key={d.dept}
-              dept={d.dept}
-              value={d.value}
-              approved={d.approved}
-              count={d.count}
-              maxValue={maxDeptValue}
-            />
-          ))}
+          {deptBreakdown.map((d) => {
+            const fillPct = maxDeptValue > 0 ? (d.value / maxDeptValue) * 100 : 0
+            const approvedPct = d.value > 0 ? (d.approved / d.value) * 100 : 0
+            return (
+              <div key={d.dept} className="finance-dept-row">
+                <div className="finance-dept-row__meta">
+                  <span className="finance-dept-row__name">{S.departments[d.dept] ?? d.dept}</span>
+                  <span className="finance-dept-row__total mono">{formatCurrency(d.value)}</span>
+                </div>
+                <div className="finance-dept-row__track">
+                  <div className="finance-dept-row__fill" style={{ width: `${fillPct}%` }} />
+                  <div
+                    className="finance-dept-row__approved"
+                    style={{ width: `${fillPct * (approvedPct / 100)}%` }}
+                  />
+                </div>
+                <span className="finance-dept-row__count">
+                  {d.count} طلب
+                </span>
+              </div>
+            )
+          })}
         </div>
 
         {/* Filters + PO list */}
         <div>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>All Orders</span>
-            <span className={styles.sectionCount}>{pos.length} shown</span>
+          <div className="finance-dashboard__section-header">
+            <span className="finance-dashboard__section-title">{S.nav.allOrders}</span>
+            <span className="finance-dashboard__section-count">
+              {pos.length} {S.finance.ordersShown}
+            </span>
           </div>
 
-          <div className={styles.filtersSection}>
-            {/* Status filter */}
-            <div className={styles.filterRow}>
+          <div className="finance-dashboard__filters">
+            <div className="finance-dashboard__filter-row">
               {STATUS_FILTERS.map((f) => (
                 <button
                   key={f.value}
-                  className={`${styles.chip} ${statusFilter === f.value ? `${styles['chip--active']} ${styles[`chip--${f.value}`]}` : ''}`}
+                  className={`finance-chip${statusFilter === f.value ? ` finance-chip--active finance-chip--${f.value}` : ''}`}
                   onClick={() => setStatusFilter(f.value)}
                 >
                   {f.label}
                 </button>
               ))}
             </div>
-
-            {/* Department filter */}
-            <div className={styles.filterRow}>
+            <div className="finance-dashboard__filter-row">
               <button
-                className={`${styles.chip} ${deptFilter === 'all' ? styles['chip--active'] : ''}`}
+                className={`finance-chip${deptFilter === 'all' ? ' finance-chip--active' : ''}`}
                 onClick={() => setDeptFilter('all')}
               >
-                All Depts
+                {S.filters.allDepts}
               </button>
               {departments.map((d) => (
                 <button
                   key={d}
-                  className={`${styles.chip} ${deptFilter === d ? styles['chip--active'] : ''}`}
+                  className={`finance-chip${deptFilter === d ? ' finance-chip--active' : ''}`}
                   onClick={() => setDeptFilter(d)}
                 >
-                  {d}
+                  {S.departments[d] ?? d}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className={styles.poList} style={{ marginTop: 12 }}>
+          <div className="finance-dashboard__po-list">
             {pos.length === 0 ? (
-              <div className={styles.empty}>No orders match the current filters</div>
+              <div className="finance-dashboard__empty">{S.actions.error}</div>
             ) : (
-              pos.map((po) => <POCard key={po.id} po={po} />)
+              pos.map((po) => (
+                <div key={po.id} className={`finance-po-card finance-po-card--${po.status}`}>
+                  <div className="finance-po-card__top">
+                    <div className="finance-po-card__left">
+                      <span className="finance-po-card__number mono">{po.po_number}</span>
+                      <span className="finance-po-card__title">{po.title}</span>
+                    </div>
+                    <StatusBadge status={po.status} />
+                  </div>
+                  <div className="finance-po-card__meta">
+                    <span>{S.departments[po.department] ?? po.department}</span>
+                    <span className="finance-po-card__dot" />
+                    <span>{formatDate(po.date)}</span>
+                    {po.creator?.full_name && (
+                      <>
+                        <span className="finance-po-card__dot" />
+                        <span>{po.creator.full_name}</span>
+                      </>
+                    )}
+                    <span className="finance-po-card__total mono">{formatCurrency(po.total)}</span>
+                  </div>
+                  {(po.tags?.length > 0 || po.requires_ceo) && (
+                    <div className="finance-po-card__tags">
+                      {po.requires_ceo && (
+                        <span className="finance-po-card__ceo-flag">{S.roles.ceo}</span>
+                      )}
+                      {po.tags?.map((t) => (
+                        <span key={t.tag ?? t} className="finance-po-card__tag">
+                          #{t.tag ?? t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
             )}
           </div>
         </div>
 
       </div>
     </div>
-  );
+  )
 }

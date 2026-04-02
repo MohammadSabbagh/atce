@@ -8,6 +8,7 @@ import Tag from '@/components/ui/Tag'
 import NavIcon from '@/components/layout/NavIcon'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import '@/styles/po-detail.scss'
+import { getFinanceAction } from '@/lib/poStatusConfig'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmtFileSize = (bytes) => {
@@ -31,10 +32,11 @@ const fileIcon = (type) => {
 
 const auditLabel = (action) => {
   const map = {
-    created: 'Order Created',
+    created:   'Order Created',
     submitted: 'Submitted for Review',
-    approved: 'Approved',
-    rejected: 'Rejected',
+    approved:  'Approved',
+    rejected:  'Rejected',
+    released:  'Released',
     fulfilled: 'Fulfilled',
   }
   return map[action] ?? action
@@ -47,14 +49,16 @@ function AuditTrail({ audit }) {
       <span className="po-detail__section-label">Approval Trail</span>
       <div className="po-detail__audit">
         {audit.map((entry, i) => (
-          <div key={i} className="po-detail__audit-item">
+          <div key={entry.id ?? i} className="po-detail__audit-item">
             <div className="po-detail__audit-dot-col">
               <div className={`po-detail__audit-dot po-detail__audit-dot--${entry.action}`} />
-              <div className="po-detail__audit-line" />
+              {i < audit.length - 1 && <div className="po-detail__audit-line" />}
             </div>
             <div className="po-detail__audit-body">
               <span className="po-detail__audit-action">{auditLabel(entry.action)}</span>
-              <span className="po-detail__audit-by">by {entry.performed_by}</span>
+              <span className="po-detail__audit-by">
+                by {entry.actor?.full_name ?? '—'}
+              </span>
               <span className="po-detail__audit-time">{fmtDateTime(entry.created_at)}</span>
             </div>
           </div>
@@ -64,41 +68,38 @@ function AuditTrail({ audit }) {
   )
 }
 
-function CEOActionBar({ status, onApprove, onReject }) {
-  if (status === 'approved') {
+function CEOActionBar({ status, onApprove, onReject, acting }) {
+  if (status === 'approved' || status === 'released') {
     return (
       <div className="po-detail__action-bar">
-        <div className="po-detail__decided po-detail__decided--approved">
-          ✓ Approved
-        </div>
+        <div className="po-detail__decided po-detail__decided--approved">✓ Approved</div>
       </div>
     )
   }
-
   if (status === 'rejected') {
     return (
       <div className="po-detail__action-bar">
-        <div className="po-detail__decided po-detail__decided--rejected">
-          ✕ Rejected
-        </div>
+        <div className="po-detail__decided po-detail__decided--rejected">✕ Rejected</div>
       </div>
     )
   }
-
   return (
     <div className="po-detail__action-bar">
       <button
+        className="po-detail__action-btn po-detail__action-btn--approve"
+        onClick={onApprove}
+        disabled={acting}
+      >
+        {acting ? 'Saving…' : 'Approve'}
+      </button>
+      <button
         className="po-detail__action-btn po-detail__action-btn--reject"
         onClick={onReject}
+        disabled={acting}
       >
         Reject
       </button>
-      <button
-        className="po-detail__action-btn po-detail__action-btn--approve"
-        onClick={onApprove}
-      >
-        Approve
-      </button>
+
     </div>
   )
 }
@@ -106,22 +107,36 @@ function CEOActionBar({ status, onApprove, onReject }) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function PODetail() {
   const navigate = useNavigate()
-  const { role } = useAuth()
-  const { po, approvePO, rejectPO } = usePODetail()
+  const { profile } = useAuth()
+  const role = profile?.role
 
-  const isCEO = role === 'ceo'
+  // ✅ releasePO added, acting added
+  const { po, loading, error, acting, approvePO, rejectPO, releasePO } = usePODetail()
+
+  const isCEO     = role === 'ceo'
   const isFinance = role === 'finance'
-  const showActionBar = isCEO
 
-  if (!po) {
+  const financeAction = po ? getFinanceAction(po) : null
+
+  // ✅ Show loading state while fetch is in-flight
+  if (loading) {
+    return (
+      <div className="po-detail">
+        <div className="po-detail__loading">Loading…</div>
+      </div>
+    )
+  }
+
+  // ✅ Only show error/not-found after loading completes
+  if (error || !po) {
     return (
       <div className="po-detail">
         <div className="po-detail__not-found">
           <span style={{ fontSize: 32 }}>🔍</span>
-          <p>Purchase order not found.</p>
+          <p>{error ?? 'Purchase order not found.'}</p>
           <button
             onClick={() => navigate(-1)}
-            style={{ color: 'var(--color-accent)', fontSize: 13, marginTop: 8 }}
+            className="po-detail__back-link"
           >
             ← Go back
           </button>
@@ -136,7 +151,7 @@ export default function PODetail() {
       {/* ── Sticky header ── */}
       <div className="po-detail__header">
         <button className="po-detail__back" onClick={() => navigate(-1)}>
-          <NavIcon name="chevron-left" size={16} />
+          <NavIcon name="chevron-right" size={16} />
         </button>
         <div className="po-detail__header-info">
           <span className="po-detail__po-number mono">{po.po_number}</span>
@@ -167,7 +182,8 @@ export default function PODetail() {
 
           <div className="po-detail__creator">
             <NavIcon name="user" size={13} />
-            <span>Created by <strong>{po.created_by}</strong></span>
+            {/* ✅ Use joined profile name, not raw UUID */}
+            <span>Created by <strong>{po.creator?.full_name ?? '—'}</strong></span>
           </div>
         </div>
 
@@ -175,7 +191,7 @@ export default function PODetail() {
         <div className="po-detail__card">
           <span className="po-detail__section-label">Line Items</span>
           <div className="po-detail__items">
-            {po.line_items.map((item) => (
+            {po.line_items?.map((item) => (
               <div key={item.id} className="po-detail__item">
                 <span className="po-detail__item-desc">{item.description}</span>
                 <span className="po-detail__item-price mono">
@@ -197,8 +213,8 @@ export default function PODetail() {
           <div className="po-detail__card">
             <span className="po-detail__section-label">Tags</span>
             <div className="po-detail__tags">
-              {po.tags.map((tag) => (
-                <Tag key={tag} label={tag} />
+              {po.tags.map((t) => (
+                <Tag key={t.tag} label={t.tag} />
               ))}
             </div>
           </div>
@@ -235,20 +251,34 @@ export default function PODetail() {
           )}
         </div>
 
-        {/* ── Audit trail (Finance only) ── */}
-        {isFinance && po.audit?.length > 0 && (
+        {/* ── Audit trail (Finance + CEO) ── */}
+        {(isFinance || isCEO) && po.audit?.length > 0 && (
           <AuditTrail audit={po.audit} />
         )}
 
       </div>
 
       {/* ── CEO bottom action bar ── */}
-      {showActionBar && (
+      {isCEO && (
         <CEOActionBar
           status={po.status}
           onApprove={approvePO}
           onReject={rejectPO}
+          acting={acting}
         />
+      )}
+
+      {/* ── Finance bottom action bar ── */}
+      {isFinance && financeAction && (
+        <div className="po-detail__action-bar">
+          <button
+            className="po-detail__action-btn po-detail__action-btn--approve"
+            onClick={releasePO}
+            disabled={acting}
+          >
+            {acting ? 'Saving…' : financeAction.label}
+          </button>
+        </div>
       )}
 
     </div>

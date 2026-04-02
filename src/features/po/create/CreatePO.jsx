@@ -11,7 +11,7 @@ const STEP_LABELS = ['Details', 'Line Items', 'Attachments', 'Review']
 
 export default function CreatePO() {
   const wizard = useCreatePO()
-  const { step, submitted } = wizard
+  const { step, submitted, submitting, submitError } = wizard
 
   if (submitted) return <SubmitSuccess onDone={wizard.handleDone} />
 
@@ -29,9 +29,17 @@ export default function CreatePO() {
         {step === 4 && <Step4Review wizard={wizard} />}
       </div>
 
+      {submitError && (
+        <div className="create-po__error">{submitError}</div>
+      )}
+
       <div className="create-po__footer">
         {step > 1 && (
-          <button className="create-po__btn-back" onClick={wizard.goBack}>
+          <button
+            className="create-po__btn-back"
+            onClick={wizard.goBack}
+            disabled={submitting}
+          >
             Back
           </button>
         )}
@@ -47,8 +55,9 @@ export default function CreatePO() {
           <button
             className="create-po__btn-submit"
             onClick={wizard.handleSubmit}
+            disabled={submitting}
           >
-            Submit PO
+            {submitting ? 'Submitting…' : 'Submit PO'}
           </button>
         )}
       </div>

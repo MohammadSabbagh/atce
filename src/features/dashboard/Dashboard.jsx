@@ -5,6 +5,8 @@ import CEODashboard from './CEODashboard'
 export default function Dashboard() {
   const { role } = useAuth()
 
+  if (!role) return null
+
   switch (role) {
     case 'purchase_manager':
     case 'secretary':

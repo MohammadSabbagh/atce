@@ -80,6 +80,9 @@ const icons = {
   'chevron-right': (
     <polyline points="9 18 15 12 9 6" />
   ),
+  'chevron-left': (
+    <polyline points="15 18 9 12 15 6" />
+  ),
 }
 
 export default function NavIcon({ name, size = 22 }) {

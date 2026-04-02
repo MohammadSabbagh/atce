@@ -120,7 +120,7 @@
     transition: all $transition-fast;
 
     &:hover {
-      background: lighten(#4F8EF7, 5%);
+      background: $accent-hover;
     }
   }
 }

@@ -3,32 +3,34 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
-  font-family: $font-mono;
-  letter-spacing: 0.05em;
-  padding: 2px 7px;
-  border-radius: 4px;
-  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 5px;
 
   &--pending {
     color: $color-pending;
-    background: rgba(245, 158, 11, 0.12);
+    background: rgba($color-pending, 0.1);
+    border: 1px solid rgba($color-pending, 0.2);
   }
   &--approved {
     color: $color-approved;
-    background: rgba(34, 197, 94, 0.12);
+    background: rgba($color-approved, 0.1);
+    border: 1px solid rgba($color-approved, 0.2);
   }
   &--rejected {
     color: $color-rejected;
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba($color-rejected, 0.08);
+    border: 1px solid rgba($color-rejected, 0.18);
   }
   &--fulfilled {
     color: $color-fulfilled;
-    background: rgba(168, 85, 247, 0.12);
+    background: rgba($color-fulfilled, 0.08);
+    border: 1px solid rgba($color-fulfilled, 0.2);
   }
   &--open {
     color: $color-open;
-    background: rgba(59, 130, 246, 0.12);
+    background: rgba($color-open, 0.08);
+    border: 1px solid rgba($color-open, 0.2);
   }
 }

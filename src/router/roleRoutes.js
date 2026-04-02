@@ -1,42 +1,36 @@
+import { S } from '@/lib/strings'
+
 // Defines which tabs each role sees in the bottom nav
 // icon: uses a string name — map to your icon component in BottomNav
 
 export const ROLE_ROUTES = {
   purchase_manager: [
-    { path: '/dashboard', label: 'Dashboard', icon: 'home' },
-    { path: '/po/create', label: 'Create PO', icon: 'plus' },
-    { path: '/po/list', label: 'Orders', icon: 'list' },
-    { path: '/hr/employees', label: 'Employees', icon: 'users' },
-    { path: '/hr/requests/my', label: 'My Requests', icon: 'file-text' },
+    { path: '/dashboard', label: S.nav.dashboard, icon: 'home' },
+    { path: '/po/list',   label: S.nav.orders,    icon: 'list' },
   ],
   secretary: [
-    { path: '/dashboard', label: 'Dashboard', icon: 'home' },
-    { path: '/po/create', label: 'Create PO', icon: 'plus' },
-    { path: '/po/list', label: 'Orders', icon: 'list' },
+    { path: '/dashboard', label: S.nav.dashboard, icon: 'home' },
+    { path: '/po/list',   label: S.nav.orders,    icon: 'list' },
   ],
   hr: [
-    { path: '/hr/dashboard', label: 'Dashboard', icon: 'home' },
-    { path: '/hr/employees', label: 'Employees', icon: 'users' },
-    { path: '/hr/requests/fulfill', label: 'Requests', icon: 'check-square' },
+    { path: '/hr/dashboard', label: S.nav.dashboard, icon: 'home' },
+    { path: '/po/list',      label: S.nav.orders,    icon: 'list' },
   ],
   ceo: [
-    { path: '/dashboard',     label: 'Dashboard', icon: 'home'       },
-    { path: '/po/list',       label: 'All POs',   icon: 'list'       },
-    { path: '/hr/org-chart',  label: 'Org Chart', icon: 'git-branch' },
+    { path: '/dashboard', label: S.nav.dashboard, icon: 'home' },
+    { path: '/po/list',   label: S.nav.allPOs,    icon: 'list' },
   ],
   finance: [
-    { path: '/finance/dashboard', label: 'Live', icon: 'activity' },
-    { path: '/po/list', label: 'All Orders', icon: 'list' },
-    { path: '/hr/org-chart', label: 'Org Chart', icon: 'git-branch' },
-    { path: '/hr/approvals', label: 'HR Approvals', icon: 'user-check' },
+    { path: '/finance/dashboard', label: S.nav.dashboard, icon: 'home' },
+    { path: '/po/list',           label: S.nav.allOrders, icon: 'list' },
   ],
 }
 
 // Default landing path per role
 export const ROLE_HOME = {
   purchase_manager: '/dashboard',
-  secretary: '/dashboard',
-  hr: '/hr/dashboard',
-  ceo: '/dashboard',
-  finance: '/finance/dashboard',
+  secretary:        '/dashboard',
+  hr:               '/hr/dashboard',
+  ceo:              '/dashboard',
+  finance:          '/finance/dashboard',
 }

@@ -11,7 +11,7 @@
     position: sticky;
     top: 0;
     z-index: 20;
-    background: rgba(6, 8, 13, 0.88);
+    //background: rgba(6, 8, 13, 0.88);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid $border;
@@ -35,7 +35,7 @@
     transition: all $transition-fast;
 
     &:hover {
-      border-color: rgba(255,255,255,0.15);
+      border-color: $border;
       color: $text-primary;
     }
   }
@@ -236,19 +236,15 @@
     gap: 8px;
   }
 
+  // ── Attachments ───────────────────────────────────────
   &__attachment {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: rgba(255,255,255,0.03);
+    // ...
+    background: $bg-card;        // ← was rgba(255,255,255,0.03)
     border: 1px solid $border-subtle;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: border-color $transition-fast;
+    // ...
 
     &:hover {
-      border-color: rgba(255,255,255,0.12);
+      border-color: $border;     // ← was rgba(255,255,255,0.12)
     }
   }
 
@@ -374,13 +370,14 @@
   }
 
   // ── Bottom action bar (CEO) ───────────────────────────────
+  // ── Bottom action bar ────────────────────────────────
   &__action-bar {
     position: fixed;
-    bottom: 0;
+    bottom: 64px;
     left: 0;
     right: 0;
     z-index: 30;
-    background: rgba(6, 8, 13, 0.95);
+    background: $bg-base;        // ← was rgba(6, 8, 13, 0.95)
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-top: 1px solid $border;
@@ -454,4 +451,16 @@
     text-align: center;
     padding: 24px;
   }
+
+  &__audit-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  
+    &--created  { background: $accent; border: 2px solid $accent; }
+    &--approved { background: $color-approved; border: 2px solid $color-approved; }
+    &--rejected { background: $color-rejected; border: 2px solid $color-rejected; }
+  }
 }
+

@@ -1,0 +1,141 @@
+@use 'variables' as *;
+
+.stat-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  padding: 20px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  text-align: right;
+
+  // Colored top stripe
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 3px;
+    border-radius: $card-radius $card-radius 0 0;
+    background: $border;
+  }
+
+  // ── Icon ───────────────────────────────────────────
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-bottom: 4px;
+  }
+
+  // ── Value ──────────────────────────────────────────
+  &__value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    color: $text-primary;
+    letter-spacing: -0.5px;
+  }
+
+  // ── Label ──────────────────────────────────────────
+  &__label {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-secondary;
+  }
+
+  // ── Tappable chevron (RTL: points left = ‹) ────────
+  &__chevron {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: $text-muted;
+    line-height: 1;
+  }
+
+  // ── Tappable state ─────────────────────────────────
+  &--tappable {
+    cursor: pointer;
+    transition: border-color $transition-base, box-shadow $transition-base;
+
+    &:hover {
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    }
+
+    &:active {
+      opacity: 0.85;
+    }
+  }
+
+  // ── Variants ───────────────────────────────────────
+  &--pending {
+    border-color: rgba($color-pending, 0.25);
+
+    &::before { background: $color-pending; }
+
+    .stat-card__icon {
+      background: rgba($color-pending, 0.1);
+      color: $color-pending;
+    }
+
+    .stat-card__value { color: $color-pending; }
+  }
+
+  &--approved {
+    border-color: rgba($color-approved, 0.25);
+
+    &::before { background: $color-approved; }
+
+    .stat-card__icon {
+      background: rgba($color-approved, 0.1);
+      color: $color-approved;
+    }
+
+    .stat-card__value { color: $color-approved; }
+  }
+
+  &--rejected {
+    border-color: rgba($color-rejected, 0.2);
+
+    &::before { background: $color-rejected; }
+
+    .stat-card__icon {
+      background: rgba($color-rejected, 0.08);
+      color: $color-rejected;
+    }
+
+    .stat-card__value { color: $color-rejected; }
+  }
+
+  &--accent {
+    border-color: rgba($accent, 0.2);
+
+    &::before { background: $accent; }
+
+    .stat-card__icon {
+      background: $accent-dim;
+      color: $accent;
+    }
+
+    .stat-card__value { color: $accent; }
+  }
+
+  &--neutral {
+    &::before { background: $border; }
+
+    .stat-card__icon {
+      background: $bg-base;
+      color: $text-secondary;
+    }
+  }
+}

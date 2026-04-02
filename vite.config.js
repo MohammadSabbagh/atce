@@ -22,5 +22,12 @@ export default defineConfig({
   ],
   resolve: {
     alias: { '@': '/src' }
-  }
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ['legacy-js-api', 'global-builtin', 'color-functions'],
+      },
+    },
+  },
 })

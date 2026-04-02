@@ -1,31 +1,32 @@
 // ─── Color Tokens ───────────────────────────────────
-$bg-base:       #06080D;
-$bg-card:       #111621;
-$bg-card-hover: #171E2E;
-$border:        #1E2433;
-$border-subtle: #141824;
+$bg-base:       #F5F6FA;
+$bg-card:       #FFFFFF;
+$bg-card-hover: #F0F2F8;
+$border:        #E2E6F0;
+$border-subtle: #EDF0F7;
 
-$text-primary:   #F0F4FF;
-$text-secondary: #7A8399;
-$text-muted:     #3D4560;
+$text-primary:   #0F1623;
+$text-secondary: #5A6478;
+$text-muted:     #9AA3B5;
 
 // Status
-$color-pending:   #F59E0B;
-$color-approved:  #22C55E;
-$color-rejected:  #EF4444;
-$color-fulfilled: #A855F7;
-$color-open:      #3B82F6;
+$color-pending:   #D97706;
+$color-approved:  #16A34A;
+$color-rejected:  #DC2626;
+$color-fulfilled: #7C3AED;
+$color-open:      #2563EB;
 
 // Tag colors
-$color-tag-freeform: #06B6D4;
-$color-tag-skill:    #A855F7;
+$color-tag-freeform: #0891B2;
+$color-tag-skill:    #7C3AED;
 
 // Accent
-$accent:         #4F8EF7;
-$accent-dim:     rgba(79, 142, 247, 0.12);
+$accent:         #2563EB;
+$accent-dim:     rgba(37, 99, 235, 0.08);
+$accent-hover:   #1D4ED8;
 
 // ─── Typography ──────────────────────────────────────
-$font-ui:   'Outfit', sans-serif;
+$font-ui:   'Tajawal', sans-serif;
 $font-mono: 'JetBrains Mono', monospace;
 
 // ─── Spacing ─────────────────────────────────────────
