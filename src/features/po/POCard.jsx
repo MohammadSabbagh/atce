@@ -82,7 +82,7 @@ export default function POCard({ po, isExpanded, onToggle }) {
           {/* View full details */}
           <button className="po-card__view-details" onClick={handleViewDetails}>
             {S.viewDetails}
-            <NavIcon name="arrow-left" size={14} />
+            {/* <NavIcon name="arrow-left" size={14} /> */}
           </button>
         </div>
       )}

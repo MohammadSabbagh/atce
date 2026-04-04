@@ -23,14 +23,17 @@ export function AuthProvider({ children }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        setSession(session)
-        // When session changes (e.g. sign out), reset profileReady
-        // so loading gate re-engages until profile resolves
-        if (!session) {
-          setProfileReady(true) // no session = no profile needed, ready immediately
-        } else {
-          setProfileReady(false) // new session = need to re-fetch profile
-        }
+        setSession(prev => {
+          // Only reset profileReady if the user identity changed
+          if (session?.user?.id !== prev?.user?.id) {
+            if (!session) {
+              setProfileReady(true)
+            } else {
+              setProfileReady(false)
+            }
+          }
+          return session
+        })
       }
     )
 

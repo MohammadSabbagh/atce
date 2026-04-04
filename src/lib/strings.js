@@ -77,6 +77,9 @@ export const S = {
   filterCeoPending:'يتطلب موافقة',
   viewDetails:   'عرض التفاصيل',
   noResults:     'لا توجد نتائج',
+  filters:        'تصفية',
+  filterDateFrom: 'من تاريخ',
+  filterDateTo:   'إلى تاريخ',
 
   // ── PO Detail ────────────────────────────
   poDetails:     'تفاصيل الطلب',

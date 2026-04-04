@@ -282,10 +282,13 @@ export default function PODetail() {
         <button className="po-detail__back" onClick={() => navigate(-1)}>
           <NavIcon name="chevron-right" size={16} />
         </button>
+        <span className="po-detail__header-title">{po.title}</span>
+        
+          
         <div className="po-detail__header-info">
-          <span className="po-detail__po-number mono">{po.po_number}</span>
-          <span className="po-detail__header-title">{po.title}</span>
+          
         </div>
+        <span className="po-detail__po-number mono">{po.po_number}</span>
         <StatusBadge status={po.status} />
       </div>
 

@@ -30,17 +30,19 @@ const PO_SELECT = `
 `
 
 export function usePOList() {
-  const { profile, role }           = useAuth()
+  const { profile, role }               = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [allPOs, setAllPOs]         = useState([])
-  const [loading, setLoading]       = useState(true)
-  const [error, setError]           = useState(null)
-  const [expandedId, setExpandedId] = useState(null)
+  const [allPOs, setAllPOs]             = useState([])
+  const [loading, setLoading]           = useState(true)
+  const [error, setError]               = useState(null)
+  const [expandedId, setExpandedId]     = useState(null)
 
   // ── Read filters from URL ──────────────────────────────────────────
   const statusFilter = searchParams.get('status')     ?? ALL
   const deptFilter   = searchParams.get('department') ?? ALL
   const filterKey    = searchParams.get('filter')     // 'finance_pending' | null
+  const dateFrom     = searchParams.get('date_from')  ?? ''
+  const dateTo       = searchParams.get('date_to')    ?? ''
 
   // ── Write filters to URL ───────────────────────────────────────────
   function setStatusFilter(value) {
@@ -50,7 +52,6 @@ export function usePOList() {
       next.delete('requires_ceo')
 
       if (value === 'ceo_pending') {
-        // Special compound filter — write as filterKey, not status
         next.delete('status')
         next.set('filter', 'ceo_pending')
       } else if (value === ALL) {
@@ -74,6 +75,41 @@ export function usePOList() {
       return next
     })
     setExpandedId(null)
+  }
+
+  function setDateFrom(value) {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      if (!value) {
+        next.delete('date_from')
+      } else {
+        next.set('date_from', value)
+      }
+      return next
+    })
+    setExpandedId(null)
+  }
+
+  function setDateTo(value) {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      if (!value) {
+        next.delete('date_to')
+      } else {
+        next.set('date_to', value)
+      }
+      return next
+    })
+    setExpandedId(null)
+  }
+
+  function clearDateRange() {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.delete('date_from')
+      next.delete('date_to')
+      return next
+    })
   }
 
   // ── Data fetch ────────────────────────────────────────────────────
@@ -109,6 +145,13 @@ export function usePOList() {
   // ── Client-side filtering ──────────────────────────────────────────
   const filtered = useMemo(() => {
     return allPOs.filter((po) => {
+      // Date range — po.date is YYYY-MM-DD, inputs produce YYYY-MM-DD: safe string compare
+      const dateMatch =
+        (!dateFrom || po.date >= dateFrom) &&
+        (!dateTo   || po.date <= dateTo)
+
+      if (!dateMatch) return false
+
       // Compound Finance filter: approved OR (pending + !requires_ceo)
       if (filterKey === 'finance_pending') {
         const financeMatch =
@@ -130,7 +173,7 @@ export function usePOList() {
       const deptMatch   = deptFilter   === ALL || po.department === deptFilter
       return statusMatch && deptMatch
     })
-  }, [allPOs, statusFilter, deptFilter, filterKey])
+  }, [allPOs, statusFilter, deptFilter, filterKey, dateFrom, dateTo])
 
   // Departments from full unfiltered set
   const availableDepts = useMemo(() => {
@@ -153,6 +196,11 @@ export function usePOList() {
     setDeptFilter,
     availableDepts,
     filterKey,
+    dateFrom,
+    dateTo,
+    setDateFrom,
+    setDateTo,
+    clearDateRange,
     refetch: fetchPOs,
   }
 }

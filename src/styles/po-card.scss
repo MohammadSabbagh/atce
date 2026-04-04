@@ -70,6 +70,7 @@
   }
 
   &__dept {
+    display: inline-block;
     font-size: 11px;
     color: $text-secondary;
     background: $border;
@@ -196,9 +197,9 @@
 
   // View Full Details button
   &__view-details {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    // display: flex;
+    // align-items: center;
+    // justify-content: center;
     gap: 6px;
     width: 100%;
     padding: 10px;
