@@ -21,7 +21,8 @@ export default defineConfig({
     })
   ],
   resolve: {
-    alias: { '@': '/src' }
+    alias: { '@': '/src' },
+    extensions: ['.js', '.jsx', '.scss'],
   },
   css: {
     preprocessorOptions: {

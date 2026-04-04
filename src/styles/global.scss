@@ -36,7 +36,8 @@ input:not(.po-list__date-input),
 .status-badge,
 .po-list__active-tag-x,
 .po-card__meta>span,
-.po-detail__header-title {
+.po-detail__header-title,
+.live-indicator__label {
   // &::before {
   //   content: "";
   //   display: block;
