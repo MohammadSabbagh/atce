@@ -8,10 +8,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'PO & HR System',
-        short_name: 'PO-HR',
-        theme_color: '#06080D',
-        background_color: '#06080D',
+        name: 'ASTE',
+        short_name: 'ASTE',
+        start_url: '/',
+        scope: '/',
+        theme_color: '#f5f6fa',
+        background_color: '#f5f6fa',
         display: 'standalone',
         icons: [
           { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
