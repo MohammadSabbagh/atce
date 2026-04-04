@@ -1,14 +1,15 @@
 // features/po/PODetail.jsx
 
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { usePODetail } from './usePODetail'
+import { usePODetail } from './hooks/usePODetail'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Tag from '@/components/ui/Tag'
 import NavIcon from '@/components/layout/NavIcon'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import '@/styles/po-detail.scss'
-import { getFinanceAction } from '@/lib/poStatusConfig'
+import { getAvailableTransitions } from '@/lib/poStatusConfig'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmtFileSize = (bytes) => {
@@ -68,7 +69,47 @@ function AuditTrail({ audit }) {
   )
 }
 
+function RejectDialog({ onConfirm, onCancel, acting }) {
+  const [note, setNote] = useState('')
+  return (
+    <div className="po-detail__dialog-backdrop" onClick={onCancel}>
+      <div className="po-detail__dialog" onClick={e => e.stopPropagation()}>
+        <div className="po-detail__dialog-header">
+          <span className="po-detail__dialog-title">سبب الرفض</span>
+          <button className="po-detail__dialog-close" onClick={onCancel}>×</button>
+        </div>
+        <textarea
+          className="po-detail__dialog-textarea"
+          placeholder="سبب الرفض (اختياري)"
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          rows={4}
+          autoFocus
+        />
+        <div className="po-detail__dialog-actions">
+          <button
+            className="po-detail__action-btn po-detail__action-btn--ghost"
+            onClick={onCancel}
+            disabled={acting}
+          >
+            إلغاء
+          </button>
+          <button
+            className="po-detail__action-btn po-detail__action-btn--reject"
+            onClick={() => onConfirm(note)}
+            disabled={acting}
+          >
+            {acting ? 'جارٍ الحفظ…' : 'تأكيد الرفض'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function CEOActionBar({ status, onApprove, onReject, acting }) {
+  const [dialogOpen, setDialogOpen] = useState(false)
+
   if (status === 'approved' || status === 'released') {
     return (
       <div className="po-detail__action-bar">
@@ -84,22 +125,108 @@ function CEOActionBar({ status, onApprove, onReject, acting }) {
     )
   }
   return (
-    <div className="po-detail__action-bar">
-      <button
-        className="po-detail__action-btn po-detail__action-btn--approve"
-        onClick={onApprove}
-        disabled={acting}
-      >
-        {acting ? 'Saving…' : 'Approve'}
-      </button>
-      <button
-        className="po-detail__action-btn po-detail__action-btn--reject"
-        onClick={onReject}
-        disabled={acting}
-      >
-        Reject
-      </button>
+    <>
+      <div className="po-detail__action-bar">
+        <button
+          className="po-detail__action-btn po-detail__action-btn--approve"
+          onClick={onApprove}
+          disabled={acting}
+        >
+          {acting ? 'جارٍ الحفظ…' : 'اعتماد'}
+        </button>
+        <button
+          className="po-detail__action-btn po-detail__action-btn--reject"
+          onClick={() => setDialogOpen(true)}
+          disabled={acting}
+        >
+          رفض
+        </button>
+      </div>
+      {dialogOpen && (
+        <RejectDialog
+          onConfirm={(note) => { setDialogOpen(false); onReject(note) }}
+          onCancel={() => setDialogOpen(false)}
+          acting={acting}
+        />
+      )}
+    </>
+  )
+}
 
+function NotesSection({ notes = [], onAdd, acting }) {
+  const [text, setText] = useState('')
+
+  const contextLabel = (ctx) => {
+    if (ctx === 'rejection')    return 'رفض'
+    if (ctx === 'resubmission') return 'إعادة تقديم'
+    return null
+  }
+
+  const fmtNoteTime = (iso) =>
+    new Date(iso).toLocaleString('ar-SA', {
+      month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    })
+
+  const handleSend = () => {
+    if (!text.trim()) return
+    onAdd(text)
+    setText('')
+  }
+
+  const handleKeyDown = (e) => {
+    // Ctrl/Cmd + Enter to send
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleSend()
+  }
+
+  return (
+    <div className="po-detail__card">
+      <span className="po-detail__section-label">الملاحظات</span>
+
+      <div className="po-detail__notes-list">
+        {notes.map((n) => (
+          <div
+            key={n.id}
+            className={`po-detail__note-bubble po-detail__note-bubble--${n.context}`}
+          >
+            <div className="po-detail__note-header">
+              <span className="po-detail__note-author">
+                {n.author?.full_name ?? '—'}
+              </span>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {contextLabel(n.context) && (
+                  <span className="po-detail__note-context">
+                    {contextLabel(n.context)}
+                  </span>
+                )}
+                <span className="po-detail__note-time">
+                  {fmtNoteTime(n.created_at)}
+                </span>
+              </div>
+            </div>
+            <p className="po-detail__note-text">{n.note}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="po-detail__note-input-row">
+        <textarea
+          className="po-detail__note-textarea"
+          placeholder="أضف ملاحظة..."
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          rows={1}
+        />
+        <button
+          className="po-detail__note-send"
+          onClick={handleSend}
+          disabled={!text.trim() || acting}
+          title="إرسال"
+        >
+          ↑
+        </button>
+      </div>
     </div>
   )
 }
@@ -110,13 +237,15 @@ export default function PODetail() {
   const { profile } = useAuth()
   const role = profile?.role
 
-  // ✅ releasePO added, acting added
-  const { po, loading, error, acting, approvePO, rejectPO, releasePO } = usePODetail()
+  const { po, loading, error, acting, approvePO, rejectPO, releasePO, addNote } = usePODetail()
 
   const isCEO     = role === 'ceo'
   const isFinance = role === 'finance'
 
-  const financeAction = po ? getFinanceAction(po) : null
+  const financeTransitions = po ? getAvailableTransitions(po, role, profile?.id) : []
+  const canRelease = financeTransitions.includes('finance_release_from_approved') 
+                || financeTransitions.includes('finance_release_from_pending')
+  const canReject  = financeTransitions.includes('finance_reject')
 
   // ✅ Show loading state while fetch is in-flight
   if (loading) {
@@ -256,10 +385,17 @@ export default function PODetail() {
           <AuditTrail audit={po.audit} />
         )}
 
+        {/* ── Notes ── */}
+        <NotesSection
+          notes={po.notes ?? []}
+          onAdd={addNote}
+          acting={acting}
+        />
+
       </div>
 
       {/* ── CEO bottom action bar ── */}
-      {isCEO && (
+      {isCEO && po.requires_ceo && (
         <CEOActionBar
           status={po.status}
           onApprove={approvePO}
@@ -269,14 +405,14 @@ export default function PODetail() {
       )}
 
       {/* ── Finance bottom action bar ── */}
-      {isFinance && financeAction && (
+      {isFinance && canRelease && (
         <div className="po-detail__action-bar">
           <button
             className="po-detail__action-btn po-detail__action-btn--approve"
             onClick={releasePO}
             disabled={acting}
           >
-            {acting ? 'Saving…' : financeAction.label}
+            {acting ? 'جارٍ الحفظ…' : 'إصدار'}
           </button>
         </div>
       )}

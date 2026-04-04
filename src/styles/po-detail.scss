@@ -10,7 +10,7 @@
   &__header {
     position: sticky;
     top: 0;
-    z-index: 20;
+    z-index: $z-header;
     //background: rgba(6, 8, 13, 0.88);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -329,11 +329,14 @@
     margin-top: 3px;
     position: relative;
     z-index: 1;
-
-    &--created  { border-color: #6366f1; background: rgba(99,102,241,0.2); }
-    &--approved { border-color: $color-approved; background: rgba(34,197,94,0.15); }
-    &--rejected { border-color: $color-rejected; background: rgba(239,68,68,0.15); }
-    &--submitted { border-color: $color-pending; background: rgba(245,158,11,0.15); }
+  
+    &--created      { border-color: $color-pending;       background: rgba($color-pending,       0.15); }
+    &--submitted    { border-color: $color-pending;       background: rgba($color-pending,       0.15); }
+    &--approved     { border-color: $color-approved;      background: rgba($color-approved,      0.15); }
+    &--released     { border-color: $color-released;      background: rgba($color-released,      0.15); }
+    &--rejected     { border-color: $color-rejected;      background: rgba($color-rejected,      0.15); }
+    &--resubmitted  { border-color: $color-resubmitted;   background: rgba($color-resubmitted,   0.15); }
+    &--cancelled    { border-color: $color-cancelled;     background: rgba($color-cancelled,     0.15); }
   }
 
   &__audit-line {
@@ -376,7 +379,7 @@
     bottom: 64px;
     left: 0;
     right: 0;
-    z-index: 30;
+    z-index: $z-action;
     background: $bg-base;        // ← was rgba(6, 8, 13, 0.95)
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -438,6 +441,254 @@
     }
   }
 
+  // ── Reject dialog ─────────────────────────────────────────
+  &__dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: $z-dialog;
+    background: rgba(15, 22, 35, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-end;
+    padding: 0;
+
+    @media (min-width: 480px) {
+      align-items: center;
+      padding: 24px;
+    }
+  }
+
+  &__dialog {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $card-radius-lg $card-radius-lg 0 0;
+    padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: slideUp 180ms ease;
+
+    @media (min-width: 480px) {
+      border-radius: $card-radius-lg;
+      max-width: 420px;
+      margin: 0 auto;
+      animation: none;
+    }
+  }
+
+  &__dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__dialog-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: $text-primary;
+  }
+
+  &__dialog-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid $border;
+    background: transparent;
+    color: $text-muted;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover { color: $text-primary; border-color: $border; }
+  }
+
+  &__dialog-textarea {
+    width: 100%;
+    min-height: 100px;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 12px;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    resize: none;
+    direction: rtl;
+    line-height: 1.6;
+    transition: border-color $transition-fast;
+    box-sizing: border-box;
+
+    &::placeholder { color: $text-muted; }
+    &:focus {
+      outline: none;
+      border-color: $color-rejected;
+    }
+  }
+
+  &__dialog-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  // ── Ghost button (cancel in dialog) ───────────────────────
+  &__action-btn--ghost {
+    flex: 1;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    background: transparent;
+    color: $text-secondary;
+    border: 1px solid $border;
+    transition: all $transition-fast;
+
+    &:hover { background: $bg-base; }
+    &:active { transform: scale(0.98); }
+  }
+
+  // ── Notes section ──────────────────────────────────────────
+  &__notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 320px;
+    overflow-y: auto;
+
+    &:empty::after {
+      content: 'لا توجد ملاحظات بعد';
+      font-size: 13px;
+      color: $text-muted;
+      font-style: italic;
+      text-align: center;
+      padding: 8px 0;
+    }
+  }
+
+  &__note-bubble {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: $bg-base;
+    border: 1px solid $border-subtle;
+    position: relative;
+
+    &--rejection {
+      background: rgba($color-rejected, 0.04);
+      border-color: rgba($color-rejected, 0.15);
+
+      .po-detail__note-context {
+        color: $color-rejected;
+      }
+    }
+
+    &--resubmission {
+      background: rgba($color-resubmitted, 0.04);
+      border-color: rgba($color-resubmitted, 0.15);
+
+      .po-detail__note-context {
+        color: $color-resubmitted;
+      }
+    }
+  }
+
+  &__note-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__note-author {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-secondary;
+  }
+
+  &__note-context {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $text-muted;
+  }
+
+  &__note-time {
+    font-family: $font-mono;
+    font-size: 10px;
+    color: $text-muted;
+    white-space: nowrap;
+  }
+
+  &__note-text {
+    font-size: 13px;
+    color: $text-primary;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  &__note-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    padding-top: 4px;
+    border-top: 1px solid $border-subtle;
+    margin-top: 4px;
+  }
+
+  &__note-textarea {
+    flex: 1;
+    min-height: 40px;
+    max-height: 120px;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $text-primary;
+    resize: none;
+    direction: rtl;
+    line-height: 1.5;
+    transition: border-color $transition-fast;
+
+    &::placeholder { color: $text-muted; }
+    &:focus {
+      outline: none;
+      border-color: $accent;
+    }
+  }
+
+  &__note-send {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: $accent;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all $transition-fast;
+
+    &:hover { background: $accent-hover; }
+    &:active { transform: scale(0.95); }
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+      transform: none;
+    }
+  }
+
   // ── Not found ─────────────────────────────────────────────
   &__not-found {
     display: flex;
@@ -451,16 +702,9 @@
     text-align: center;
     padding: 24px;
   }
-
-  &__audit-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  
-    &--created  { background: $accent; border: 2px solid $accent; }
-    &--approved { background: $color-approved; border: 2px solid $color-approved; }
-    &--rejected { background: $color-rejected; border: 2px solid $color-rejected; }
-  }
 }
 
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}

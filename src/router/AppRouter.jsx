@@ -6,9 +6,7 @@ import LoginScreen from '@/features/auth/LoginScreen'
 import POList from '@/features/po/POList'
 import CreatePO from '@/features/po/create/CreatePO'
 import Dashboard from '@/features/dashboard/Dashboard'
-import FinanceDashboard from '../features/finance/FinanceDashboard'
 import PODetail from '../features/po/PODetail'
-import CEOApprovalQueue from '@/features/po/CEOApprovalQueue'
 
 const Placeholder = ({ name }) => (
   <div style={{ padding: '2rem', color: '#fff', fontFamily: 'monospace' }}>
@@ -17,8 +15,6 @@ const Placeholder = ({ name }) => (
   </div>
 )
 
-// Full-screen splash shown while session + profile are resolving.
-// Matches app background so there's no flash of any route.
 const AppSplash = () => (
   <div style={{
     position: 'fixed',
@@ -72,21 +68,21 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       >
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Unified dashboard — all roles */}
+        <Route path="/dashboard"          element={<Dashboard />} />
+        <Route path="/finance/dashboard"  element={<Navigate to="/dashboard" replace />} />
 
-        <Route path="/po/list" element={<POList />} />
+        <Route path="/po/list"   element={<POList />} />
         <Route path="/po/create" element={<CreatePO />} />
-        <Route path="/po/:id" element={<PODetail />} />
-        <Route path="/po/approvals" element={<CEOApprovalQueue />} />
+        <Route path="/po/:id"    element={<PODetail />} />
 
-        <Route path="/hr/dashboard" element={<Placeholder name="HR Dashboard" />} />
-        <Route path="/hr/employees" element={<Placeholder name="Employee List" />} />
-        <Route path="/hr/requests/my" element={<Placeholder name="My Hire Requests" />} />
+        {/* HR — placeholders until HR module is built */}
+        <Route path="/hr/dashboard"        element={<Placeholder name="HR Dashboard" />} />
+        <Route path="/hr/employees"        element={<Placeholder name="Employee List" />} />
+        <Route path="/hr/requests/my"      element={<Placeholder name="My Hire Requests" />} />
         <Route path="/hr/requests/fulfill" element={<Placeholder name="Fulfill Requests" />} />
-        <Route path="/hr/org-chart" element={<Placeholder name="Org Chart" />} />
-        <Route path="/hr/approvals" element={<Placeholder name="HR Approvals" />} />
-
-        <Route path="/finance/dashboard" element={<FinanceDashboard />} />
+        <Route path="/hr/org-chart"        element={<Placeholder name="Org Chart" />} />
+        <Route path="/hr/approvals"        element={<Placeholder name="HR Approvals" />} />
 
         <Route
           path="*"

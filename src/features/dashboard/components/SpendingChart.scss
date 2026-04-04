@@ -1,0 +1,80 @@
+// features/dashboard/components/SpendingChart.scss
+@use '../../../styles/variables' as *;
+
+.spending-chart {
+  background:    $bg-card;
+  border:        1px solid $border;
+  border-radius: 14px;
+  padding:       20px 16px;
+
+  &--empty {
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    min-height:      120px;
+  }
+
+  &__empty-text {
+    color:     $text-muted;
+    font-size: 14px;
+  }
+
+  &__title {
+    font-family:   $font-ui;
+    font-size:     14px;
+    font-weight:   600;
+    color:         $text-secondary;
+    margin:        0 0 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__bars {
+    display:        flex;
+    flex-direction: column;
+    gap:            12px;
+  }
+
+  &__row {
+    display:     grid;
+    // dept label | bar | amount
+    grid-template-columns: 80px 1fr 80px;
+    align-items: center;
+    gap:         10px;
+  }
+
+  &__dept {
+    font-family: $font-ui;
+    font-size:   13px;
+    color:       $text-secondary;
+    text-align:  right;    // RTL: label on the right
+    white-space: nowrap;
+    overflow:    hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__bar-track {
+    background:    $bg-base;
+    border-radius: 4px;
+    height:        8px;
+    overflow:      hidden;
+    // RTL: bars grow from right to left
+    direction:     ltr;
+  }
+
+  &__bar-fill {
+    height:        100%;
+    background:    $accent;
+    border-radius: 4px;
+    transition:    width 0.4s ease;
+    min-width:     4px;
+  }
+
+  &__amount {
+    font-family: $font-mono;
+    font-size:   12px;
+    color:       $text-muted;
+    text-align:  left;  // RTL: amount on the left end
+    white-space: nowrap;
+  }
+}

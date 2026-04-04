@@ -46,8 +46,8 @@ export function usePODetail() {
     setLoading(true)
     setError(null)
 
-    // Fetch PO and audit log in parallel
-    const [poResult, auditResult] = await Promise.all([
+    // Fetch PO, audit log, and notes in parallel
+    const [poResult, auditResult, notesResult] = await Promise.all([
       supabase
         .from('purchase_orders')
         .select(PO_SELECT)
@@ -64,6 +64,17 @@ export function usePODetail() {
         .eq('entity_type', 'purchase_order')
         .eq('entity_id', id)
         .order('created_at', { ascending: true }),
+      supabase
+        .from('po_notes')
+        .select(`
+          id,
+          note,
+          context,
+          created_at,
+          author:profiles!created_by(full_name)
+        `)
+        .eq('po_id', id)
+        .order('created_at', { ascending: true }),
     ])
 
     if (poResult.error) {
@@ -79,8 +90,9 @@ export function usePODetail() {
       data.line_items.sort((a, b) => a.sort_order - b.sort_order)
     }
 
-    // Attach audit entries (empty array if none or error)
+    // Attach audit entries and notes (empty array if none or error)
     data.audit = auditResult.data ?? []
+    data.notes = notesResult.data ?? []
 
     setPO(data)
     setLoading(false)
@@ -113,21 +125,30 @@ export function usePODetail() {
   }
 
   // ─── CEO: Reject ─────────────────────────────────────
-  async function rejectPO() {
+  async function rejectPO(note) {
     if (!po || acting) return
     setActing(true)
     const now = new Date().toISOString()
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({ status: 'rejected', approved_by: profile.id, approved_at: now })
+        .update({ status: 'rejected', rejected_by: profile.id, rejected_at: now })
         .eq('id', po.id)
       if (updateError) throw updateError
 
+      if (note?.trim()) {
+        await supabase.from('po_notes').insert({
+          po_id:      po.id,
+          created_by: profile.id,
+          context:    'rejection',
+          note:       note.trim(),
+        })
+      }
+
       await supabase.from('audit_log').insert({
         entity_type: 'purchase_order',
-        entity_id: po.id,
-        action: 'rejected',
+        entity_id:   po.id,
+        action:      'rejected',
         performed_by: profile.id,
       })
       await fetchPO()
@@ -175,6 +196,28 @@ export function usePODetail() {
     }
   }
 
+  // ─── Add a general note ──────────────────────────────────
+  async function addNote(text) {
+    if (!po || !text?.trim() || acting) return
+    setActing(true)
+    try {
+      const { error: insertError } = await supabase
+        .from('po_notes')
+        .insert({
+          po_id:      po.id,
+          created_by: profile.id,
+          context:    'general',
+          note:       text.trim(),
+        })
+      if (insertError) throw insertError
+      await fetchPO()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setActing(false)
+    }
+  }
+
   return {
     po,
     loading,
@@ -183,6 +226,7 @@ export function usePODetail() {
     approvePO,
     rejectPO,
     releasePO,
+    addNote,
     refetch: fetchPO,
   }
 }

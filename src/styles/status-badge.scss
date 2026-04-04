@@ -18,10 +18,25 @@
     background: rgba($color-approved, 0.1);
     border: 1px solid rgba($color-approved, 0.2);
   }
+  &--released {
+    color: $color-released;
+    background: rgba($color-released, 0.1);
+    border: 1px solid rgba($color-released, 0.2);
+  }
   &--rejected {
     color: $color-rejected;
     background: rgba($color-rejected, 0.08);
     border: 1px solid rgba($color-rejected, 0.18);
+  }
+  &--resubmitted {
+    color: $color-resubmitted;
+    background: rgba($color-resubmitted, 0.08);
+    border: 1px solid rgba($color-resubmitted, 0.2);
+  }
+  &--cancelled {
+    color: $color-cancelled;
+    background: rgba($color-cancelled, 0.08);
+    border: 1px solid rgba($color-cancelled, 0.2);
   }
   &--fulfilled {
     color: $color-fulfilled;

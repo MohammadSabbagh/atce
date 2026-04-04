@@ -45,3 +45,31 @@
     font-size: 14px;
   }
 }
+
+.po-list__filter-banner {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         8px 12px;
+  background:      $accent-dim;
+  border:          1px solid $accent;
+  border-radius:   10px;
+  margin-bottom:   4px;
+
+  &-label {
+    font-family: $font-ui;
+    font-size:   13px;
+    color:       $accent;
+    font-weight: 600;
+  }
+
+  &-clear {
+    font-size:   14px;
+    color:       $accent;
+    background:  none;
+    border:      none;
+    cursor:      pointer;
+    padding:     0 4px;
+    line-height: 1;
+  }
+}

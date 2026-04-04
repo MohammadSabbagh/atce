@@ -1,24 +1,85 @@
-import { useAuth } from '@/context/AuthContext'
-import PMDashboard from './PMDashboard'
-import CEODashboard from './CEODashboard'
+// features/dashboard/Dashboard.jsx
+// Unified dashboard — all 4 roles (purchase_manager, secretary, ceo, finance).
+// Role-aware data is handled in useDashboard + RLS.
+// This component is intentionally role-agnostic in structure.
+
+import { useAuth } from '../../context/AuthContext'
+import { useDashboard } from './hooks/useDashboard'
+import { LiveIndicator } from './components/LiveIndicator'
+import { DashboardStatCards } from './components/DashboardStatCards'
+import { SpendingChart } from './components/SpendingChart'
+import { getGreeting } from '../../lib/strings'
+import './Dashboard.scss'
 
 export default function Dashboard() {
-  const { role } = useAuth()
+  const { profile } = useAuth()
+  const { stats, deptSpending, loading, error, lastUpdated } = useDashboard()
 
-  if (!role) return null
-
-  switch (role) {
-    case 'purchase_manager':
-    case 'secretary':
-      return <PMDashboard />
-    case 'ceo':
-      return <CEODashboard />
-    default:
-      return (
-        <div style={{ padding: '2rem', color: '#fff', fontFamily: 'monospace' }}>
-          <h2>Dashboard</h2>
-          <p style={{ color: '#666' }}>Coming soon for {role}</p>
+  return (
+    <div className="dashboard">
+      {/* ── Header ─────────────────────────────── */}
+      <div className="dashboard__header">
+        <div className="dashboard__greeting">
+          <p className="dashboard__greeting-sub">{getGreeting()}</p>
+          <h1 className="dashboard__greeting-name">
+            {profile?.full_name ?? ''}
+          </h1>
         </div>
-      )
-  }
+        <LiveIndicator lastUpdated={lastUpdated} />
+      </div>
+
+      {/* ── Error state ─────────────────────────── */}
+      {error && (
+        <div className="dashboard__error" role="alert">
+          {error}
+        </div>
+      )}
+
+      {/* ── Stat cards ──────────────────────────── */}
+      <section className="dashboard__section">
+        {loading
+          ? <DashboardStatCardsSkeleton />
+          : <DashboardStatCards stats={stats} />
+        }
+      </section>
+
+      {/* ── Spending chart ──────────────────────── */}
+      <section className="dashboard__section">
+        {loading
+          ? <ChartSkeleton />
+          : <SpendingChart deptSpending={deptSpending} />
+        }
+      </section>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────
+// Skeleton loaders
+// ─────────────────────────────────────────
+function DashboardStatCardsSkeleton() {
+  return (
+    <div className="dashboard-skeleton__cards">
+      {[1, 2, 3, 4].map(i => (
+        <div key={i} className="dashboard-skeleton__card" aria-hidden="true" />
+      ))}
+    </div>
+  )
+}
+
+function ChartSkeleton() {
+  return (
+    <div className="dashboard-skeleton__chart" aria-hidden="true">
+      {[1, 2, 3, 4].map(i => (
+        <div key={i} className="dashboard-skeleton__bar-row">
+          <div className="dashboard-skeleton__bar-label" />
+          <div
+            className="dashboard-skeleton__bar"
+            style={{ width: `${85 - i * 15}%` }}
+          />
+          <div className="dashboard-skeleton__bar-amount" />
+        </div>
+      ))}
+    </div>
+  )
 }

@@ -1,0 +1,121 @@
+// features/dashboard/Dashboard.scss
+@use '../../styles/variables' as *;
+
+.dashboard {
+  display:        flex;
+  flex-direction: column;
+  gap:            20px;
+  padding:        16px 16px 100px; // bottom pad for nav bar
+  min-height:     100dvh;
+  background:     $bg-base;
+  direction:      rtl;
+
+  // ── Header ───────────────────────────────
+  &__header {
+    display:         flex;
+    justify-content: space-between;
+    align-items:     flex-start;
+    gap:             12px;
+    padding-top:     8px;
+  }
+
+  &__greeting {
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+  }
+
+  &__greeting-sub {
+    font-family: $font-ui;
+    font-size:   13px;
+    color:       $text-muted;
+    margin:      0;
+  }
+
+  &__greeting-name {
+    font-family: $font-ui;
+    font-size:   22px;
+    font-weight: 700;
+    color:       $text-primary;
+    margin:      0;
+  }
+
+  // ── Error banner ─────────────────────────
+  &__error {
+    background:    rgba(239, 68, 68, 0.1);
+    border:        1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    padding:       12px 16px;
+    font-family:   $font-ui;
+    font-size:     14px;
+    color:         #ef4444;
+    text-align:    center;
+  }
+
+  // ── Sections ─────────────────────────────
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+// ── Skeleton loaders ─────────────────────────
+.dashboard-skeleton {
+  &__cards {
+    display:               grid;
+    grid-template-columns: 1fr 1fr;
+    gap:                   12px;
+  }
+
+  &__card {
+    height:        110px;
+    background:    $bg-card;
+    border:        1px solid $border;
+    border-radius: 14px;
+    animation:     skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  &__chart {
+    background:    $bg-card;
+    border:        1px solid $border;
+    border-radius: 14px;
+    padding:       20px 16px;
+    display:       flex;
+    flex-direction: column;
+    gap:           16px;
+  }
+
+  &__bar-row {
+    display:     grid;
+    grid-template-columns: 80px 1fr 80px;
+    align-items: center;
+    gap:         10px;
+  }
+
+  &__bar-label,
+  &__bar-amount {
+    height:        12px;
+    border-radius: 4px;
+    background:    $border;
+    animation:     skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  &__bar {
+    height:        8px;
+    border-radius: 4px;
+    background:    $border;
+    animation:     skeleton-pulse 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.dashboard-stat-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}

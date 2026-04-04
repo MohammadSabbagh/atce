@@ -5,24 +5,24 @@ import { S } from '@/lib/strings'
 
 export const ROLE_ROUTES = {
   purchase_manager: [
-    { path: '/dashboard', label: S.nav.dashboard, icon: 'home' },
-    { path: '/po/list',   label: S.nav.orders,    icon: 'list' },
+    { path: '/dashboard', label: S.navDashboard, icon: 'home' },
+    { path: '/po/list',   label: S.navPOList,    icon: 'list' },
   ],
   secretary: [
-    { path: '/dashboard', label: S.nav.dashboard, icon: 'home' },
-    { path: '/po/list',   label: S.nav.orders,    icon: 'list' },
+    { path: '/dashboard', label: S.navDashboard, icon: 'home' },
+    { path: '/po/list',   label: S.navPOList,    icon: 'list' },
   ],
   hr: [
-    { path: '/hr/dashboard', label: S.nav.dashboard, icon: 'home' },
-    { path: '/po/list',      label: S.nav.orders,    icon: 'list' },
+    { path: '/hr/dashboard', label: S.navDashboard, icon: 'home' },
+    { path: '/po/list',      label: S.navPOList,    icon: 'list' },
   ],
   ceo: [
-    { path: '/dashboard', label: S.nav.dashboard, icon: 'home' },
-    { path: '/po/list',   label: S.nav.allPOs,    icon: 'list' },
+    { path: '/dashboard', label: S.navDashboard, icon: 'home' },
+    { path: '/po/list',   label: S.navPOList,    icon: 'list' },
   ],
   finance: [
-    { path: '/finance/dashboard', label: S.nav.dashboard, icon: 'home' },
-    { path: '/po/list',           label: S.nav.allOrders, icon: 'list' },
+    { path: '/dashboard', label: S.navDashboard, icon: 'home' },
+    { path: '/po/list',   label: S.navPOList,    icon: 'list' },
   ],
 }
 
@@ -32,5 +32,5 @@ export const ROLE_HOME = {
   secretary:        '/dashboard',
   hr:               '/hr/dashboard',
   ceo:              '/dashboard',
-  finance:          '/finance/dashboard',
+  finance:          '/dashboard',
 }

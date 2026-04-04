@@ -10,7 +10,6 @@ import '@/styles/po-card.scss'
 export default function POCard({ po, isExpanded, onToggle }) {
   const { role } = useAuth()
   const navigate = useNavigate()
-  const isCEO = role === 'ceo'
 
   const handleViewDetails = (e) => {
     e.stopPropagation()
@@ -26,7 +25,7 @@ export default function POCard({ po, isExpanded, onToggle }) {
           <span className="po-card__number mono">{po.po_number}</span>
           <StatusBadge status={po.status} />
           {po.requires_ceo && (
-            <span className="po-card__ceo-flag">{S.roles.ceo}</span>
+            <span className="po-card__ceo-flag">CEO</span>
           )}
         </div>
         <div className="po-card__chevron">
@@ -37,7 +36,7 @@ export default function POCard({ po, isExpanded, onToggle }) {
       <div className="po-card__title" onClick={onToggle}>{po.title}</div>
 
       <div className="po-card__meta" onClick={onToggle}>
-        <span className="po-card__dept">{S.departments[po.department] ?? po.department}</span>
+        <span className="po-card__dept">{po.department}</span>
         <span className="po-card__date">{formatDate(po.date)}</span>
         <span className="po-card__total mono">{formatCurrency(po.total)}</span>
       </div>
@@ -53,7 +52,7 @@ export default function POCard({ po, isExpanded, onToggle }) {
 
           {/* Line items */}
           <div className="po-card__section">
-            <h4 className="po-card__section-title">{S.po.lineItems}</h4>
+            <h4 className="po-card__section-title">{S.lineItems}</h4>
             <div className="po-card__items">
               {po.line_items.map((item) => (
                 <div key={item.id} className="po-card__item">
@@ -62,7 +61,7 @@ export default function POCard({ po, isExpanded, onToggle }) {
                 </div>
               ))}
               <div className="po-card__item po-card__item--total">
-                <span>{S.po.total}</span>
+                <span>{S.total}</span>
                 <span className="mono">{formatCurrency(po.total)}</span>
               </div>
             </div>
@@ -71,7 +70,7 @@ export default function POCard({ po, isExpanded, onToggle }) {
           {/* Tags */}
           {po.tags?.length > 0 && (
             <div className="po-card__section">
-              <h4 className="po-card__section-title">{S.po.tags}</h4>
+              <h4 className="po-card__section-title">{S.tags}</h4>
               <div className="po-card__tags">
                 {po.tags.map((tag) => (
                   <Tag key={tag} label={tag} />
@@ -80,27 +79,9 @@ export default function POCard({ po, isExpanded, onToggle }) {
             </div>
           )}
 
-          {/* CEO actions */}
-          {/* {isCEO && po.status === 'pending' && (
-            <div className="po-card__actions">
-              <button
-                className="po-card__action-btn po-card__action-btn--reject"
-                onClick={(e) => { e.stopPropagation(); alert(`Reject ${po.po_number}`) }}
-              >
-                {S.po.reject}
-              </button>
-              <button
-                className="po-card__action-btn po-card__action-btn--approve"
-                onClick={(e) => { e.stopPropagation(); alert(`Approve ${po.po_number}`) }}
-              >
-                {S.po.approve}
-              </button>
-            </div>
-          )} */}
-
           {/* View full details */}
           <button className="po-card__view-details" onClick={handleViewDetails}>
-            {S.actions.viewDetails}
+            {S.viewDetails}
             <NavIcon name="arrow-left" size={14} />
           </button>
         </div>
