@@ -21,8 +21,6 @@ const STATUS_FILTERS = [
 export default function POList() {
   const {
     pos,
-    expandedId,
-    toggleExpand,
     statusFilter,
     setStatusFilter,
     deptFilter,
@@ -44,11 +42,10 @@ export default function POList() {
       ? 'all'
       : statusFilter
 
-  const hasDeptFilter  = deptFilter && deptFilter !== 'all'
-  const hasDateFilter  = !!(dateFrom || dateTo)
-  const hasSecondary   = hasDeptFilter || hasDateFilter
+  const hasDeptFilter = deptFilter && deptFilter !== 'all'
+  const hasDateFilter = !!(dateFrom || dateTo)
+  const hasSecondary  = hasDeptFilter || hasDateFilter
 
-  // Format date for summary chips (DD/MM/YYYY)
   const fmtDate = (iso) => {
     if (!iso) return ''
     const [y, m, d] = iso.split('-')
@@ -61,7 +58,7 @@ export default function POList() {
 
   return (
     <div className="po-list">
-      {/* ── Header: title + count … funnel icon (pushed to left in RTL) ── */}
+      {/* ── Header ── */}
       <div className="po-list__header">
         <h1 className="po-list__title">{S.navPOList}</h1>
         <span className="po-list__count mono">{pos.length}</span>
@@ -87,7 +84,7 @@ export default function POList() {
         </button>
       </div>
 
-      {/* ── Collapsible secondary filters (above status chips) ── */}
+      {/* ── Collapsible secondary filters ── */}
       {filtersOpen && (
         <div className="po-list__secondary-filters">
           <div className="po-list__dept-field">
@@ -139,7 +136,7 @@ export default function POList() {
         </div>
       )}
 
-      {/* ── Active filter summary chips (when panel collapsed) ── */}
+      {/* ── Active filter summary chips ── */}
       {hasSecondary && !filtersOpen && (
         <div className="po-list__active-tags">
           {hasDeptFilter && (
@@ -190,12 +187,7 @@ export default function POList() {
           </div>
         ) : (
           pos.map((po) => (
-            <POCard
-              key={po.id}
-              po={po}
-              isExpanded={expandedId === po.id}
-              onToggle={() => toggleExpand(po.id)}
-            />
+            <POCard key={po.id} po={po} />
           ))
         )}
       </div>
