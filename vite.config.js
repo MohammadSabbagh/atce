@@ -7,20 +7,48 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico','icon-192v2.png', 'icon-512v2.png'],
       manifest: {
-        name: 'ASTE',
+        name: 'ASTE PO',
         short_name: 'ASTE',
-        start_url: '/',
-        scope: '/',
+        description: 'ASTE PO system',
+        display: 'standalone',
         theme_color: '#f5f6fa',
         background_color: '#f5f6fa',
-        display: 'standalone',
+        lang: 'ar',
+        dir: 'rtl',
         icons: [
-          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' }
-        ]
-      }
-    })
+          {
+            src: 'icon-192v2.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+          {
+            src: 'icon-512v2.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'supabase-storage',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+            },
+          },
+        ],
+      },
+    }),
   ],
   resolve: {
     alias: { '@': '/src' },
