@@ -58,6 +58,50 @@
     flex-direction: column;
     gap: 8px;
   }
+
+  // ── Quick actions ─────────────────────────
+  &__quick-actions {
+    display:    flex;
+    flex-wrap:  wrap;
+    gap:        12px;
+  }
+}
+
+// ── Quick action card ────────────────────────
+.quick-action-card {
+  display:        flex;
+  flex-direction: row;
+  align-items:    center;
+  justify-content: center;
+  gap:            8px;
+  width: 100%;
+  padding: 12px;
+  background:     $accent-dim;
+  border:         1.5px solid $accent;
+  border-radius:  14px;
+  cursor:         pointer;
+  transition:     background $transition-fast, transform $transition-fast;
+
+  &:active {
+    background:  darken($accent-dim, 4%);
+    transform:   scale(0.97);
+  }
+
+  &__icon {
+    font-size: 20px;
+    line-height: 0.5;
+    font-weight: bold;
+    color: #2563EB;
+  }
+
+  &__label {
+    font-family: $font-ui;
+    font-size:   13px;
+    font-weight: 600;
+    color:       $accent;
+    text-align:  center;
+    line-height: 1;
+  }
 }
 
 // ── Skeleton loaders ─────────────────────────

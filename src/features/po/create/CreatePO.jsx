@@ -5,9 +5,10 @@ import Step2LineItems from './Step2LineItems'
 import Step3Attachments from './Step3Attachments'
 import Step4Review from './Step4Review'
 import SubmitSuccess from './SubmitSuccess'
+import { S } from '@/lib/strings'
 import '@/styles/create-po.scss'
 
-const STEP_LABELS = ['Details', 'Line Items', 'Attachments', 'Review']
+const STEP_LABELS = [S.stepDetails, S.stepItems, S.stepAttach, S.stepReview]
 
 export default function CreatePO() {
   const wizard = useCreatePO()
@@ -18,7 +19,7 @@ export default function CreatePO() {
   return (
     <div className="create-po">
       <div className="create-po__header">
-        <h1 className="create-po__title">New Purchase Order</h1>
+        <h1 className="create-po__title">{S.createPO}</h1>
         <StepIndicator current={step} labels={STEP_LABELS} />
       </div>
 
@@ -40,7 +41,7 @@ export default function CreatePO() {
             onClick={wizard.goBack}
             disabled={submitting}
           >
-            Back
+            {S.back}
           </button>
         )}
         {step < 4 ? (
@@ -49,7 +50,7 @@ export default function CreatePO() {
             onClick={wizard.goNext}
             disabled={!wizard.canProceed()}
           >
-            Continue
+            {S.continue}
           </button>
         ) : (
           <button
@@ -57,7 +58,7 @@ export default function CreatePO() {
             onClick={wizard.handleSubmit}
             disabled={submitting}
           >
-            {submitting ? 'Submitting…' : 'Submit PO'}
+            {submitting ? S.submitting : S.submit}
           </button>
         )}
       </div>

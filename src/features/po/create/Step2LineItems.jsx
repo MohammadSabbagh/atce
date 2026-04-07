@@ -1,4 +1,5 @@
 import { formatCurrency } from '@/lib/utils'
+import { S } from '@/lib/strings'
 import '@/styles/form.scss'
 
 export default function Step2LineItems({ wizard }) {
@@ -14,7 +15,7 @@ export default function Step2LineItems({ wizard }) {
               <input
                 className="form__input"
                 type="text"
-                placeholder="Item description"
+                placeholder={S.itemPlaceholder}
                 value={item.description}
                 onChange={(e) =>
                   updateLineItem(item.id, 'description', e.target.value)
@@ -39,7 +40,7 @@ export default function Step2LineItems({ wizard }) {
               <button
                 className="form__line-item-remove"
                 onClick={() => removeLineItem(item.id)}
-                title="Remove item"
+                title={S.cancel_action}
               >
                 ×
               </button>
@@ -49,11 +50,11 @@ export default function Step2LineItems({ wizard }) {
       </div>
 
       <button className="form__add-item" onClick={addLineItem}>
-        + Add Line Item
+        {S.addItem}
       </button>
 
       <div className="form__total">
-        <span className="form__total-label">Total</span>
+        <span className="form__total-label">{S.total}</span>
         <span className="form__total-value mono">{formatCurrency(lineTotal)}</span>
       </div>
     </div>

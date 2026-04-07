@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { S } from '@/lib/strings'
 import '@/styles/form.scss'
 
 const ACCEPTED = 'application/pdf,image/png,image/jpeg'
@@ -11,7 +12,7 @@ export default function Step3Attachments({ wizard }) {
   const handleFiles = (files) => {
     Array.from(files).forEach((file) => {
       if (file.size > MAX_MB * 1024 * 1024) {
-        alert(`${file.name} exceeds ${MAX_MB}MB limit`)
+        alert(S.attachSizeError.replace('{name}', file.name).replace('{max}', MAX_MB))
         return
       }
       addAttachment(file)
@@ -26,8 +27,7 @@ export default function Step3Attachments({ wizard }) {
   return (
     <div className="form">
       <p className="form__section-hint">
-        Attach supporting documents (PDF or images, max {MAX_MB}MB each).
-        This step is optional.
+        {S.attachHint.replace('{max}', MAX_MB)}
       </p>
 
       {/* Drop zone */}
@@ -45,9 +45,11 @@ export default function Step3Attachments({ wizard }) {
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
         <p className="form__dropzone-text">
-          Tap to browse or drag files here
+          {S.attachDropzone}
         </p>
-        <p className="form__dropzone-hint">PDF, PNG, JPG · max {MAX_MB}MB</p>
+        <p className="form__dropzone-hint">
+          {S.attachFormats.replace('{max}', MAX_MB)}
+        </p>
         <input
           ref={inputRef}
           type="file"

@@ -1,3 +1,4 @@
+import { S } from '@/lib/strings'
 import '@/styles/create-po.scss'
 
 export default function SubmitSuccess({ onDone }) {
@@ -10,12 +11,10 @@ export default function SubmitSuccess({ onDone }) {
           <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
       </div>
-      <h2 className="submit-success__title">PO Submitted</h2>
-      <p className="submit-success__subtitle">
-        Your purchase order has been submitted and is pending review.
-      </p>
+      <h2 className="submit-success__title">{S.successTitle}</h2>
+      <p className="submit-success__subtitle">{S.successSubtitle}</p>
       <button className="submit-success__btn" onClick={onDone}>
-        Back to Orders
+        {S.successBackBtn}
       </button>
     </div>
   )

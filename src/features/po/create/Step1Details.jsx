@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { DEPARTMENTS } from '@/lib/constants'
 import Tag from '@/components/ui/Tag'
+import { S } from '@/lib/strings'
 import '@/styles/form.scss'
 
+// Tag values stay in English — they are stored as data in the DB.
+// Translating them would break existing tag filtering.
 const SUGGESTED_TAGS = [
   'urgent', 'monthly', 'quarterly', 'annual',
   'Q1', 'Q2', 'Q3', 'Q4',
@@ -42,21 +45,23 @@ export default function Step1Details({ wizard }) {
   return (
     <div className="form">
       <div className="form__field">
-        <label className="form__label">Title <span className="form__required">*</span></label>
+        <label className="form__label">
+          {S.poTitle} <span className="form__required">{S.required}</span>
+        </label>
         <input
           className="form__input"
           type="text"
-          placeholder="e.g. Office Supplies Q1"
+          placeholder={S.poTitlePlaceholder}
           value={form.title}
           onChange={(e) => setField('title', e.target.value)}
         />
       </div>
 
       <div className="form__field">
-        <label className="form__label">Description</label>
+        <label className="form__label">{S.poDescription}</label>
         <textarea
           className="form__input form__input--textarea"
-          placeholder="Optional details about this purchase order"
+          placeholder={S.poDescPlaceholder}
           value={form.description}
           onChange={(e) => setField('description', e.target.value)}
           rows={3}
@@ -65,7 +70,9 @@ export default function Step1Details({ wizard }) {
 
       <div className="form__row">
         <div className="form__field">
-          <label className="form__label">Date <span className="form__required">*</span></label>
+          <label className="form__label">
+            {S.poDate} <span className="form__required">{S.required}</span>
+          </label>
           <input
             className="form__input"
             type="date"
@@ -75,13 +82,15 @@ export default function Step1Details({ wizard }) {
         </div>
 
         <div className="form__field">
-          <label className="form__label">Department <span className="form__required">*</span></label>
+          <label className="form__label">
+            {S.poDepartment} <span className="form__required">{S.required}</span>
+          </label>
           <select
             className="form__input form__input--select"
             value={form.department}
             onChange={(e) => setField('department', e.target.value)}
           >
-            <option value="">Select department</option>
+            <option value="">{S.poDeptPlaceholder}</option>
             {DEPARTMENTS.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
@@ -90,7 +99,7 @@ export default function Step1Details({ wizard }) {
       </div>
 
       <div className="form__field">
-        <label className="form__label">Tags</label>
+        <label className="form__label">{S.poTags}</label>
         <div className="form__tag-input">
           {form.tags.map((tag) => (
             <span key={tag} className="form__tag-pill">
@@ -104,14 +113,13 @@ export default function Step1Details({ wizard }) {
           <input
             className="form__tag-text"
             type="text"
-            placeholder={form.tags.length === 0 ? 'Add tags...' : ''}
+            placeholder={form.tags.length === 0 ? S.poTagsPlaceholder : ''}
             value={tagInput}
             onChange={handleTagInput}
             onKeyDown={handleTagKeyDown}
           />
         </div>
 
-        {/* Suggestions */}
         {suggestions.length > 0 && (
           <div className="form__tag-suggestions">
             {suggestions.slice(0, 8).map((s) => (
@@ -138,10 +146,8 @@ export default function Step1Details({ wizard }) {
             <div className="form__toggle-thumb" />
           </div>
           <div className="form__toggle-label">
-            <span>Requires CEO Approval</span>
-            <span className="form__toggle-hint">
-              Routes this PO to the CEO approval queue
-            </span>
+            <span>{S.requiresCeo}</span>
+            <span className="form__toggle-hint">{S.requiresCeoHint}</span>
           </div>
         </label>
       </div>

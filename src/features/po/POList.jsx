@@ -14,7 +14,7 @@ const STATUS_FILTERS = [
   { value: 'approved',    label: S.statusApproved },
   { value: 'released',    label: S.statusReleased },
   { value: 'rejected',    label: S.statusRejected },
-  { value: 'resubmitted', label: S.statusResubmitted },
+  //{ value: 'resubmitted', label: S.statusResubmitted },
   { value: 'cancelled',   label: S.statusCancelled },
 ]
 
