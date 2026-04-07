@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { MOCK_USERS } from '@/lib/constants'
+import { clearCache, stopSync } from '@/lib/poSync'
 
 const AuthContext = createContext(null)
 
@@ -79,6 +80,8 @@ export function AuthProvider({ children }) {
   }
 
   const signOut = async () => {
+    stopSync()
+    await clearCache()
     if (IS_DEV) {
       setProfile(null)
       return

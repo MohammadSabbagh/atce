@@ -21,6 +21,7 @@ const STATUS_FILTERS = [
 export default function POList() {
   const {
     pos,
+    loading,
     statusFilter,
     setStatusFilter,
     deptFilter,
@@ -181,7 +182,11 @@ export default function POList() {
 
       {/* ── PO cards ── */}
       <div className="po-list__items">
-        {pos.length === 0 ? (
+        {loading ? (
+          <div className="po-list__loading">
+            <p>{S.loading}</p>
+          </div>
+        ) : pos.length === 0 ? (
           <div className="po-list__empty">
             <p>{S.noResults}</p>
           </div>

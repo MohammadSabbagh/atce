@@ -1,39 +1,22 @@
 // src/features/po/hooks/usePOList.js
 // URL params are the single source of truth for filter state.
-// Chip changes update the URL → filters derive from URL → list re-renders.
-// Bookmarkable, back-button aware, shareable.
+// Data reads from Dexie (IndexedDB) via useLiveQuery — instant on every visit.
+// The sync engine (poSync.js) keeps the cache fresh via Supabase Realtime.
 
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/context/AuthContext'
+import { useLiveQuery } from 'dexie-react-hooks'
+import db from '@/lib/db'
 
 const ALL = 'all'
 
-// Header fields only — no line_items, tags, or description.
-// Full data is fetched in PO Detail on demand.
-const PO_SELECT = `
-  id,
-  po_number,
-  title,
-  date,
-  department,
-  requires_ceo,
-  status,
-  total
-`
-
 export function usePOList() {
-  const { profile, role }               = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [allPOs, setAllPOs]             = useState([])
-  const [loading, setLoading]           = useState(true)
-  const [error, setError]               = useState(null)
 
   // ── Read filters from URL ──────────────────────────────────────────
   const statusFilter = searchParams.get('status')     ?? ALL
   const deptFilter   = searchParams.get('department') ?? ALL
-  const filterKey    = searchParams.get('filter')     // 'ceo_pending' | null
+  const filterKey    = searchParams.get('filter')     // 'ceo_pending' | 'finance_pending' | null
   const dateFrom     = searchParams.get('date_from')  ?? ''
   const dateTo       = searchParams.get('date_to')    ?? ''
 
@@ -95,35 +78,26 @@ export function usePOList() {
     })
   }
 
-  // ── Data fetch ────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!profile?.id || !role) return
-    fetchPOs()
-  }, [profile?.id, role])
+  // ── Read all POs from Dexie (reactive — re-runs on any write) ─────
+  const allPOs = useLiveQuery(
+    () => db.purchase_orders.orderBy('date').reverse().toArray(),
+    []  // no deps — Dexie handles reactivity
+  )
 
-  async function fetchPOs() {
-    setLoading(true)
-    setError(null)
+  // Check if initial sync has completed at least once.
+  // lastSyncedAt is written by poSync after the first successful fetch.
+  // Returns undefined while IndexedDB resolves, then the record or undefined if missing.
+  const syncMeta = useLiveQuery(() => db._meta.get('lastSyncedAt'), [])
+  const hasSynced = !!syncMeta?.value
 
-    try {
-      const { data, error: fetchError } = await supabase
-        .from('purchase_orders')
-        .select(PO_SELECT)
-        .order('date', { ascending: false })
-
-      if (fetchError) throw fetchError
-
-      setAllPOs(data ?? [])
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // useLiveQuery returns undefined on first render while IndexedDB resolves.
+  // Show loading when: Dexie query pending OR cache empty + first sync not done.
+  const poArray = allPOs ?? []
+  const loading = allPOs === undefined || (!hasSynced && poArray.length === 0)
 
   // ── Client-side filtering ──────────────────────────────────────────
   const filtered = useMemo(() => {
-    return allPOs.filter((po) => {
+    return poArray.filter((po) => {
       const dateMatch =
         (!dateFrom || po.date >= dateFrom) &&
         (!dateTo   || po.date <= dateTo)
@@ -148,16 +122,16 @@ export function usePOList() {
       const deptMatch   = deptFilter   === ALL || po.department === deptFilter
       return statusMatch && deptMatch
     })
-  }, [allPOs, statusFilter, deptFilter, filterKey, dateFrom, dateTo])
+  }, [poArray, statusFilter, deptFilter, filterKey, dateFrom, dateTo])
 
   const availableDepts = useMemo(() => {
-    return [...new Set(allPOs.map(po => po.department))].sort()
-  }, [allPOs])
+    return [...new Set(poArray.map(po => po.department))].sort()
+  }, [poArray])
 
   return {
     pos: filtered,
     loading,
-    error,
+    error: null,  // Dexie reads don't fail; sync errors are logged in poSync
     statusFilter,
     setStatusFilter,
     deptFilter,
@@ -169,6 +143,5 @@ export function usePOList() {
     setDateFrom,
     setDateTo,
     clearDateRange,
-    refetch: fetchPOs,
   }
 }
