@@ -71,13 +71,6 @@ export async function startSync(userId) {
   if (syncActive) return
   syncActive = true
 
-  // If offline, mark state and bail — cache is still usable
-  if (!navigator.onLine) {
-    setSyncState('offline')
-    syncActive = false
-    return
-  }
-
   setSyncState('syncing')
 
   try {
@@ -106,8 +99,15 @@ export async function startSync(userId) {
 
     if (error) {
       console.error('[poSync] fetch error:', error)
-      // Don't throw — stale cache is better than no cache
-    } else if (data?.length) {
+      // Fetch failed — treat as offline regardless of navigator.onLine.
+      // navigator.onLine is unreliable on mobile (WiFi connected but no internet).
+      // The fetch result is ground truth.
+      setSyncState('offline')
+      syncActive = false
+      return
+    }
+
+    if (data?.length) {
       await db.purchase_orders.bulkPut(data)
     }
 
@@ -125,14 +125,14 @@ export async function startSync(userId) {
   } catch (err) {
     console.error('[poSync] startSync error:', err)
     syncActive = false
-    // If fetch failed, check if we went offline during the attempt
-    setSyncState(navigator.onLine ? 'updated' : 'offline')
+    // Exception during fetch/write = can't sync = offline
+    setSyncState('offline')
   }
 }
 
 /**
- * Stop Realtime subscription.
- * Call on layout unmount or logout.
+ * Stop Realtime subscription and reset sync flag.
+ * Call on layout unmount, logout, or before restarting sync.
  */
 export function stopSync() {
   if (channel) {
@@ -140,7 +140,7 @@ export function stopSync() {
     channel = null
   }
   syncActive = false
-  setSyncState('idle')
+  // Don't change state here — caller decides next state
 }
 
 /**
@@ -162,7 +162,6 @@ export async function forceResync(userId) {
   if (userId) {
     await db._meta.put({ key: 'userId', value: userId })
   }
-  syncActive = false
   await startSync(userId)
 }
 
@@ -184,12 +183,10 @@ function subscribeRealtime() {
       async (payload) => {
         try {
           if (payload.eventType === 'DELETE') {
-            // payload.old only has the PK by default
             if (payload.old?.id) {
               await db.purchase_orders.delete(payload.old.id)
             }
           } else {
-            // INSERT or UPDATE — payload.new is the full row
             if (payload.new?.id) {
               await db.purchase_orders.put(payload.new)
             }
@@ -204,15 +201,12 @@ function subscribeRealtime() {
     )
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        // Channel connected — transition to live
         setSyncState('live')
       } else if (status === 'CHANNEL_ERROR') {
-        console.warn('[poSync] Realtime channel error — will retry automatically')
+        console.warn('[poSync] Realtime channel error')
+        setSyncState('offline')
       } else if (status === 'CLOSED') {
-        // Only mark offline if we actually lost network, not on intentional close
-        if (!navigator.onLine) {
-          setSyncState('offline')
-        }
+        setSyncState('offline')
       }
     })
 }
