@@ -14,44 +14,80 @@ export function AuthProvider({ children }) {
   const [profileReady, setProfileReady] = useState(IS_DEV) // true once profile fetch completes
   const [authError, setAuthError] = useState(null)
 
-  // Step 1: session management only — with localStorage fallback for offline only
+  // Step 1: session management — offline-first approach with reconnection handling
   useEffect(() => {
     if (IS_DEV) return
 
-    const isActuallyOffline = () => !navigator.onLine
+    const handleOnline = () => {
+      // User came back online — refresh session from Supabase
+      console.log('[Auth] Device came back online, refreshing session')
+      supabase.auth.getSession()
+        .then(({ data: { session } }) => {
+          setSession(session)
+          if (session) {
+            localStorage.setItem('cached_auth_session', JSON.stringify(session))
+          }
+        })
+        .catch((error) => {
+          console.error('[Auth] getSession failed after coming online:', error.message)
+        })
+    }
 
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => {
-        setSession(session)
-        // Cache successful session to localStorage
-        if (session) {
-          localStorage.setItem('cached_auth_session', JSON.stringify(session))
-        }
-      })
-      .catch((error) => {
-        // Only use cache if actually offline
-        if (isActuallyOffline()) {
-          console.warn('[Auth] Device offline, checking localStorage for cached session')
-          const cached = localStorage.getItem('cached_auth_session')
-          if (cached) {
-            try {
-              const parsedSession = JSON.parse(cached)
-              setSession(parsedSession)
-              console.log('[Auth] Restored session from cache (offline mode)')
-            } catch (e) {
-              console.error('[Auth] Failed to parse cached session:', e)
-              setSession(null)
-            }
-          } else {
-            console.log('[Auth] No cached session available offline')
+    const handleOffline = () => {
+      console.log('[Auth] Device went offline')
+    }
+
+    const initAuth = () => {
+      if (!navigator.onLine) {
+        // Device is offline — restore from cache immediately, skip Supabase
+        console.log('[Auth] Device offline, restoring from cache')
+        const cachedSession = localStorage.getItem('cached_auth_session')
+        const cachedProfile = localStorage.getItem('cached_user_profile')
+
+        if (cachedSession) {
+          try {
+            setSession(JSON.parse(cachedSession))
+          } catch (e) {
+            console.error('[Auth] Failed to parse cached session:', e)
             setSession(null)
           }
         } else {
-          // Online but got error — treat as real auth failure
-          console.error('[Auth] getSession failed while online:', error.message)
+          console.log('[Auth] No cached session available')
           setSession(null)
         }
-      })
+
+        if (cachedProfile) {
+          try {
+            setProfile(JSON.parse(cachedProfile))
+          } catch (e) {
+            console.error('[Auth] Failed to parse cached profile:', e)
+          }
+        }
+
+        setProfileReady(true)
+        return // Skip Supabase calls
+      }
+
+      // Device is online — fetch from Supabase
+      supabase.auth.getSession()
+        .then(({ data: { session } }) => {
+          setSession(session)
+          if (session) {
+            localStorage.setItem('cached_auth_session', JSON.stringify(session))
+          }
+        })
+        .catch((error) => {
+          console.error('[Auth] getSession failed:', error.message)
+          setSession(null)
+        })
+    }
+
+    // Initial auth check
+    initAuth()
+
+    // Listen for online/offline events
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
@@ -71,7 +107,11 @@ export function AuthProvider({ children }) {
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
   }, [])
 
   // Step 2: fetch profile whenever session has a user
@@ -88,27 +128,7 @@ export function AuthProvider({ children }) {
         .then(({ data, error }) => {
           if (error) {
             console.error('[Auth] profile fetch error', error)
-            // If offline, try localStorage cache
-            if (!navigator.onLine) {
-              const cached = localStorage.getItem('cached_user_profile')
-              if (cached) {
-                try {
-                  const parsedProfile = JSON.parse(cached)
-                  setProfile(parsedProfile)
-                  console.log('[Auth] Using cached profile (offline mode)')
-                } catch (e) {
-                  console.error('[Auth] Failed to parse cached profile:', e)
-                  setProfile(null)
-                }
-              } else {
-                console.log('[Auth] No cached profile available offline')
-                setProfile(null)
-              }
-            } else {
-              // Online but got error — real auth failure
-              console.error('[Auth] Profile fetch failed while online')
-              setProfile(null)
-            }
+            setProfile(null)
           } else {
             setProfile(data)
             // Cache successful profile to localStorage
