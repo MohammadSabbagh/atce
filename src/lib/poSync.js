@@ -33,6 +33,33 @@ let channel = null
 let syncActive = false
 
 // ─────────────────────────────────────────
+// Sync state — lightweight pub/sub
+// ─────────────────────────────────────────
+// States: 'idle' | 'offline' | 'syncing' | 'updated' | 'live'
+let _syncState = 'idle'
+const _listeners = new Set()
+
+function setSyncState(next) {
+  if (_syncState === next) return
+  _syncState = next
+  _listeners.forEach(fn => fn(next))
+}
+
+/** Get current sync state snapshot. */
+export function getSyncState() {
+  return _syncState
+}
+
+/**
+ * Subscribe to sync state changes.
+ * Returns an unsubscribe function.
+ */
+export function subscribeSyncState(callback) {
+  _listeners.add(callback)
+  return () => _listeners.delete(callback)
+}
+
+// ─────────────────────────────────────────
 // Public API
 // ─────────────────────────────────────────
 
@@ -43,6 +70,15 @@ let syncActive = false
 export async function startSync(userId) {
   if (syncActive) return
   syncActive = true
+
+  // If offline, mark state and bail — cache is still usable
+  if (!navigator.onLine) {
+    setSyncState('offline')
+    syncActive = false
+    return
+  }
+
+  setSyncState('syncing')
 
   try {
     // Check if cache belongs to a different user (role switch)
@@ -81,11 +117,16 @@ export async function startSync(userId) {
       value: new Date().toISOString(),
     })
 
+    // Fetch done, data committed → updated
+    setSyncState('updated')
+
     // Start Realtime subscription
     subscribeRealtime()
   } catch (err) {
     console.error('[poSync] startSync error:', err)
     syncActive = false
+    // If fetch failed, check if we went offline during the attempt
+    setSyncState(navigator.onLine ? 'updated' : 'offline')
   }
 }
 
@@ -99,6 +140,7 @@ export function stopSync() {
     channel = null
   }
   syncActive = false
+  setSyncState('idle')
 }
 
 /**
@@ -152,14 +194,25 @@ function subscribeRealtime() {
               await db.purchase_orders.put(payload.new)
             }
           }
+
+          // Any realtime payload confirms we're fully live
+          setSyncState('live')
         } catch (err) {
           console.error('[poSync] realtime handler error:', err)
         }
       }
     )
     .subscribe((status) => {
-      if (status === 'CHANNEL_ERROR') {
+      if (status === 'SUBSCRIBED') {
+        // Channel connected — transition to live
+        setSyncState('live')
+      } else if (status === 'CHANNEL_ERROR') {
         console.warn('[poSync] Realtime channel error — will retry automatically')
+      } else if (status === 'CLOSED') {
+        // Only mark offline if we actually lost network, not on intentional close
+        if (!navigator.onLine) {
+          setSyncState('offline')
+        }
       }
     })
 }

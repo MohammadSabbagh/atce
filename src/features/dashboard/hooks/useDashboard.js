@@ -74,6 +74,5 @@ export function useDashboard() {
     deptSpending: result?.deptSpending ?? [],
     loading,
     error:        null,  // Dexie reads don't fail; sync errors logged in poSync
-    lastUpdated:  null,  // No longer tracking — data is always live via Realtime
   }
 }

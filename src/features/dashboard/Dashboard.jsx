@@ -46,7 +46,7 @@ function QuickActions({ role }) {
 
 export default function Dashboard() {
   const { profile } = useAuth()
-  const { stats, deptSpending, loading, error, lastUpdated } = useDashboard()
+  const { stats, deptSpending, loading, error } = useDashboard()
 
   return (
     <div className="dashboard">
@@ -58,7 +58,7 @@ export default function Dashboard() {
             {profile?.full_name ?? ''}
           </h1>
         </div>
-        <LiveIndicator lastUpdated={lastUpdated} />
+        <LiveIndicator />
       </div>
 
       {/* ── Quick actions ───────────────────────── */}

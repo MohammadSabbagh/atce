@@ -1,23 +1,23 @@
 // features/dashboard/components/LiveIndicator.jsx
+import { useSyncState } from '@/lib/useSyncState'
 import './LiveIndicator.scss'
-import { S } from '../../../lib/strings'
 
-export function LiveIndicator({ lastUpdated }) {
-  const timeStr = lastUpdated
-    ? lastUpdated.toLocaleTimeString('ar-SA', {
-        hour:   '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      })
-    : '—'
+const STATE_CONFIG = {
+  offline:  { label: 'غير متصل',  modifier: 'offline'  },
+  syncing:  { label: 'مزامنة…',   modifier: 'syncing'  },
+  updated:  { label: 'مُحدّث',    modifier: 'updated'  },
+  live:     { label: 'مباشر',     modifier: 'live'     },
+  idle:     { label: '—',         modifier: 'idle'     },
+}
+
+export function LiveIndicator() {
+  const syncState = useSyncState()
+  const { label, modifier } = STATE_CONFIG[syncState] ?? STATE_CONFIG.idle
 
   return (
-    <div className="live-indicator">
+    <div className={`live-indicator live-indicator--${modifier}`}>
       <span className="live-indicator__dot" aria-hidden="true" />
-      <span className="live-indicator__label">{S.live}</span>
-      {/* <span className="live-indicator__time">
-        {S.lastUpdated}: {timeStr}
-      </span> */}
+      <span className="live-indicator__label">{label}</span>
     </div>
   )
 }

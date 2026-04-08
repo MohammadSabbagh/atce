@@ -5,6 +5,7 @@ import { usePOList } from './hooks/usePOList'
 import { S } from '@/lib/strings'
 import POCard from './POCard'
 import FilterChips from '@/components/ui/FilterChips'
+import { LiveIndicator } from '@/features/dashboard/components/LiveIndicator'
 import '@/styles/po-list.scss'
 
 const STATUS_FILTERS = [
@@ -63,6 +64,8 @@ export default function POList() {
       <div className="po-list__header">
         <h1 className="po-list__title">{S.navPOList}</h1>
         <span className="po-list__count mono">{pos.length}</span>
+
+        <LiveIndicator />
 
         <button
           className={`po-list__funnel ${hasSecondary ? 'po-list__funnel--active' : ''}`}
