@@ -91,6 +91,14 @@ export function AuthProvider({ children }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        // FIX: When offline, don't let Supabase null-out a cached session.
+        // Supabase fires onAuthStateChange with null when token refresh fails
+        // (no network), which would wipe the session we restored from cache.
+        if (!navigator.onLine && !session) {
+          console.log('[Auth] Ignoring null session from Supabase (offline)')
+          return
+        }
+
         setSession(prev => {
           // Only reset profileReady if the user identity changed
           if (session?.user?.id !== prev?.user?.id) {
@@ -120,6 +128,23 @@ export function AuthProvider({ children }) {
     if (session === undefined) return // still initializing
 
     if (session?.user) {
+      // FIX: When offline, use cached profile instead of hitting Supabase.
+      // The fetch would fail and the error handler would set profile to null,
+      // wiping the cached profile restored in initAuth().
+      if (!navigator.onLine) {
+        console.log('[Auth] Offline — using cached profile')
+        const cachedProfile = localStorage.getItem('cached_user_profile')
+        if (cachedProfile) {
+          try {
+            setProfile(JSON.parse(cachedProfile))
+          } catch (e) {
+            console.error('[Auth] Failed to parse cached profile:', e)
+          }
+        }
+        setProfileReady(true)
+        return
+      }
+
       supabase
         .from('profiles')
         .select('*')
@@ -128,7 +153,19 @@ export function AuthProvider({ children }) {
         .then(({ data, error }) => {
           if (error) {
             console.error('[Auth] profile fetch error', error)
-            setProfile(null)
+            // FIX: On fetch error, fall back to cached profile instead of null.
+            // Covers flaky connections where navigator.onLine is true but
+            // the request still fails.
+            const cachedProfile = localStorage.getItem('cached_user_profile')
+            if (cachedProfile) {
+              try {
+                setProfile(JSON.parse(cachedProfile))
+              } catch (e) {
+                setProfile(null)
+              }
+            } else {
+              setProfile(null)
+            }
           } else {
             setProfile(data)
             // Cache successful profile to localStorage
