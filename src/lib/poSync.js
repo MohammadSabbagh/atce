@@ -31,6 +31,7 @@ const PO_CACHE_SELECT = `
 
 let channel = null
 let syncActive = false
+let channelCounter = 0
 
 // ─────────────────────────────────────────
 // Sync state — lightweight pub/sub
@@ -70,6 +71,7 @@ export function subscribeSyncState(callback) {
 export async function startSync(userId) {
   if (syncActive) return
   syncActive = true
+  realtimeRetries = 0
 
   setSyncState('syncing')
 
@@ -169,14 +171,23 @@ export async function forceResync(userId) {
 // Realtime subscription
 // ─────────────────────────────────────────
 
+let realtimeRetries = 0
+const MAX_REALTIME_RETRIES = 3
+const RETRY_DELAY = 5000 // 5s between retries
+
 function subscribeRealtime() {
   // Clean up any existing channel first
   if (channel) {
     supabase.removeChannel(channel)
   }
 
+  // Unique channel name each time — reusing the same name after removeChannel
+  // can cause Supabase's realtime client to silently fail to re-subscribe.
+  channelCounter += 1
+  const channelName = `po-sync-${channelCounter}`
+
   channel = supabase
-    .channel('po-sync')
+    .channel(channelName)
     .on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'purchase_orders' },
@@ -192,21 +203,36 @@ function subscribeRealtime() {
             }
           }
 
-          // Any realtime payload confirms we're fully live
           setSyncState('live')
         } catch (err) {
           console.error('[poSync] realtime handler error:', err)
         }
       }
     )
-    .subscribe((status) => {
+    .subscribe((status, err) => {
+      console.log('[poSync] realtime subscribe status:', status, err ?? '')
       if (status === 'SUBSCRIBED') {
+        realtimeRetries = 0 // reset on success
         setSyncState('live')
-      } else if (status === 'CHANNEL_ERROR') {
-        console.warn('[poSync] Realtime channel error')
-        setSyncState('offline')
+      } else if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
+        console.warn(`[poSync] Realtime ${status} (attempt ${realtimeRetries + 1}/${MAX_REALTIME_RETRIES})`)
+        // Data IS synced (fetch succeeded) — stay on 'updated', not 'offline'.
+        // 'offline' should mean we can't reach the server at all.
+        setSyncState('updated')
+
+        if (realtimeRetries < MAX_REALTIME_RETRIES) {
+          realtimeRetries += 1
+          setTimeout(() => subscribeRealtime(), RETRY_DELAY)
+        } else {
+          console.warn('[poSync] Realtime retries exhausted — staying on updated')
+        }
       } else if (status === 'CLOSED') {
-        setSyncState('offline')
+        // CLOSED fires both on intentional stopSync() AND automatically
+        // after CHANNEL_ERROR. Ignore it during active retries to avoid
+        // flashing 'offline' between retry attempts.
+        if (realtimeRetries === 0) {
+          setSyncState('offline')
+        }
       }
     })
 }

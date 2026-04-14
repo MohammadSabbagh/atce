@@ -30,25 +30,24 @@ export function useSyncState() {
     }
 
     // Mobile PWA: backgrounding the app doesn't fire online/offline events.
-    // The WebSocket dies silently. When the user returns, we need to
-    // check if we're still connected and restart sync if needed.
+    // The WebSocket may die silently. When the user returns, we check state
+    // and only restart if we're in a clearly broken state.
+    // If state is 'live' or 'updated', don't touch it — tearing down and
+    // re-establishing the WebSocket on slow internet causes timeouts.
+    // Supabase's realtime client has built-in reconnection. If it fails,
+    // CHANNEL_ERROR will set state to 'offline', and the next visibility
+    // change will catch that.
     const handleVisibility = () => {
       if (document.visibilityState !== 'visible') return
       if (!profile?.id) return
 
       const current = getSyncState()
 
-      // If we were live but the channel probably died while backgrounded,
-      // or if we're in offline/idle state, try to re-sync.
       if (current === 'offline' || current === 'idle') {
         stopSync()
         startSync(profile.id)
-      } else if (current === 'live' || current === 'updated') {
-        // Channel might have died while backgrounded — restart to be safe.
-        // startSync will set syncing → updated → live quickly if server is reachable.
-        stopSync()
-        startSync(profile.id)
       }
+      // 'live', 'updated', 'syncing' — leave alone
     }
 
     window.addEventListener('offline', handleOffline)
