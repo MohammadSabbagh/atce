@@ -11,7 +11,6 @@ const PO_SELECT = `
   title,
   description,
   date,
-  department,
   requires_ceo,
   status,
   total,
@@ -24,7 +23,7 @@ const PO_SELECT = `
   creator:profiles!created_by(full_name),
   approver:profiles!approved_by(full_name),
   releaser:profiles!released_by(full_name),
-  line_items:po_line_items(id, description, price, sort_order),
+  line_items:po_line_items(id, description, department, quantity, unit_price, sort_order),
   tags:po_tags(tag),
   attachments:po_attachments(id, file_name, file_path, file_type, file_size)
 `

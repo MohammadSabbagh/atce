@@ -6,12 +6,19 @@ import Dexie from 'dexie'
 
 const db = new Dexie('atce')
 
+// version(1) must stay to give Dexie the migration baseline.
+// Do not remove it — Dexie requires the full version history to upgrade existing DBs.
 db.version(1).stores({
-  // PO header cache — indexed fields used for filtering
-  // Non-indexed fields (po_number, title, total, etc.) are stored but not indexed
   purchase_orders: 'id, status, department, date, requires_ceo, updated_at',
+  _meta: 'key',
+})
 
-  // Sync metadata — key/value pairs (lastSyncedAt, userId)
+// version(2): line items become first-class cached data.
+// purchase_orders drops the department index (department now lives on line items).
+// po_line_items indexed on id (PK), po_id (join), department (filter/aggregate).
+db.version(2).stores({
+  purchase_orders: 'id, status, date, requires_ceo, updated_at, created_by',
+  po_line_items:   'id, po_id, department',
   _meta: 'key',
 })
 

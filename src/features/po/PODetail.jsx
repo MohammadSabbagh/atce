@@ -301,7 +301,9 @@ export default function PODetail() {
           </div>
 
           <div className="po-detail__meta-row">
-            <span className="po-detail__meta-chip">{po.department}</span>
+            {[...new Set(po.line_items?.map(i => i.department).filter(Boolean) ?? [])].map(dept => (
+              <span key={dept} className="po-detail__meta-chip">{dept}</span>
+            ))}
             <span className="po-detail__meta-date">{formatDate(po.date)}</span>
             {po.requires_ceo && (
               <span className="po-detail__ceo-flag">⚑ CEO Approval</span>
@@ -323,14 +325,26 @@ export default function PODetail() {
         <div className="po-detail__card">
           <span className="po-detail__section-label">Line Items</span>
           <div className="po-detail__items">
-            {po.line_items?.map((item) => (
-              <div key={item.id} className="po-detail__item">
-                <span className="po-detail__item-desc">{item.description}</span>
-                <span className="po-detail__item-price mono">
-                  {formatCurrency(item.price)}
-                </span>
-              </div>
-            ))}
+            {po.line_items?.map((item) => {
+              const qty      = parseFloat(item.quantity)   || 0
+              const price    = parseFloat(item.unit_price) || 0
+              const subtotal = qty * price
+              //const showQty  = qty !== 1
+              return (
+                <div key={item.id} className="po-detail__item">
+                  <div className="po-detail__item-main">
+                    <span className="po-detail__item-desc">{item.description}</span>
+                    <span className="po-detail__item-total mono">{formatCurrency(subtotal)}</span>
+                  </div>
+                  <div className="po-detail__item-sub">
+                    <span className="po-detail__item-dept">{item.department}</span>
+                    <span className="po-detail__item-breakdown mono">
+                      {`${qty} × ${formatCurrency(price)}`}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
           </div>
           <div className="po-detail__total-row">
             <span className="po-detail__total-label">Total</span>

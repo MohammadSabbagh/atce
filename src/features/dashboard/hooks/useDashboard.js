@@ -7,9 +7,6 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import db from '@/lib/db'
 
 export function useDashboard() {
-  // ─────────────────────────────────────────
-  // Single reactive query — recomputes on any Dexie write
-  // ─────────────────────────────────────────
   const result = useLiveQuery(async () => {
     const allPOs = await db.purchase_orders.toArray()
 
@@ -40,16 +37,26 @@ export function useDashboard() {
       .reduce((sum, p) => sum + (p.total ?? 0), 0)
 
     // ── Department spending chart ───────────
-    // Group all non-cancelled PO totals by department
+    // Aggregate line item spend per department, excluding cancelled POs.
+    // This is more accurate than PO-level grouping — a single PO can have
+    // items across multiple departments, each charged to the correct budget.
+    const cancelledIds = new Set(
+      allPOs.filter(p => p.status === 'cancelled').map(p => p.id)
+    )
+
+    const allLineItems = await db.po_line_items.toArray()
+
     const deptMap = {}
-    for (const po of pos) {
-      if (!deptMap[po.department]) deptMap[po.department] = 0
-      deptMap[po.department] += po.total ?? 0
+    for (const item of allLineItems) {
+      if (cancelledIds.has(item.po_id)) continue
+      if (!item.department) continue
+      const amount = (item.quantity ?? 1) * (item.unit_price ?? 0)
+      deptMap[item.department] = (deptMap[item.department] ?? 0) + amount
     }
 
     const deptSpending = Object.entries(deptMap)
       .map(([department, total]) => ({ department, total }))
-      .sort((a, b) => b.total - a.total) // highest spend first
+      .sort((a, b) => b.total - a.total)
 
     return {
       stats: {
@@ -62,17 +69,15 @@ export function useDashboard() {
     }
   }, [])
 
-  // Check if initial sync has completed at least once
   const syncMeta = useLiveQuery(() => db._meta.get('lastSyncedAt'), [])
   const hasSynced = !!syncMeta?.value
 
-  // Show loading when: Dexie query pending OR first sync not done yet
   const loading = result === undefined || !hasSynced
 
   return {
     stats:        result?.stats ?? null,
     deptSpending: result?.deptSpending ?? [],
     loading,
-    error:        null,  // Dexie reads don't fail; sync errors logged in poSync
+    error:        null,
   }
 }

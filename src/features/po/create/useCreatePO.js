@@ -3,17 +3,26 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 
+const DEPARTMENTS = [
+  'Operations',
+  'Marketing',
+  'Engineering',
+  'HR',
+  'Sales',
+  'Legal',
+  'Finance',
+]
+
 const INITIAL_FORM = {
   // Step 1 — Details
   title: '',
   description: '',
   date: new Date().toISOString().split('T')[0],
-  department: '',
   tags: [],
   requires_ceo: false,
 
   // Step 2 — Line Items
-  line_items: [{ id: crypto.randomUUID(), description: '', price: '' }],
+  line_items: [{ id: crypto.randomUUID(), description: '', department: '', quantity: 1, unit_price: '' }],
 
   // Step 3 — Attachments
   attachments: [],
@@ -48,7 +57,7 @@ export function useCreatePO() {
   const addLineItem = () => {
     setField('line_items', [
       ...form.line_items,
-      { id: crypto.randomUUID(), description: '', price: '' },
+      { id: crypto.randomUUID(), description: '', department: '', quantity: 1, unit_price: '' },
     ])
   }
 
@@ -66,10 +75,11 @@ export function useCreatePO() {
     setField('line_items', form.line_items.filter((item) => item.id !== id))
   }
 
-  const lineTotal = form.line_items.reduce(
-    (sum, item) => sum + (parseFloat(item.price) || 0),
-    0
-  )
+  const lineTotal = form.line_items.reduce((sum, item) => {
+    const qty   = parseFloat(item.quantity)   || 0
+    const price = parseFloat(item.unit_price) || 0
+    return sum + qty * price
+  }, 0)
 
   // ── Attachments ──────────────────────────────
   const addAttachment = (file) => {
@@ -77,10 +87,7 @@ export function useCreatePO() {
   }
 
   const removeAttachment = (index) => {
-    setField(
-      'attachments',
-      form.attachments.filter((_, i) => i !== index)
-    )
+    setField('attachments', form.attachments.filter((_, i) => i !== index))
   }
 
   // ── Navigation ───────────────────────────────
@@ -91,10 +98,14 @@ export function useCreatePO() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return form.title.trim() && form.department && form.date
+        return form.title.trim() && form.date
       case 2:
         return form.line_items.every(
-          (i) => i.description.trim() && parseFloat(i.price) > 0
+          (i) =>
+            i.description.trim() &&
+            i.department &&
+            parseFloat(i.quantity) > 0 &&
+            parseFloat(i.unit_price) > 0
         )
       case 3:
         return true
@@ -112,18 +123,17 @@ export function useCreatePO() {
     setSubmitError(null)
 
     try {
-      // 1. Insert the PO header
+      // 1. Insert PO header — no department field, it lives on line items now
       const { data: po, error: poError } = await supabase
         .from('purchase_orders')
         .insert({
-          title: form.title.trim(),
-          description: form.description.trim() || null,
-          date: form.date,
-          department: form.department,
+          title:        form.title.trim(),
+          description:  form.description.trim() || null,
+          date:         form.date,
           requires_ceo: form.requires_ceo,
-          status: 'pending',
-          total: lineTotal,
-          created_by: profile.id,
+          status:       'pending',
+          total:        lineTotal,
+          created_by:   profile.id,
         })
         .select('id')
         .single()
@@ -132,68 +142,61 @@ export function useCreatePO() {
 
       const poId = po.id
 
-      // 2. Insert line items
-      if (form.line_items.length > 0) {
-        const { error: itemsError } = await supabase
-          .from('po_line_items')
-          .insert(
-            form.line_items.map((item, index) => ({
-              po_id: poId,
-              description: item.description.trim(),
-              price: parseFloat(item.price),
-              sort_order: index,
-            }))
-          )
+      // 2. Insert line items with department, quantity, unit_price
+      const { error: itemsError } = await supabase
+        .from('po_line_items')
+        .insert(
+          form.line_items.map((item, index) => ({
+            po_id:       poId,
+            description: item.description.trim(),
+            department:  item.department,
+            quantity:    parseFloat(item.quantity),
+            unit_price:  parseFloat(item.unit_price),
+            sort_order:  index,
+          }))
+        )
 
-        if (itemsError) throw itemsError
-      }
+      if (itemsError) throw itemsError
 
       // 3. Insert tags
       if (form.tags.length > 0) {
         const { error: tagsError } = await supabase
           .from('po_tags')
-          .insert(
-            form.tags.map((tag) => ({
-              po_id: poId,
-              tag,
-            }))
-          )
+          .insert(form.tags.map((tag) => ({ po_id: poId, tag })))
 
         if (tagsError) throw tagsError
       }
 
-      // 4. Upload attachments to Storage + insert records
-      if (form.attachments.length > 0) {
-        for (const file of form.attachments) {
-          const filePath = `${poId}/${Date.now()}-${file.name}`
+      // 4. Upload attachments
+      for (const file of form.attachments) {
+        const filePath = `${poId}/${Date.now()}-${file.name}`
 
-          const { error: uploadError } = await supabase.storage
-            .from('po-attachments')
-            .upload(filePath, file)
+        const { error: uploadError } = await supabase.storage
+          .from('po-attachments')
+          .upload(filePath, file)
 
-          if (uploadError) throw uploadError
+        if (uploadError) throw uploadError
 
-          const { error: attachError } = await supabase
-            .from('po_attachments')
-            .insert({
-              po_id: poId,
-              file_name: file.name,
-              file_path: filePath,
-              file_size: file.size,
-              file_type: file.type,
-            })
+        const { error: attachError } = await supabase
+          .from('po_attachments')
+          .insert({
+            po_id:     poId,
+            file_name: file.name,
+            file_path: filePath,
+            file_size: file.size,
+            file_type: file.type,
+          })
 
-          if (attachError) throw attachError
-        }
+        if (attachError) throw attachError
       }
 
-      // 5. Write audit log entry
+      // 5. Audit log
       await supabase.from('audit_log').insert({
-        entity_type: 'purchase_order',
-        entity_id: poId,
-        action: 'created',
+        entity_type:  'purchase_order',
+        entity_id:    poId,
+        action:       'created',
         performed_by: profile.id,
-        details: { title: form.title, total: lineTotal, department: form.department },
+        details:      { title: form.title, total: lineTotal },
       })
 
       setSubmitted(true)
@@ -205,9 +208,7 @@ export function useCreatePO() {
     }
   }
 
-  const handleDone = () => {
-    navigate('/po/list')
-  }
+  const handleDone = () => navigate('/po/list')
 
   return {
     step,
@@ -229,5 +230,6 @@ export function useCreatePO() {
     submitted,
     submitting,
     submitError,
+    departments: DEPARTMENTS,
   }
 }

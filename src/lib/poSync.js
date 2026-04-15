@@ -1,12 +1,15 @@
 // src/lib/poSync.js
-// Sync engine for purchase_orders cache.
+// Sync engine for purchase_orders + po_line_items cache.
 //
 // Flow:
 //   1. App boot → check if cached userId matches current user
 //      - Mismatch (role switch / first use): clear DB, full fetch
 //      - Match: delta fetch since lastSyncedAt
-//   2. Upsert fetched rows into Dexie
-//   3. Subscribe to Supabase Realtime → upsert/delete in Dexie on every change
+//   2. Upsert fetched PO rows into Dexie; extract + upsert their line items
+//   3. Subscribe to Supabase Realtime → upsert/delete PO headers in Dexie on every change
+//      Note: Realtime payloads are PO-header-only (no line items). Line items are
+//      immutable after creation, so this is safe. If line item editing is added later,
+//      a separate Realtime subscription on po_line_items will be needed.
 //   4. useLiveQuery in consumers auto-rerenders on any Dexie write
 //
 // No soft-delete handling — POs are never hard-deleted, only status-changed.
@@ -14,19 +17,19 @@
 import db from './db'
 import { supabase } from './supabase'
 
-// Fields cached for list + dashboard views.
-// Realtime payloads include all columns — extra fields are stored harmlessly.
+// PO header fields + nested line items for cache.
+// department is gone from the PO header — it now lives on each line item.
 const PO_CACHE_SELECT = `
   id,
   po_number,
   title,
   date,
-  department,
   requires_ceo,
   status,
   total,
   created_by,
-  updated_at
+  updated_at,
+  line_items:po_line_items(id, po_id, description, department, quantity, unit_price, sort_order)
 `
 
 let channel = null
@@ -58,6 +61,36 @@ export function getSyncState() {
 export function subscribeSyncState(callback) {
   _listeners.add(callback)
   return () => _listeners.delete(callback)
+}
+
+// ─────────────────────────────────────────
+// Internal helpers
+// ─────────────────────────────────────────
+
+/**
+ * Split a Supabase response array into PO headers and flat line items,
+ * then upsert both tables in a single Dexie transaction.
+ */
+async function upsertPOsWithLineItems(rows) {
+  if (!rows?.length) return
+
+  const poHeaders  = []
+  const lineItems  = []
+
+  for (const row of rows) {
+    const { line_items, ...header } = row
+    poHeaders.push(header)
+    if (line_items?.length) {
+      lineItems.push(...line_items)
+    }
+  }
+
+  await db.transaction('rw', db.purchase_orders, db.po_line_items, async () => {
+    await db.purchase_orders.bulkPut(poHeaders)
+    if (lineItems.length) {
+      await db.po_line_items.bulkPut(lineItems)
+    }
+  })
 }
 
 // ─────────────────────────────────────────
@@ -93,7 +126,9 @@ export async function startSync(userId) {
       .order('date', { ascending: false })
 
     if (lastSyncedAt) {
-      // Only fetch rows changed since last sync
+      // Only fetch POs changed since last sync.
+      // Line items are immutable after creation — if the PO updated_at changed,
+      // we re-fetch its line items too (they're nested in the select).
       query = query.gte('updated_at', lastSyncedAt)
     }
 
@@ -101,17 +136,12 @@ export async function startSync(userId) {
 
     if (error) {
       console.error('[poSync] fetch error:', error)
-      // Fetch failed — treat as offline regardless of navigator.onLine.
-      // navigator.onLine is unreliable on mobile (WiFi connected but no internet).
-      // The fetch result is ground truth.
       setSyncState('offline')
       syncActive = false
       return
     }
 
-    if (data?.length) {
-      await db.purchase_orders.bulkPut(data)
-    }
+    await upsertPOsWithLineItems(data)
 
     // Stamp sync time
     await db._meta.put({
@@ -119,15 +149,11 @@ export async function startSync(userId) {
       value: new Date().toISOString(),
     })
 
-    // Fetch done, data committed → updated
     setSyncState('updated')
-
-    // Start Realtime subscription
     subscribeRealtime()
   } catch (err) {
     console.error('[poSync] startSync error:', err)
     syncActive = false
-    // Exception during fetch/write = can't sync = offline
     setSyncState('offline')
   }
 }
@@ -142,7 +168,6 @@ export function stopSync() {
     channel = null
   }
   syncActive = false
-  // Don't change state here — caller decides next state
 }
 
 /**
@@ -150,8 +175,11 @@ export function stopSync() {
  * Called on user switch or explicit logout.
  */
 export async function clearCache() {
-  await db.purchase_orders.clear()
-  await db._meta.clear()
+  await db.transaction('rw', db.purchase_orders, db.po_line_items, db._meta, async () => {
+    await db.purchase_orders.clear()
+    await db.po_line_items.clear()
+    await db._meta.clear()
+  })
 }
 
 /**
@@ -176,13 +204,10 @@ const MAX_REALTIME_RETRIES = 3
 const RETRY_DELAY = 5000 // 5s between retries
 
 function subscribeRealtime() {
-  // Clean up any existing channel first
   if (channel) {
     supabase.removeChannel(channel)
   }
 
-  // Unique channel name each time — reusing the same name after removeChannel
-  // can cause Supabase's realtime client to silently fail to re-subscribe.
   channelCounter += 1
   const channelName = `po-sync-${channelCounter}`
 
@@ -195,9 +220,16 @@ function subscribeRealtime() {
         try {
           if (payload.eventType === 'DELETE') {
             if (payload.old?.id) {
-              await db.purchase_orders.delete(payload.old.id)
+              // Cascade delete line items from cache too
+              await db.transaction('rw', db.purchase_orders, db.po_line_items, async () => {
+                await db.purchase_orders.delete(payload.old.id)
+                await db.po_line_items.where('po_id').equals(payload.old.id).delete()
+              })
             }
           } else {
+            // Realtime payload is PO header only — no line_items nested.
+            // Line items are immutable after creation so the cached copy stays valid.
+            // Only the PO header (status, total, updated_at, etc.) changes via Realtime.
             if (payload.new?.id) {
               await db.purchase_orders.put(payload.new)
             }
@@ -212,12 +244,10 @@ function subscribeRealtime() {
     .subscribe((status, err) => {
       console.log('[poSync] realtime subscribe status:', status, err ?? '')
       if (status === 'SUBSCRIBED') {
-        realtimeRetries = 0 // reset on success
+        realtimeRetries = 0
         setSyncState('live')
       } else if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
         console.warn(`[poSync] Realtime ${status} (attempt ${realtimeRetries + 1}/${MAX_REALTIME_RETRIES})`)
-        // Data IS synced (fetch succeeded) — stay on 'updated', not 'offline'.
-        // 'offline' should mean we can't reach the server at all.
         setSyncState('updated')
 
         if (realtimeRetries < MAX_REALTIME_RETRIES) {
@@ -227,9 +257,6 @@ function subscribeRealtime() {
           console.warn('[poSync] Realtime retries exhausted — staying on updated')
         }
       } else if (status === 'CLOSED') {
-        // CLOSED fires both on intentional stopSync() AND automatically
-        // after CHANNEL_ERROR. Ignore it during active retries to avoid
-        // flashing 'offline' between retry attempts.
         if (realtimeRetries === 0) {
           setSyncState('offline')
         }

@@ -2,6 +2,9 @@
 // URL params are the single source of truth for filter state.
 // Data reads from Dexie (IndexedDB) via useLiveQuery — instant on every visit.
 // The sync engine (poSync.js) keeps the cache fresh via Supabase Realtime.
+//
+// Department filtering joins against po_line_items — a PO matches if ANY of its
+// items belong to the selected department.
 
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -78,60 +81,84 @@ export function usePOList() {
     })
   }
 
-  // ── Read all POs from Dexie (reactive — re-runs on any write) ─────
+  // ── Read all POs from Dexie ────────────────────────────────────────
   const allPOs = useLiveQuery(
     () => db.purchase_orders.orderBy('date').reverse().toArray(),
-    []  // no deps — Dexie handles reactivity
+    []
   )
 
-  // Check if initial sync has completed at least once.
-  // lastSyncedAt is written by poSync after the first successful fetch.
-  // Returns undefined while IndexedDB resolves, then the record or undefined if missing.
+  // ── Read all line items from Dexie ────────────────────────────────
+  // Used for department filtering and availableDepts derivation.
+  const allLineItems = useLiveQuery(
+    () => db.po_line_items.toArray(),
+    []
+  )
+
   const syncMeta = useLiveQuery(() => db._meta.get('lastSyncedAt'), [])
   const hasSynced = !!syncMeta?.value
 
-  // useLiveQuery returns undefined on first render while IndexedDB resolves.
-  // Show loading when: Dexie query pending OR cache empty + first sync not done.
-  const poArray = allPOs ?? []
-  const loading = allPOs === undefined || (!hasSynced && poArray.length === 0)
+  const poArray       = allPOs       ?? []
+  const lineItemArray = allLineItems ?? []
+  const loading = allPOs === undefined || allLineItems === undefined || (!hasSynced && poArray.length === 0)
+
+  // ── Build po_id → departments[] map for filtering ─────────────────
+  // Computed once per line item array change, shared by both filtered and availableDepts.
+  const poDeptsMap = useMemo(() => {
+    const map = {} // po_id → Set<department>
+    for (const item of lineItemArray) {
+      if (!item.department) continue
+      if (!map[item.po_id]) map[item.po_id] = new Set()
+      map[item.po_id].add(item.department)
+    }
+    return map
+  }, [lineItemArray])
 
   // ── Client-side filtering ──────────────────────────────────────────
   const filtered = useMemo(() => {
     return poArray.filter((po) => {
+      // Date range
       const dateMatch =
         (!dateFrom || po.date >= dateFrom) &&
         (!dateTo   || po.date <= dateTo)
-
       if (!dateMatch) return false
 
+      // Department: PO matches if ANY of its line items belong to the selected dept
+      const deptMatch =
+        deptFilter === ALL ||
+        (poDeptsMap[po.id]?.has(deptFilter) ?? false)
+      if (!deptMatch) return false
+
+      // Special compound filter keys
       if (filterKey === 'finance_pending') {
-        const financeMatch =
+        return (
           po.status === 'approved' ||
           (po.status === 'pending' && !po.requires_ceo)
-        const deptMatch = deptFilter === ALL || po.department === deptFilter
-        return financeMatch && deptMatch
+        )
       }
 
       if (filterKey === 'ceo_pending') {
-        const ceoMatch = po.status === 'pending' && po.requires_ceo === true
-        const deptMatch = deptFilter === ALL || po.department === deptFilter
-        return ceoMatch && deptMatch
+        return po.status === 'pending' && po.requires_ceo === true
       }
 
-      const statusMatch = statusFilter === ALL || po.status === statusFilter
-      const deptMatch   = deptFilter   === ALL || po.department === deptFilter
-      return statusMatch && deptMatch
+      // Standard status filter
+      return statusFilter === ALL || po.status === statusFilter
     })
-  }, [poArray, statusFilter, deptFilter, filterKey, dateFrom, dateTo])
+  }, [poArray, statusFilter, deptFilter, filterKey, dateFrom, dateTo, poDeptsMap])
 
+  // ── Available departments (for the dept dropdown) ──────────────────
+  // Derived from line items, not PO headers.
   const availableDepts = useMemo(() => {
-    return [...new Set(poArray.map(po => po.department))].sort()
-  }, [poArray])
+    const depts = new Set()
+    for (const item of lineItemArray) {
+      if (item.department) depts.add(item.department)
+    }
+    return [...depts].sort()
+  }, [lineItemArray])
 
   return {
     pos: filtered,
     loading,
-    error: null,  // Dexie reads don't fail; sync errors are logged in poSync
+    error: null,
     statusFilter,
     setStatusFilter,
     deptFilter,

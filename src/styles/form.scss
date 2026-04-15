@@ -511,3 +511,92 @@
     padding: 4px 0;
   }
 }
+
+.form__line-item {
+  // existing styles intact — these are additions/overrides
+ 
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+ 
+  &-num {
+    font-size: 11px;
+    font-family: $font-mono;
+    color: $text-muted;
+    background: $bg-base;
+    border: 1px solid $border-subtle;
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+ 
+  &-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+ 
+  &-price-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+ 
+  &-qty-field,
+  &-price-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+ 
+  &-qty-field {
+    flex: 0 0 72px;
+  }
+ 
+  &-price-field {
+    flex: 1;
+  }
+ 
+  &-times {
+    font-size: 14px;
+    color: $text-muted;
+    padding-bottom: 10px; // align with input baseline
+    flex-shrink: 0;
+  }
+ 
+  &-subtotal {
+    font-size: 13px;
+    font-family: $font-mono;
+    color: $text-secondary;
+    padding-bottom: 10px;
+    flex-shrink: 0;
+    min-width: 64px;
+    text-align: right;
+  }
+}
+ 
+.form__inline-label {
+  font-size: 11px;
+  color: $text-muted;
+  font-family: $font-ui;
+}
+ 
+.form__price-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+ 
+.form__input--qty {
+  width: 100%;
+}
+ 
+.form__input--select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 10px center; // RTL — arrow on left
+  padding-left: 28px;
+}
