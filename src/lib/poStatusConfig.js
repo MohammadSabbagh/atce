@@ -6,12 +6,12 @@
 // Status definitions
 // ─────────────────────────────────────────
 export const PO_STATUS = {
-  PENDING:     'pending',
-  APPROVED:    'approved',
-  RELEASED:    'released',
-  REJECTED:    'rejected',
-  RESUBMITTED: 'resubmitted',
-  CANCELLED:   'cancelled',
+  DRAFT:     'draft',
+  PENDING:   'pending',
+  APPROVED:  'approved',
+  RELEASED:  'released',
+  REJECTED:  'rejected',
+  CANCELLED: 'cancelled',
 }
 
 // ─────────────────────────────────────────
@@ -21,6 +21,11 @@ export const PO_STATUS = {
 // cssClass: BEM modifier for status badges
 // ─────────────────────────────────────────
 export const STATUS_CONFIG = {
+  [PO_STATUS.DRAFT]: {
+    label:    'مسودة',
+    cssClass: 'draft',
+    color:    'muted',
+  },
   [PO_STATUS.PENDING]: {
     label:    'قيد الانتظار',
     cssClass: 'pending',
@@ -41,11 +46,6 @@ export const STATUS_CONFIG = {
     cssClass: 'rejected',
     color:    'red',
   },
-  [PO_STATUS.RESUBMITTED]: {
-    label:    'أُعيد تقديمه',
-    cssClass: 'resubmitted',
-    color:    'purple',
-  },
   [PO_STATUS.CANCELLED]: {
     label:    'ملغى',
     cssClass: 'cancelled',
@@ -57,11 +57,37 @@ export const STATUS_CONFIG = {
 // Flow rules
 // Defines which roles can perform which transitions
 // and whether a note is required
+//
+// Full lifecycle:
+//   Secretary creates → draft
+//   PM confirms → pending          (PM-created POs start as pending directly)
+//   CEO (if requires_ceo) → approved / rejected
+//   Finance → released / rejected
+//   rejected is terminal — no resubmission
+//   cancelled is terminal
 // ─────────────────────────────────────────
 export const STATUS_TRANSITIONS = {
-  // CEO: approve requires_ceo POs (pending or resubmitted)
+  // PM: confirm a Secretary's draft → pending
+  pm_confirm: {
+    from:         [PO_STATUS.DRAFT],
+    to:           PO_STATUS.PENDING,
+    allowedRoles: ['purchase_manager'],
+    requiresNote: false,
+    condition:    () => true,
+  },
+
+  // Secretary: cancel own draft before PM confirms
+  cancel_draft: {
+    from:         [PO_STATUS.DRAFT],
+    to:           PO_STATUS.CANCELLED,
+    allowedRoles: ['secretary'],
+    requiresNote: false,
+    condition:    (po, userId) => po.created_by === userId,
+  },
+
+  // CEO: approve requires_ceo POs
   ceo_approve: {
-    from:         [PO_STATUS.PENDING, PO_STATUS.RESUBMITTED],
+    from:         [PO_STATUS.PENDING],
     to:           PO_STATUS.APPROVED,
     allowedRoles: ['ceo'],
     requiresNote: false,
@@ -70,7 +96,7 @@ export const STATUS_TRANSITIONS = {
 
   // CEO: reject requires_ceo POs
   ceo_reject: {
-    from:         [PO_STATUS.PENDING, PO_STATUS.RESUBMITTED],
+    from:         [PO_STATUS.PENDING],
     to:           PO_STATUS.REJECTED,
     allowedRoles: ['ceo'],
     requiresNote: true,
@@ -88,34 +114,26 @@ export const STATUS_TRANSITIONS = {
 
   // Finance: release pending POs that don't need CEO
   finance_release_from_pending: {
-    from:         [PO_STATUS.PENDING, PO_STATUS.RESUBMITTED],
+    from:         [PO_STATUS.PENDING],
     to:           PO_STATUS.RELEASED,
     allowedRoles: ['finance'],
     requiresNote: false,
     condition:    (po) => po.requires_ceo === false,
   },
 
-  // Finance: reject any non-released PO
+  // Finance: reject non-CEO-approved POs only
+  // Cannot reject after CEO has approved (approved status = CEO signed off)
   finance_reject: {
-    from:         [PO_STATUS.PENDING, PO_STATUS.APPROVED, PO_STATUS.RESUBMITTED],
+    from:         [PO_STATUS.PENDING],
     to:           PO_STATUS.REJECTED,
     allowedRoles: ['finance'],
     requiresNote: true,
-    condition:    () => true,
+    condition:    (po) => po.requires_ceo === false,
   },
 
-  // PM/Secretary: resubmit a rejected PO
-  resubmit: {
-    from:         [PO_STATUS.REJECTED],
-    to:           PO_STATUS.RESUBMITTED,
-    allowedRoles: ['purchase_manager', 'secretary'],
-    requiresNote: true,
-    condition:    (po, userId) => po.created_by === userId,
-  },
-
-  // PM/Secretary: cancel own PO before it is released
+  // PM/Secretary: cancel own PO while pending or approved (before released)
   cancel: {
-    from:         [PO_STATUS.PENDING, PO_STATUS.APPROVED, PO_STATUS.RESUBMITTED],
+    from:         [PO_STATUS.PENDING, PO_STATUS.APPROVED],
     to:           PO_STATUS.CANCELLED,
     allowedRoles: ['purchase_manager', 'secretary'],
     requiresNote: false,
@@ -130,9 +148,9 @@ export const STATUS_TRANSITIONS = {
 export function getAvailableTransitions(po, role, userId) {
   return Object.entries(STATUS_TRANSITIONS)
     .filter(([, config]) => {
-      const roleAllowed   = config.allowedRoles.includes(role)
+      const roleAllowed  = config.allowedRoles.includes(role)
       const statusAllowed = config.from.includes(po.status)
-      const conditionMet  = config.condition(po, userId)
+      const conditionMet = config.condition(po, userId)
       return roleAllowed && statusAllowed && conditionMet
     })
     .map(([key]) => key)
@@ -158,15 +176,20 @@ export function getStatusClass(status) {
 // with the correct filter pre-applied
 // ─────────────────────────────────────────
 export const DASHBOARD_FILTERS = {
+  // PM: drafts awaiting PM confirmation
+  PM_DRAFTS: {
+    status: PO_STATUS.DRAFT,
+    label:  'مسودات بانتظار التأكيد',
+  },
   CEO_PENDING: {
     status:      PO_STATUS.PENDING,
     requires_ceo: true,
     label:       'بانتظار موافقة الرئيس',
   },
   FINANCE_PENDING: {
-    // Two conditions — handled in useDashboard query
+    // Two conditions — handled in useDashboard / usePOList
     // status=approved OR (status=pending AND requires_ceo=false)
-    label: 'بانتظار الإصدار',
+    label:    'بانتظار الإصدار',
     queryKey: 'finance_pending',
   },
   REJECTED: {

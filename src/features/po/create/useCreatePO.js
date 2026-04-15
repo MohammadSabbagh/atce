@@ -3,16 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 
-const DEPARTMENTS = [
-  'Operations',
-  'Marketing',
-  'Engineering',
-  'HR',
-  'Sales',
-  'Legal',
-  'Finance',
-]
-
 const INITIAL_FORM = {
   // Step 1 — Details
   title: '',
@@ -129,9 +119,8 @@ export function useCreatePO() {
         .insert({
           title:        form.title.trim(),
           description:  form.description.trim() || null,
-          date:         form.date,
           requires_ceo: form.requires_ceo,
-          status:       'pending',
+          status:       profile.role === 'secretary' ? 'draft' : 'pending',
           total:        lineTotal,
           created_by:   profile.id,
         })
@@ -172,7 +161,7 @@ export function useCreatePO() {
         const filePath = `${poId}/${Date.now()}-${file.name}`
 
         const { error: uploadError } = await supabase.storage
-          .from('po-attachments')
+          .from('attachments')
           .upload(filePath, file)
 
         if (uploadError) throw uploadError
@@ -194,7 +183,7 @@ export function useCreatePO() {
       await supabase.from('audit_log').insert({
         entity_type:  'purchase_order',
         entity_id:    poId,
-        action:       'created',
+        action:       profile.role === 'secretary' ? 'draft' : 'created',
         performed_by: profile.id,
         details:      { title: form.title, total: lineTotal },
       })
@@ -230,6 +219,5 @@ export function useCreatePO() {
     submitted,
     submitting,
     submitError,
-    departments: DEPARTMENTS,
   }
 }

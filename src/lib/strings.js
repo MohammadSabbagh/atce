@@ -15,6 +15,7 @@ export const S = {
   // ── Dashboard ────────────────────────────
   live:               'مباشر',
   lastUpdated:        'آخر تحديث',
+  statPmDrafts:       'مسودات بانتظار التأكيد',
   statCeoPending:     'بانتظار موافقة الرئيس',
   statFinancePending: 'بانتظار الإصدار',
   statRejected:       'مرفوضة',
@@ -23,17 +24,18 @@ export const S = {
   noSpendingData:     'لا توجد بيانات إنفاق بعد',
 
   // ── PO Status labels ─────────────────────
+  statusDraft:        'مسودة',
   statusPending:      'معلق',
   statusApproved:     'معتمد',
   statusReleased:     'صادر',
   statusRejected:     'مرفوض',
-  statusResubmitted:  'معاد',
   statusCancelled:    'ملغى',
 
   // ── PO List ──────────────────────────────
   poList:        'طلبات الشراء',
   filterAll:     'الكل',
-  filterPending: 'قيد الانتظار',
+  filterDraft:    'مسودة',
+  filterPending:  'قيد الانتظار',
   filterApproved:'معتمد',
   filterReleased:'صدر',
   filterRejected:'مرفوض',
@@ -58,14 +60,13 @@ export const S = {
   submitNote:    'إرسال',
 
   // ── PO Actions ───────────────────────────
+  pmConfirm:     'تأكيد وإحالة',
   approve:       'اعتماد',
   reject:        'رفض',
   release:       'إصدار',
-  resubmit:      'إعادة التقديم',
   cancel:        'إلغاء',
   confirmAction: 'تأكيد الإجراء',
   rejectionNote: 'سبب الرفض (مطلوب)',
-  resubmitNote:  'ملاحظة إعادة التقديم (مطلوبة)',
 
   // ── Create PO — Wizard shell ─────────────
   createPO:           'إنشاء طلب شراء',

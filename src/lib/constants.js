@@ -1,11 +1,10 @@
 export const DEPARTMENTS = [
-  'Operations',
-  'Marketing',
-  'Engineering',
-  'HR',
-  'Sales',
-  'Legal',
-  'Finance',
+  'اداري',
+  'مالي',
+  'طاقة',
+  'طبي تجاري',
+  'طبي فني',
+  'طبي مبيعات',
 ]
 
 export const ROLES = {

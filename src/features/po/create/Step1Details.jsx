@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { DEPARTMENTS } from '@/lib/constants'
 import Tag from '@/components/ui/Tag'
 import { S } from '@/lib/strings'
 import '@/styles/form.scss'
@@ -7,9 +6,7 @@ import '@/styles/form.scss'
 // Tag values stay in English — they are stored as data in the DB.
 // Translating them would break existing tag filtering.
 const SUGGESTED_TAGS = [
-  'urgent', 'monthly', 'quarterly', 'annual',
-  'Q1', 'Q2', 'Q3', 'Q4',
-  'recurring', 'one-time', 'capex', 'opex',
+  'مستعجل', 'فوري', 'فواتير'
 ]
 
 export default function Step1Details({ wizard }) {
@@ -66,36 +63,6 @@ export default function Step1Details({ wizard }) {
           onChange={(e) => setField('description', e.target.value)}
           rows={3}
         />
-      </div>
-
-      <div className="form__row">
-        <div className="form__field">
-          <label className="form__label">
-            {S.poDate} <span className="form__required">{S.required}</span>
-          </label>
-          <input
-            className="form__input"
-            type="date"
-            value={form.date}
-            onChange={(e) => setField('date', e.target.value)}
-          />
-        </div>
-
-        <div className="form__field">
-          <label className="form__label">
-            {S.poDepartment} <span className="form__required">{S.required}</span>
-          </label>
-          <select
-            className="form__input form__input--select"
-            value={form.department}
-            onChange={(e) => setField('department', e.target.value)}
-          >
-            <option value="">{S.poDeptPlaceholder}</option>
-            {DEPARTMENTS.map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-        </div>
       </div>
 
       <div className="form__field">

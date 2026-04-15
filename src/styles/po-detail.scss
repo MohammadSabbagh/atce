@@ -50,7 +50,7 @@
 
   &__po-number {
     font-family: $font-mono;
-    font-size: 11px;
+    font-size: 14px;
     color: $text-muted;
     letter-spacing: 0.05em;
   }
@@ -62,6 +62,11 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .status-badge{
+    margin-right: auto;
+    font-size: 14px;
   }
 
   // ── Content ─────────────────────────────────────────────
@@ -335,7 +340,6 @@
     &--approved     { border-color: $color-approved;      background: rgba($color-approved,      0.15); }
     &--released     { border-color: $color-released;      background: rgba($color-released,      0.15); }
     &--rejected     { border-color: $color-rejected;      background: rgba($color-rejected,      0.15); }
-    &--resubmitted  { border-color: $color-resubmitted;   background: rgba($color-resubmitted,   0.15); }
     &--cancelled    { border-color: $color-cancelled;     background: rgba($color-cancelled,     0.15); }
   }
 
@@ -375,10 +379,7 @@
   // ── Bottom action bar (CEO) ───────────────────────────────
   // ── Bottom action bar ────────────────────────────────
   &__action-bar {
-    position: fixed;
-    bottom: 64px;
-    left: 0;
-    right: 0;
+    position: relative;
     z-index: $z-action;
     background: $bg-base;        // ← was rgba(6, 8, 13, 0.95)
     backdrop-filter: blur(16px);
@@ -585,15 +586,6 @@
 
       .po-detail__note-context {
         color: $color-rejected;
-      }
-    }
-
-    &--resubmission {
-      background: rgba($color-resubmitted, 0.04);
-      border-color: rgba($color-resubmitted, 0.15);
-
-      .po-detail__note-context {
-        color: $color-resubmitted;
       }
     }
   }

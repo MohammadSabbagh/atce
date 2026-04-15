@@ -75,7 +75,12 @@
     color: $text-secondary;
     background: $border;
     border-radius: 3px;
-    padding: 1px 3px;
+    padding: 2px 3px;
+  }
+
+  &__depts {
+    display: flex;
+    gap: 4px;
   }
 
   &__date {

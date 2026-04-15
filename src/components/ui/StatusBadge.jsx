@@ -2,12 +2,12 @@ import '@/styles/status-badge.scss'
 import { S } from '@/lib/strings'
 
 const STATUS_LABELS = {
-  pending:     S.statusPending,
-  approved:    S.statusApproved,
-  released:    S.statusReleased,
-  rejected:    S.statusRejected,
-  resubmitted: S.statusResubmitted,
-  cancelled:   S.statusCancelled,
+  draft:     S.statusDraft,
+  pending:   S.statusPending,
+  approved:  S.statusApproved,
+  released:  S.statusReleased,
+  rejected:  S.statusRejected,
+  cancelled: S.statusCancelled,
 }
 
 export default function StatusBadge({ status }) {

@@ -14,12 +14,17 @@ export function useDashboard() {
     const pos = allPOs.filter(p => p.status !== 'cancelled')
 
     // ── Stat card calculations ──────────────
-    // 1. CEO Pending: pending AND requires_ceo=true
+    // 1. PM Drafts: Secretary-created POs awaiting PM confirmation
+    const pmDraftCount = pos.filter(
+      p => p.status === 'draft'
+    ).length
+
+    // 2. CEO Pending: pending AND requires_ceo=true
     const ceoPendingCount = pos.filter(
       p => p.status === 'pending' && p.requires_ceo === true
     ).length
 
-    // 2. Finance Pending Release:
+    // 3. Finance Pending Release:
     //    approved (CEO done, Finance's turn)
     //    OR pending + requires_ceo=false (Finance acts directly)
     const financePendingCount = pos.filter(
@@ -28,12 +33,12 @@ export function useDashboard() {
         (p.status === 'pending' && p.requires_ceo === false)
     ).length
 
-    // 3. Rejected count
+    // 4. Rejected count
     const rejectedCount = pos.filter(p => p.status === 'rejected').length
 
-    // 4. Total awaiting value: sum of all pending POs
+    // 5. Total awaiting value: sum of all pending POs
     const totalAwaitingValue = pos
-      .filter(p => p.status === 'pending' || p.status === 'resubmitted')
+      .filter(p => p.status === 'pending')
       .reduce((sum, p) => sum + (p.total ?? 0), 0)
 
     // ── Department spending chart ───────────
@@ -50,8 +55,7 @@ export function useDashboard() {
     for (const item of allLineItems) {
       if (cancelledIds.has(item.po_id)) continue
       if (!item.department) continue
-      const amount = (item.quantity ?? 1) * (item.unit_price ?? 0)
-      deptMap[item.department] = (deptMap[item.department] ?? 0) + amount
+      deptMap[item.department] = (deptMap[item.department] ?? 0) + (item.price ?? 0)
     }
 
     const deptSpending = Object.entries(deptMap)
@@ -60,6 +64,7 @@ export function useDashboard() {
 
     return {
       stats: {
+        pmDraftCount,
         ceoPendingCount,
         financePendingCount,
         rejectedCount,

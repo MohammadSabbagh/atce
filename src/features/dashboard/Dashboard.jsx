@@ -75,7 +75,7 @@ export default function Dashboard() {
       <section className="dashboard__section">
         {loading
           ? <DashboardStatCardsSkeleton />
-          : <DashboardStatCards stats={stats} />
+          : <DashboardStatCards stats={stats} role={profile?.role} />
         }
       </section>
 

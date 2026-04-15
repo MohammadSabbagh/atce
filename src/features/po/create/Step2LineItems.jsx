@@ -1,9 +1,10 @@
 import { formatCurrency } from '@/lib/utils'
+import { DEPARTMENTS } from '@/lib/constants'
 import { S } from '@/lib/strings'
 import '@/styles/form.scss'
 
 export default function Step2LineItems({ wizard }) {
-  const { form, addLineItem, updateLineItem, removeLineItem, lineTotal, departments } = wizard
+  const { form, addLineItem, updateLineItem, removeLineItem, lineTotal } = wizard
 
   return (
     <div className="form">
@@ -41,7 +42,7 @@ export default function Step2LineItems({ wizard }) {
                 onChange={(e) => updateLineItem(item.id, 'department', e.target.value)}
               >
                 <option value="">{S.selectDepartment ?? 'اختر القسم'}</option>
-                {departments.map((d) => (
+                {DEPARTMENTS.map((d) => (
                   <option key={d} value={d}>{d}</option>
                 ))}
               </select>
@@ -54,7 +55,7 @@ export default function Step2LineItems({ wizard }) {
                     className="form__input form__input--qty mono"
                     type="number"
                     min="0.001"
-                    step="1"
+                    step="any"
                     placeholder="1"
                     value={item.quantity}
                     onChange={(e) => updateLineItem(item.id, 'quantity', e.target.value)}
@@ -71,7 +72,7 @@ export default function Step2LineItems({ wizard }) {
                       className="form__input form__input--price mono"
                       type="number"
                       min="0"
-                      step="0.01"
+                      step="any"
                       placeholder="0.00"
                       value={item.unit_price}
                       onChange={(e) => updateLineItem(item.id, 'unit_price', e.target.value)}

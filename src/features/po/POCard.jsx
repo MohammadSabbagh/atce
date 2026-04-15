@@ -37,12 +37,12 @@ export default function POCard({ po }) {
       <div className="po-card__title">{po.title}</div>
 
       <div className="po-card__meta">
+        <span className="po-card__date">{formatDate(po.date)}</span>
         <div className="po-card__depts">
           {departments.map(dept => (
             <span key={dept} className="po-card__dept">{dept}</span>
           ))}
-        </div>
-        <span className="po-card__date">{formatDate(po.date)}</span>
+        </div>        
       </div>
 
     </div>

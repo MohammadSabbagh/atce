@@ -30,9 +30,9 @@ export function usePOList() {
       next.delete('filter')
       next.delete('requires_ceo')
 
-      if (value === 'ceo_pending') {
+      if (value === 'ceo_pending' || value === 'finance_pending') {
         next.delete('status')
-        next.set('filter', 'ceo_pending')
+        next.set('filter', value)
       } else if (value === ALL) {
         next.delete('status')
       } else {

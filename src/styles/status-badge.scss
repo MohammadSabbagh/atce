@@ -27,10 +27,10 @@
     background: rgba($color-rejected, 0.08);
     border: 1px solid rgba($color-rejected, 0.18);
   }
-  &--resubmitted {
-    color: $color-resubmitted;
-    background: rgba($color-resubmitted, 0.08);
-    border: 1px solid rgba($color-resubmitted, 0.2);
+  &--draft {
+    color: $color-draft;
+    background: rgba($color-draft, 0.1);
+    border: 1px solid rgba($color-draft, 0.2);
   }
   &--cancelled {
     color: $color-cancelled;

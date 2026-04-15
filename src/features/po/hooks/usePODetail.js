@@ -15,14 +15,8 @@ const PO_SELECT = `
   status,
   total,
   created_at,
-  approved_at,
-  released_at,
   created_by,
-  approved_by,
-  released_by,
   creator:profiles!created_by(full_name),
-  approver:profiles!approved_by(full_name),
-  releaser:profiles!released_by(full_name),
   line_items:po_line_items(id, description, department, quantity, unit_price, sort_order),
   tags:po_tags(tag),
   attachments:po_attachments(id, file_name, file_path, file_type, file_size)
@@ -45,7 +39,6 @@ export function usePODetail() {
     setLoading(true)
     setError(null)
 
-    // Fetch PO, audit log, and notes in parallel
     const [poResult, auditResult, notesResult] = await Promise.all([
       supabase
         .from('purchase_orders')
@@ -84,37 +77,56 @@ export function usePODetail() {
 
     const data = poResult.data
 
-    // Sort line items by sort_order
     if (data?.line_items) {
       data.line_items.sort((a, b) => a.sort_order - b.sort_order)
     }
 
-    // Attach audit entries and notes (empty array if none or error)
     data.audit = auditResult.data ?? []
     data.notes = notesResult.data ?? []
+
+    // After setting data.audit and data.notes
+    if (data.attachments?.length) {
+      const signed = await Promise.all(
+        data.attachments.map(async (att) => {
+          const { data: url } = await supabase.storage
+            .from('attachments')
+            .createSignedUrl(att.file_path, 60 * 60) // 1 hour
+          return { ...att, url: url?.signedUrl ?? null }
+        })
+      )
+      data.attachments = signed
+    }
 
     setPO(data)
     setLoading(false)
   }
 
-  // ─── CEO: Approve ────────────────────────────────────
+  // ─── Shared audit writer ─────────────────────────────────
+  async function writeAudit(action) {
+    return supabase.from('audit_log').insert({
+      entity_type:  'purchase_order',
+      entity_id:    po.id,
+      action,
+      performed_by: profile.id,
+    })
+  }
+
+  // ─── CEO: Approve ────────────────────────────────────────
   async function approvePO() {
     if (!po || acting) return
     setActing(true)
-    const now = new Date().toISOString()
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({ status: 'approved', approved_by: profile.id, approved_at: now })
+        .update({
+          status:      'approved',
+          approved_by: profile.id,
+          approved_at: new Date().toISOString(),
+        })
         .eq('id', po.id)
       if (updateError) throw updateError
 
-      await supabase.from('audit_log').insert({
-        entity_type: 'purchase_order',
-        entity_id: po.id,
-        action: 'approved',
-        performed_by: profile.id,
-      })
+      await writeAudit('approved')
       await fetchPO()
     } catch (err) {
       setError(err.message)
@@ -123,15 +135,18 @@ export function usePODetail() {
     }
   }
 
-  // ─── CEO: Reject ─────────────────────────────────────
+  // ─── CEO / Finance: Reject ───────────────────────────────
   async function rejectPO(note) {
     if (!po || acting) return
     setActing(true)
-    const now = new Date().toISOString()
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({ status: 'rejected', rejected_by: profile.id, rejected_at: now })
+        .update({
+          status:      'rejected',
+          rejected_by: profile.id,
+          rejected_at: new Date().toISOString(),
+        })
         .eq('id', po.id)
       if (updateError) throw updateError
 
@@ -144,12 +159,7 @@ export function usePODetail() {
         })
       }
 
-      await supabase.from('audit_log').insert({
-        entity_type: 'purchase_order',
-        entity_id:   po.id,
-        action:      'rejected',
-        performed_by: profile.id,
-      })
+      await writeAudit('rejected')
       await fetchPO()
     } catch (err) {
       setError(err.message)
@@ -158,37 +168,125 @@ export function usePODetail() {
     }
   }
 
-  // ─── Finance: Release ────────────────────────────────
+  // ─── Finance: Release ────────────────────────────────────
   async function releasePO() {
     if (!po || acting) return
     setActing(true)
-    const now = new Date().toISOString()
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({ status: 'released', released_by: profile.id, released_at: now })
+        .update({
+          status:      'released',
+          released_by: profile.id,
+          released_at: new Date().toISOString(),
+        })
         .eq('id', po.id)
       if (updateError) throw updateError
 
-      const auditEntries = []
+      // For non-CEO path, Finance both approves and releases in one step —
+      // write both audit entries so the trail reflects the full lifecycle.
+      const entries = []
       if (!po.requires_ceo) {
-        auditEntries.push({
-          entity_type: 'purchase_order',
-          entity_id: po.id,
-          action: 'approved',
+        entries.push({
+          entity_type:  'purchase_order',
+          entity_id:    po.id,
+          action:       'approved',
           performed_by: profile.id,
         })
       }
-      auditEntries.push({
-        entity_type: 'purchase_order',
-        entity_id: po.id,
-        action: 'released',
+      entries.push({
+        entity_type:  'purchase_order',
+        entity_id:    po.id,
+        action:       'released',
         performed_by: profile.id,
       })
-      await supabase.from('audit_log').insert(auditEntries)
+      await supabase.from('audit_log').insert(entries)
 
       await fetchPO()
     } catch (err) {
+      setError(err.message)
+    } finally {
+      setActing(false)
+    }
+  }
+
+  // ─── PM/Secretary: Cancel ────────────────────────────────
+  async function cancelPO(note) {
+    if (!po || acting) return
+    setActing(true)
+    try {
+      const { error: updateError } = await supabase
+        .from('purchase_orders')
+        .update({
+          status:       'cancelled',
+          cancelled_by: profile.id,
+          cancelled_at: new Date().toISOString(),
+        })
+        .eq('id', po.id)
+      if (updateError) throw updateError
+
+      if (note?.trim()) {
+        await supabase.from('po_notes').insert({
+          po_id:      po.id,
+          created_by: profile.id,
+          context:    'cancellation',
+          note:       note.trim(),
+        })
+      }
+
+      await writeAudit('cancelled')
+      await fetchPO()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setActing(false)
+    }
+  }
+
+  // ─── PM: Confirm draft → pending ────────────────────────
+  async function confirmPO() {
+    if (!po || acting) return
+    setActing(true)
+    // Optimistic update — flip status immediately so PMActionBar unmounts
+    // cleanly in this render cycle before any async work begins.
+    setPO(prev => prev ? { ...prev, status: 'pending' } : prev)
+    try {
+      const { error: updateError } = await supabase
+        .from('purchase_orders')
+        .update({
+          status:      'pending',
+          updated_at:  new Date().toISOString(),
+        })
+        .eq('id', po.id)
+      if (updateError) throw updateError
+
+      await writeAudit('confirmed')
+
+      // Refresh audit trail and notes only — do NOT use fetchPO() which
+      // re-fetches the full PO and can overwrite the optimistic status
+      // if the DB read races with the write.
+      const [auditResult, notesResult] = await Promise.all([
+        supabase
+          .from('audit_log')
+          .select('id, action, created_at, actor:profiles!performed_by(full_name)')
+          .eq('entity_type', 'purchase_order')
+          .eq('entity_id', po.id)
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('po_notes')
+          .select('id, note, context, created_at, author:profiles!created_by(full_name)')
+          .eq('po_id', po.id)
+          .order('created_at', { ascending: true }),
+      ])
+      setPO(prev => prev ? {
+        ...prev,
+        status: 'pending',
+        audit:  auditResult.data ?? prev.audit,
+        notes:  notesResult.data ?? prev.notes,
+      } : prev)
+    } catch (err) {
+      // Roll back optimistic update on failure
+      setPO(prev => prev ? { ...prev, status: 'draft' } : prev)
       setError(err.message)
     } finally {
       setActing(false)
@@ -225,6 +323,8 @@ export function usePODetail() {
     approvePO,
     rejectPO,
     releasePO,
+    cancelPO,
+    confirmPO,
     addNote,
     refetch: fetchPO,
   }

@@ -9,14 +9,15 @@ import { LiveIndicator } from '@/features/dashboard/components/LiveIndicator'
 import '@/styles/po-list.scss'
 
 const STATUS_FILTERS = [
-  { value: 'all',         label: S.filterAll },
-  { value: 'ceo_pending', label: S.filterCeoPending },
-  { value: 'pending',     label: S.statusPending },
-  { value: 'approved',    label: S.statusApproved },
-  { value: 'released',    label: S.statusReleased },
-  { value: 'rejected',    label: S.statusRejected },
-  //{ value: 'resubmitted', label: S.statusResubmitted },
-  { value: 'cancelled',   label: S.statusCancelled },
+  { value: 'all',              label: S.filterAll },
+  { value: 'draft',            label: S.filterDraft },
+  { value: 'ceo_pending',      label: S.filterCeoPending },
+  { value: 'finance_pending',  label: S.statFinancePending },
+  { value: 'pending',          label: S.statusPending },
+  { value: 'approved',         label: S.statusApproved },
+  { value: 'released',         label: S.statusReleased },
+  { value: 'rejected',         label: S.statusRejected },
+  { value: 'cancelled',        label: S.statusCancelled },
 ]
 
 export default function POList() {
@@ -40,9 +41,11 @@ export default function POList() {
 
   const activeStatus = filterKey === 'ceo_pending'
     ? 'ceo_pending'
-    : filterKey
-      ? 'all'
-      : statusFilter
+    : filterKey === 'finance_pending'
+      ? 'finance_pending'
+      : filterKey
+        ? 'all'
+        : statusFilter
 
   const hasDeptFilter = deptFilter && deptFilter !== 'all'
   const hasDateFilter = !!(dateFrom || dateTo)
