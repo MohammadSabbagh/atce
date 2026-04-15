@@ -18,16 +18,17 @@ import db from './db'
 import { supabase } from './supabase'
 
 // PO header fields + nested line items for cache.
-// department is gone from the PO header — it now lives on each line item.
+// department lives on each line item (not on the PO header) —
+// a single PO can span multiple departments across its line items.
 const PO_CACHE_SELECT = `
   id,
   po_number,
   title,
-  date,
   requires_ceo,
   status,
   total,
   created_by,
+  created_at,
   updated_at,
   line_items:po_line_items(id, po_id, description, department, quantity, unit_price, sort_order)
 `
@@ -123,7 +124,7 @@ export async function startSync(userId) {
     let query = supabase
       .from('purchase_orders')
       .select(PO_CACHE_SELECT)
-      .order('date', { ascending: false })
+      .order('created_at', { ascending: false })
 
     if (lastSyncedAt) {
       // Only fetch POs changed since last sync.

@@ -10,7 +10,6 @@ const PO_SELECT = `
   po_number,
   title,
   description,
-  date,
   requires_ceo,
   status,
   total,
@@ -118,11 +117,7 @@ export function usePODetail() {
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({
-          status:      'approved',
-          approved_by: profile.id,
-          approved_at: new Date().toISOString(),
-        })
+        .update({ status: 'approved', updated_at: new Date().toISOString() })
         .eq('id', po.id)
       if (updateError) throw updateError
 
@@ -142,11 +137,7 @@ export function usePODetail() {
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({
-          status:      'rejected',
-          rejected_by: profile.id,
-          rejected_at: new Date().toISOString(),
-        })
+        .update({ status: 'rejected', updated_at: new Date().toISOString() })
         .eq('id', po.id)
       if (updateError) throw updateError
 
@@ -175,11 +166,7 @@ export function usePODetail() {
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({
-          status:      'released',
-          released_by: profile.id,
-          released_at: new Date().toISOString(),
-        })
+        .update({ status: 'released', updated_at: new Date().toISOString() })
         .eq('id', po.id)
       if (updateError) throw updateError
 
@@ -217,11 +204,7 @@ export function usePODetail() {
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({
-          status:       'cancelled',
-          cancelled_by: profile.id,
-          cancelled_at: new Date().toISOString(),
-        })
+        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
         .eq('id', po.id)
       if (updateError) throw updateError
 

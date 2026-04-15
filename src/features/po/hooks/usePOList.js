@@ -83,7 +83,7 @@ export function usePOList() {
 
   // ── Read all POs from Dexie ────────────────────────────────────────
   const allPOs = useLiveQuery(
-    () => db.purchase_orders.orderBy('date').reverse().toArray(),
+    () => db.purchase_orders.orderBy('created_at').reverse().toArray(),
     []
   )
 
@@ -116,10 +116,10 @@ export function usePOList() {
   // ── Client-side filtering ──────────────────────────────────────────
   const filtered = useMemo(() => {
     return poArray.filter((po) => {
-      // Date range
+      // Date range (against created_at)
       const dateMatch =
-        (!dateFrom || po.date >= dateFrom) &&
-        (!dateTo   || po.date <= dateTo)
+        (!dateFrom || po.created_at >= dateFrom) &&
+        (!dateTo   || po.created_at <= dateTo + 'T23:59:59')
       if (!dateMatch) return false
 
       // Department: PO matches if ANY of its line items belong to the selected dept

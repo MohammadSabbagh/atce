@@ -14,10 +14,18 @@ db.version(1).stores({
 })
 
 // version(2): line items become first-class cached data.
-// purchase_orders drops the department index (department now lives on line items).
+// purchase_orders drops the department and date indexes (department now lives on line items, date field removed).
 // po_line_items indexed on id (PK), po_id (join), department (filter/aggregate).
 db.version(2).stores({
   purchase_orders: 'id, status, date, requires_ceo, updated_at, created_by',
+  po_line_items:   'id, po_id, department',
+  _meta: 'key',
+})
+
+// version(3): replace date index with created_at on purchase_orders.
+// date field was removed from the schema — created_at is used for ordering and filtering.
+db.version(3).stores({
+  purchase_orders: 'id, status, created_at, requires_ceo, updated_at, created_by',
   po_line_items:   'id, po_id, department',
   _meta: 'key',
 })
