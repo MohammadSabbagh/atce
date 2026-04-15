@@ -34,6 +34,10 @@ export default defineConfig({
             purpose: 'any maskable',
           },
         ],
+        screenshots: [
+          { src: '/mobile.png',  sizes: '390x844',   type: 'image/png', label: 'ASTE Mobile' },
+          { src: '/desktop.png', sizes: '1280x800',  type: 'image/png', form_factor: 'wide', label: 'ASTE Desktop' },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
