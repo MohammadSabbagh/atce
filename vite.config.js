@@ -7,11 +7,14 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico','icon-192v2.png', 'icon-512v2.png'],
+      includeAssets: ['favicon.ico', 'icon-192v2.png', 'icon-512v2.png'],
       manifest: {
-        name: 'ASTE PO',
+        name: 'ASTE',
         short_name: 'ASTE',
-        description: 'ASTE PO system',
+        description: 'ASTE system',
+        id: '/',
+        start_url: '/',
+        scope: '/',
         display: 'standalone',
         theme_color: '#f5f6fa',
         background_color: '#f5f6fa',
