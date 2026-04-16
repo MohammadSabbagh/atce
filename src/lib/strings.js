@@ -44,8 +44,10 @@ export const S = {
   viewDetails:   'عرض التفاصيل',
   noResults:     'لا توجد نتائج',
   filters:        'تصفية',
-  filterDateFrom: 'من تاريخ',
-  filterDateTo:   'إلى تاريخ',
+  filterDateFrom:        'من تاريخ',
+  filterDateTo:          'إلى تاريخ',
+  filterSearch:          'بحث',
+  filterSearchPlaceholder: 'رقم الطلب أو العنوان...',
 
   // ── PO Detail ────────────────────────────
   poDetails:     'تفاصيل الطلب',

@@ -22,6 +22,7 @@ export function usePOList() {
   const filterKey    = searchParams.get('filter')     // 'ceo_pending' | 'finance_pending' | null
   const dateFrom     = searchParams.get('date_from')  ?? ''
   const dateTo       = searchParams.get('date_to')    ?? ''
+  const searchQuery  = searchParams.get('q')          ?? ''
 
   // ── Write filters to URL ───────────────────────────────────────────
   function setStatusFilter(value) {
@@ -81,9 +82,26 @@ export function usePOList() {
     })
   }
 
+  function setSearchQuery(value) {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      if (!value) next.delete('q')
+      else next.set('q', value)
+      return next
+    })
+  }
+
+  function clearSearch() {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.delete('q')
+      return next
+    })
+  }
+
   // ── Read all POs from Dexie ────────────────────────────────────────
   const allPOs = useLiveQuery(
-    () => db.purchase_orders.orderBy('created_at').reverse().toArray(),
+    () => db.purchase_orders.orderBy('po_number').reverse().toArray(),
     []
   )
 
@@ -115,7 +133,16 @@ export function usePOList() {
 
   // ── Client-side filtering ──────────────────────────────────────────
   const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+
     return poArray.filter((po) => {
+      // Text search: po_number prefix OR title substring
+      if (q) {
+        const numberMatch = po.po_number?.toLowerCase().startsWith(q)
+        const titleMatch  = po.title?.toLowerCase().includes(q)
+        if (!numberMatch && !titleMatch) return false
+      }
+
       // Date range (against created_at)
       const dateMatch =
         (!dateFrom || po.created_at >= dateFrom) &&
@@ -143,7 +170,7 @@ export function usePOList() {
       // Standard status filter
       return statusFilter === ALL || po.status === statusFilter
     })
-  }, [poArray, statusFilter, deptFilter, filterKey, dateFrom, dateTo, poDeptsMap])
+  }, [poArray, statusFilter, deptFilter, filterKey, dateFrom, dateTo, poDeptsMap, searchQuery])
 
   // ── Available departments (for the dept dropdown) ──────────────────
   // Derived from line items, not PO headers.
@@ -170,5 +197,8 @@ export function usePOList() {
     setDateFrom,
     setDateTo,
     clearDateRange,
+    searchQuery,
+    setSearchQuery,
+    clearSearch,
   }
 }

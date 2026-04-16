@@ -30,4 +30,11 @@ db.version(3).stores({
   _meta: 'key',
 })
 
+// version(4): add po_number index to support orderBy('po_number') in usePOList.
+db.version(4).stores({
+  purchase_orders: 'id, po_number, status, created_at, requires_ceo, updated_at, created_by',
+  po_line_items:   'id, po_id, department',
+  _meta: 'key',
+})
+
 export default db

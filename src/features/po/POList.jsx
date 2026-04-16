@@ -35,6 +35,9 @@ export default function POList() {
     setDateFrom,
     setDateTo,
     clearDateRange,
+    searchQuery,
+    setSearchQuery,
+    clearSearch,
   } = usePOList()
 
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -47,9 +50,10 @@ export default function POList() {
         ? 'all'
         : statusFilter
 
-  const hasDeptFilter = deptFilter && deptFilter !== 'all'
-  const hasDateFilter = !!(dateFrom || dateTo)
-  const hasSecondary  = hasDeptFilter || hasDateFilter
+  const hasDeptFilter   = deptFilter && deptFilter !== 'all'
+  const hasDateFilter   = !!(dateFrom || dateTo)
+  const hasSearchFilter = !!searchQuery.trim()
+  const hasSecondary    = hasDeptFilter || hasDateFilter || hasSearchFilter
 
   const fmtDate = (iso) => {
     if (!iso) return ''
@@ -94,6 +98,29 @@ export default function POList() {
       {/* ── Collapsible secondary filters ── */}
       {filtersOpen && (
         <div className="po-list__secondary-filters">
+          <div className="po-list__search-field">
+            <label className="po-list__search-label">{S.filterSearch}</label>
+            <div className="po-list__search-wrap">
+              <input
+                type="search"
+                className="po-list__search-input"
+                placeholder={S.filterSearchPlaceholder}
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+              />
+              {hasSearchFilter && (
+                <button
+                  className="po-list__search-clear"
+                  onClick={clearSearch}
+                  aria-label="مسح البحث"
+                >✕</button>
+              )}
+            </div>
+          </div>
+
           <div className="po-list__dept-field">
             <label className="po-list__dept-label">{S.department}</label>
             <select
@@ -146,6 +173,20 @@ export default function POList() {
       {/* ── Active filter summary chips ── */}
       {hasSecondary && !filtersOpen && (
         <div className="po-list__active-tags">
+          {hasSearchFilter && (
+            <button
+              className="po-list__active-tag"
+              onClick={() => setFiltersOpen(true)}
+            >
+              <span className="po-list__active-tag-label">"{searchQuery}"</span>
+              <span
+                className="po-list__active-tag-x"
+                onClick={(e) => { e.stopPropagation(); clearSearch() }}
+              >
+                ✕
+              </span>
+            </button>
+          )}
           {hasDeptFilter && (
             <button
               className="po-list__active-tag"

@@ -5,7 +5,7 @@ import AppRouter from '@/router/AppRouter'
 import '@/styles/global.scss'
 
 createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <AuthProvider>
       <AppRouter />
     </AuthProvider>
