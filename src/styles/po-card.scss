@@ -1,66 +1,98 @@
 @use 'variables' as *;
 
+// ── Per-status left border accent ──────────────────────────────────────────
+// Maps each status to its $color-* token for the card's left edge stripe.
+$status-border-map: (
+  'draft':     $color-draft,
+  'pending':   $color-pending,
+  'approved':  $color-approved,
+  'released':  $color-released,
+  'rejected':  $color-rejected,
+  'cancelled': $color-cancelled,
+);
+
 .po-card {
   background: $bg-card;
   border: 1px solid $border;
   border-radius: $card-radius;
   overflow: hidden;
-  transition: border-color $transition-base;
   cursor: pointer;
+  transition: border-color $transition-base, box-shadow $transition-base;
+  border-inline-start-width: 3px;  // reserve space; color set per-status below
+
+  // Active/hover state
+  &:hover {
+    border-color: darken($border, 6%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  // Generate left-border color per status
+  @each $status, $color in $status-border-map {
+    &--status-#{$status} {
+      border-inline-start-color: $color;
+    }
+  }
 
   &--expanded {
     border-color: $accent;
   }
 
+  // ── Header row: PO number + badges (right) · amount (left) ────────
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 14px 0;
+    padding: 12px 14px 6px;
+    gap: 8px;
   }
 
-  &__header-left {
+  &__header-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    min-width: 0;
+    flex-wrap: wrap;
   }
 
   &__number {
     font-size: 11px;
-    color: $text-secondary;
+    font-weight: 500;
+    color: $text-muted;
     letter-spacing: 0.04em;
+    flex-shrink: 0;
   }
 
   &__ceo-flag {
-    font-size: 8px;
+    font-size: 9px;
     font-family: $font-mono;
-    font-weight: 600;
+    font-weight: 700;
     color: $color-pending;
-    border: 1px solid $color-pending;
-    border-radius: 3px;
-    padding: 1px 3px;
-    letter-spacing: 0.06em;
+    background: rgba($color-pending, 0.12);
+    border-radius: 4px;
+    padding: 2px 5px;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
   }
 
-  &__chevron {
-    color: $text-muted;
-    display: flex;
-    align-items: center;
-    transition: color $transition-fast;
-
-    .po-card--expanded & {
-      color: $accent;
-    }
-  }
-
-  &__title {
-    padding: 8px 14px 4px;
+  // Amount — visually dominant, opposite end from badges
+  &__total {
     font-size: 15px;
+    font-weight: 700;
+    color: $text-primary;
+    flex-shrink: 0;
+    letter-spacing: -0.01em;
+  }
+
+  // ── Title ─────────────────────────────────────────────────────────
+  &__title {
+    padding: 2px 14px 8px;
+    font-size: 14px;
     font-weight: 600;
     color: $text-primary;
-    line-height: 1.3;
+    line-height: 1.35;
   }
 
+  // ── Meta row: date + dept chips ────────────────────────────────────
   &__meta {
     display: flex;
     align-items: center;
@@ -69,33 +101,32 @@
     flex-wrap: wrap;
   }
 
-  &__dept {
-    display: inline-block;
-    font-size: 11px;
+  &__date {
+    font-size: 12px;
+    font-weight: 500;
     color: $text-secondary;
-    background: $border;
-    border-radius: 3px;
-    padding: 2px 3px;
+    flex-shrink: 0;
   }
 
   &__depts {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
   }
 
-  &__date {
+  &__dept {
+    display: inline-flex;
+    align-items: center;
     font-size: 11px;
-    color: $text-muted;
+    font-weight: 500;
+    color: $text-secondary;
+    background: $border-subtle;
+    border: 1px solid $border;
+    border-radius: 4px;
+    padding: 2px 6px;
   }
 
-  &__total {
-    font-size: 13px;
-    font-weight: 600;
-    color: $text-primary;
-    margin-right: auto;
-  }
-
-  // ── Expanded body ────────────────────────────
+  // ── Expanded body ─────────────────────────────────────────────────
   &__body {
     border-top: 1px solid $border-subtle;
     padding: 14px;
@@ -108,6 +139,13 @@
     font-size: 13px;
     color: $text-secondary;
     line-height: 1.5;
+  }
+
+  &__description--trimmed {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   &__section-title {
@@ -153,7 +191,7 @@
     gap: 6px;
   }
 
-  // ── CEO actions ──────────────────────────────
+  // ── Action buttons ────────────────────────────────────────────────
   &__actions {
     display: flex;
     gap: 8px;
@@ -169,42 +207,24 @@
     transition: all $transition-fast;
 
     &--approve {
-      background: rgba(34, 197, 94, 0.12);
-      color: $color-approved;
-      border: 1px solid rgba(34, 197, 94, 0.25);
+      background: rgba($color-approved, 0.1);
+      color: darken($color-approved, 5%);
+      border: 1px solid rgba($color-approved, 0.22);
 
-      &:hover {
-        background: rgba(34, 197, 94, 0.2);
-      }
+      &:hover { background: rgba($color-approved, 0.17); }
     }
 
     &--reject {
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba($color-rejected, 0.08);
       color: $color-rejected;
-      border: 1px solid rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba($color-rejected, 0.18);
 
-      &:hover {
-        background: rgba(239, 68, 68, 0.18);
-      }
+      &:hover { background: rgba($color-rejected, 0.14); }
     }
   }
 
-  // ─── Additions to po-card.scss ───────────────────────────────────────────────
-// Paste these inside the .po-card { } block, alongside the existing rules.
-
-  // Trimmed description in expanded summary (2 lines max)
-  &__description--trimmed {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  // View Full Details button
+  // ── View details button ───────────────────────────────────────────
   &__view-details {
-    // display: flex;
-    // align-items: center;
-    // justify-content: center;
     gap: 6px;
     width: 100%;
     padding: 10px;
@@ -212,18 +232,26 @@
     font-size: 13px;
     font-weight: 500;
     color: $accent;
-    border: 1px solid rgba($accent, 0.25);
+    border: 1px solid rgba($accent, 0.22);
     background: rgba($accent, 0.06);
     transition: all $transition-fast;
     margin-top: 4px;
 
     &:hover {
-      background: rgba($accent, 0.12);
-      border-color: rgba($accent, 0.4);
+      background: rgba($accent, 0.11);
+      border-color: rgba($accent, 0.35);
     }
 
-    &:active {
-      transform: scale(0.98);
-    }
+    &:active { transform: scale(0.98); }
+  }
+
+  // ── Chevron (used in expanded state) ─────────────────────────────
+  &__chevron {
+    color: $text-muted;
+    display: flex;
+    align-items: center;
+    transition: color $transition-fast;
+
+    .po-card--expanded & { color: $accent; }
   }
 }

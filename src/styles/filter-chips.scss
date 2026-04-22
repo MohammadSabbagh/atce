@@ -4,7 +4,7 @@
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding-bottom: 4px;
   scrollbar-width: none;
 
   &::-webkit-scrollbar { display: none; }
@@ -13,23 +13,32 @@
     flex-shrink: 0;
     font-size: 12px;
     font-weight: 500;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
     border: 1px solid $border;
     color: $text-secondary;
-    background: transparent;
+    background: $bg-card;
     transition: all $transition-fast;
     white-space: nowrap;
+    cursor: pointer;
 
     &:hover {
-      border-color: $accent;
+      border-color: darken($border, 10%);
       color: $text-primary;
+      background: $bg-card-hover;
     }
 
     &--active {
-      background: $accent-dim;
+      background: $accent;
       border-color: $accent;
-      color: $accent;
+      color: #fff;
+      font-weight: 600;
+
+      &:hover {
+        background: $accent-hover;
+        border-color: $accent-hover;
+        color: #fff;
+      }
     }
   }
 }

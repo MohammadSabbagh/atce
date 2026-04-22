@@ -1,50 +1,45 @@
 @use 'variables' as *;
 
 .status-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   font-size: 11px;
-  font-weight: normal;
-  padding: 1px 3px;
-  border-radius: 3px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 
   &--pending {
-    color: $color-pending;
-    background: rgba($color-pending, 0.1);
-    border: 1px solid rgba($color-pending, 0.2);
+    color: darken($color-pending, 8%);
+    background: rgba($color-pending, 0.15);
   }
   &--approved {
-    color: $color-approved;
-    background: rgba($color-approved, 0.1);
-    border: 1px solid rgba($color-approved, 0.2);
+    color: darken($color-approved, 5%);
+    background: rgba($color-approved, 0.13);
   }
   &--released {
-    color: $color-released;
-    background: rgba($color-released, 0.1);
-    border: 1px solid rgba($color-released, 0.2);
+    color: darken($color-released, 5%);
+    background: rgba($color-released, 0.13);
   }
   &--rejected {
-    color: $color-rejected;
-    background: rgba($color-rejected, 0.08);
-    border: 1px solid rgba($color-rejected, 0.18);
+    color: darken($color-rejected, 5%);
+    background: rgba($color-rejected, 0.12);
   }
   &--draft {
-    color: $color-draft;
-    background: rgba($color-draft, 0.1);
-    border: 1px solid rgba($color-draft, 0.2);
+    color: darken($color-draft, 8%);
+    background: rgba($color-draft, 0.12);
   }
   &--cancelled {
-    color: $color-cancelled;
-    background: rgba($color-cancelled, 0.08);
-    border: 1px solid rgba($color-cancelled, 0.2);
+    color: $text-secondary;
+    background: rgba($text-muted, 0.14);
   }
   &--fulfilled {
-    color: $color-fulfilled;
-    background: rgba($color-fulfilled, 0.08);
-    border: 1px solid rgba($color-fulfilled, 0.2);
+    color: darken($color-fulfilled, 5%);
+    background: rgba($color-fulfilled, 0.12);
   }
   &--open {
-    color: $color-open;
-    background: rgba($color-open, 0.08);
-    border: 1px solid rgba($color-open, 0.2);
+    color: darken($color-open, 5%);
+    background: rgba($color-open, 0.12);
   }
 }

@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { S } from '@/lib/strings'
 import StatusBadge from '@/components/ui/StatusBadge'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import db from '@/lib/db'
@@ -9,8 +8,6 @@ import '@/styles/po-card.scss'
 export default function POCard({ po }) {
   const navigate = useNavigate()
 
-  // Fetch departments for this PO's line items from Dexie.
-  // useLiveQuery re-renders if line items change (future-proofing).
   const lineItems = useLiveQuery(
     () => db.po_line_items.where('po_id').equals(po.id).toArray(),
     [po.id]
@@ -21,10 +18,12 @@ export default function POCard({ po }) {
     : []
 
   return (
-    <div className="po-card" onClick={() => navigate(`/po/${po.id}`)}>
-
+    <div
+      className={`po-card po-card--status-${po.status}`}
+      onClick={() => navigate(`/po/${po.id}`)}
+    >
       <div className="po-card__header">
-        <div className="po-card__header-left">
+        <div className="po-card__header-right">
           <span className="po-card__number mono">{po.po_number}</span>
           <StatusBadge status={po.status} />
           {po.requires_ceo && (
@@ -42,9 +41,8 @@ export default function POCard({ po }) {
           {departments.map(dept => (
             <span key={dept} className="po-card__dept">{dept}</span>
           ))}
-        </div>        
+        </div>
       </div>
-
     </div>
   )
 }

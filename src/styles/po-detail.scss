@@ -6,14 +6,12 @@
   background: $bg-base;
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
 
-  // ── Header ──────────────────────────────────────────────
+  // ── Sticky header ─────────────────────────────────────────
   &__header {
     position: sticky;
     top: 0;
     z-index: $z-header;
-    //background: rgba(6, 8, 13, 0.88);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: $bg-card;   // solid — blur on light theme looks washed out
     border-bottom: 1px solid $border;
     padding: 12px 16px;
     display: flex;
@@ -25,8 +23,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 8px;
     border: 1px solid $border;
     background: transparent;
@@ -35,41 +33,26 @@
     transition: all $transition-fast;
 
     &:hover {
-      border-color: $border;
+      border-color: darken($border, 8%);
       color: $text-primary;
     }
-  }
-
-  &__header-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex: 1;
-    min-width: 0;
   }
 
   &__po-number {
     font-family: $font-mono;
     font-size: 14px;
-    color: $text-muted;
-    letter-spacing: 0.05em;
+    font-weight: 500;
+    color: $text-secondary;   // was $text-muted — now readable
+    letter-spacing: 0.04em;
   }
 
-  &__header-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: $text-primary;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .status-badge{
+  .status-badge {
     margin-right: auto;
-    font-size: 14px;
+    font-size: 13px;
+    padding: 4px 10px;        // slightly larger in the header
   }
 
-  // ── Content ─────────────────────────────────────────────
+  // ── Content ───────────────────────────────────────────────
   &__content {
     padding: 16px;
     display: flex;
@@ -77,7 +60,7 @@
     gap: 12px;
   }
 
-  // ── Cards / sections ────────────────────────────────────
+  // ── Cards ─────────────────────────────────────────────────
   &__card {
     background: $bg-card;
     border: 1px solid $border;
@@ -85,19 +68,20 @@
     padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
   }
 
+  // Section label — bumped from 10px muted to 11px secondary
+  // These are navigation anchors, not decoration
   &__section-label {
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: $text-muted;
-    margin-bottom: 8px;
+    letter-spacing: 0.07em;
+    color: $text-secondary;
   }
 
-  // ── Overview card ────────────────────────────────────────
+  // ── Overview card ─────────────────────────────────────────
   &__overview-top {
     display: flex;
     align-items: flex-start;
@@ -106,7 +90,7 @@
   }
 
   &__title {
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 700;
     color: $text-primary;
     line-height: 1.3;
@@ -120,47 +104,50 @@
     align-items: center;
   }
 
+  // Department chip — visible fill, real border
   &__meta-chip {
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 500;
     color: $text-secondary;
-    background: $border;
+    background: $bg-base;
+    border: 1px solid $border;
     border-radius: 5px;
     padding: 3px 8px;
   }
 
   &__meta-date {
     font-family: $font-mono;
-    font-size: 11px;
-    color: $text-muted;
+    font-size: 12px;
+    font-weight: 500;
+    color: $text-secondary;   // was $text-muted — unreadable at 11px on white
   }
 
+  // CEO flag — filled instead of outline-only
   &__ceo-flag {
-    font-size: 10px;
-    font-family: $font-mono;
+    font-size: 11px;
     font-weight: 600;
     color: $color-pending;
-    border: 1px solid $color-pending;
-    border-radius: 4px;
-    padding: 2px 6px;
-    letter-spacing: 0.06em;
+    background: rgba($color-pending, 0.1);
+    border-radius: 5px;
+    padding: 3px 8px;
   }
 
   &__description {
-    font-size: 13px;
+    font-size: 14px;
     color: $text-secondary;
-    line-height: 1.6;
+    line-height: 1.65;
   }
 
   &__creator {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
-    color: $text-muted;
+    font-size: 13px;
+    color: $text-secondary;
 
     strong {
-      color: $text-secondary;
-      font-weight: 500;
+      color: $text-primary;
+      font-weight: 600;
     }
   }
 
@@ -168,40 +155,7 @@
   &__items {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-  }
-
-  &__item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    font-size: 13px;
-    color: $text-secondary;
-    padding: 8px 0;
-    border-bottom: 1px solid $border-subtle;
-
-    &:first-child {
-      padding-top: 0;
-    }
-
-    &:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-  }
-
-  &__item-desc {
-    flex: 1;
-    line-height: 1.4;
-  }
-
-  &__item-price {
-    font-family: $font-mono;
-    font-size: 13px;
-    font-weight: 600;
-    color: $text-primary;
-    white-space: nowrap;
+    gap: 0;
   }
 
   &__total-row {
@@ -209,19 +163,19 @@
     justify-content: space-between;
     align-items: center;
     padding-top: 12px;
-    border-top: 1px solid $border;
+    border-top: 2px solid $border;
     margin-top: 4px;
   }
 
   &__total-label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: $text-secondary;
   }
 
   &__total-value {
     font-family: $font-mono;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     color: $text-primary;
     letter-spacing: -0.5px;
@@ -241,20 +195,25 @@
     gap: 8px;
   }
 
-  // ── Attachments ───────────────────────────────────────
   &__attachment {
-    // ...
-    background: $bg-card;        // ← was rgba(255,255,255,0.03)
-    border: 1px solid $border-subtle;
-    // ...
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color $transition-fast, background $transition-fast;
 
     &:hover {
-      border-color: $border;     // ← was rgba(255,255,255,0.12)
+      border-color: $accent;
+      background: $bg-card-hover;
     }
   }
 
   &__attachment-icon {
-    font-size: 18px;
+    font-size: 20px;
     flex-shrink: 0;
     line-height: 1;
   }
@@ -262,7 +221,7 @@
   &__attachment-info {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     flex: 1;
     min-width: 0;
   }
@@ -278,13 +237,13 @@
 
   &__attachment-size {
     font-family: $font-mono;
-    font-size: 10px;
+    font-size: 11px;
     color: $text-muted;
   }
 
   &__attachment-arrow {
-    color: $text-muted;
-    font-size: 14px;
+    color: $text-secondary;
+    font-size: 15px;
     flex-shrink: 0;
   }
 
@@ -294,7 +253,7 @@
     font-style: italic;
   }
 
-  // ── Audit trail (Finance) ────────────────────────────────
+  // ── Audit trail ───────────────────────────────────────────
   &__audit {
     display: flex;
     flex-direction: column;
@@ -303,16 +262,14 @@
 
   &__audit-item {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     position: relative;
-    padding-bottom: 16px;
+    padding-bottom: 18px;
 
     &:last-child {
       padding-bottom: 0;
 
-      .po-detail__audit-line {
-        display: none;
-      }
+      .po-detail__audit-line { display: none; }
     }
   }
 
@@ -325,8 +282,8 @@
   }
 
   &__audit-dot {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     border: 2px solid $border;
     background: $bg-card;
@@ -334,120 +291,132 @@
     margin-top: 3px;
     position: relative;
     z-index: 1;
-  
-    &--created      { border-color: $color-pending;       background: rgba($color-pending,       0.15); }
-    &--submitted    { border-color: $color-pending;       background: rgba($color-pending,       0.15); }
-    &--approved     { border-color: $color-approved;      background: rgba($color-approved,      0.15); }
-    &--released     { border-color: $color-released;      background: rgba($color-released,      0.15); }
-    &--rejected     { border-color: $color-rejected;      background: rgba($color-rejected,      0.15); }
-    &--cancelled    { border-color: $color-cancelled;     background: rgba($color-cancelled,     0.15); }
+
+    &--created   { border-color: $color-draft;    background: rgba($color-draft,    0.15); }
+    &--submitted { border-color: $color-pending;  background: rgba($color-pending,  0.15); }
+    &--confirmed { border-color: $color-pending;  background: rgba($color-pending,  0.15); }
+    &--approved  { border-color: $color-approved; background: rgba($color-approved, 0.15); }
+    &--released  { border-color: $color-released; background: rgba($color-released, 0.15); }
+    &--rejected  { border-color: $color-rejected; background: rgba($color-rejected, 0.15); }
+    &--cancelled { border-color: $color-cancelled;background: rgba($color-cancelled,0.15); }
   }
 
   &__audit-line {
-    width: 1px;
+    width: 2px;
     flex: 1;
-    background: $border-subtle;
+    background: $border;
     margin-top: 4px;
+    border-radius: 1px;
   }
 
   &__audit-body {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     padding-top: 1px;
   }
 
   &__audit-action {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: $text-primary;
-    text-transform: capitalize;
   }
 
   &__audit-by {
-    font-size: 12px;
-    color: $text-muted;
+    font-size: 13px;          // was 12px muted — bumped for elderly readability
+    color: $text-secondary;
   }
 
   &__audit-time {
     font-family: $font-mono;
-    font-size: 10px;
+    font-size: 11px;          // was 10px muted — minimum legible size
     color: $text-muted;
-    margin-top: 2px;
+    margin-top: 1px;
   }
 
-  // ── Bottom action bar (CEO) ───────────────────────────────
-  // ── Bottom action bar ────────────────────────────────
+  // ── Bottom action bar ─────────────────────────────────────
   &__action-bar {
     position: relative;
     z-index: $z-action;
-    background: $bg-base;        // ← was rgba(6, 8, 13, 0.95)
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: $bg-card;
     border-top: 1px solid $border;
     padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
     display: flex;
     gap: 10px;
   }
 
+  // Action buttons — solid fills, not ghost/tint
+  // Older users need clear affordance on touch targets
   &__action-btn {
     flex: 1;
-    padding: 13px;
+    padding: 14px;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     transition: all $transition-fast;
+    border: none;
 
     &--approve {
-      background: rgba(34, 197, 94, 0.12);
-      color: $color-approved;
-      border: 1px solid rgba(34, 197, 94, 0.3);
+      background: $color-approved;
+      color: #fff;
 
-      &:hover { background: rgba(34, 197, 94, 0.2); }
+      &:hover  { background: darken($color-approved, 6%); }
       &:active { transform: scale(0.98); }
+      &:disabled { opacity: 0.5; cursor: default; transform: none; }
     }
 
     &--reject {
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba($color-rejected, 0.1);
       color: $color-rejected;
-      border: 1px solid rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba($color-rejected, 0.25);
 
-      &:hover { background: rgba(239, 68, 68, 0.18); }
+      &:hover  { background: rgba($color-rejected, 0.16); }
       &:active { transform: scale(0.98); }
+      &:disabled { opacity: 0.5; cursor: default; transform: none; }
+    }
+
+    &--ghost {
+      background: transparent;
+      color: $text-secondary;
+      border: 1px solid $border;
+
+      &:hover  { background: $bg-base; color: $text-primary; }
+      &:active { transform: scale(0.98); }
+      &:disabled { opacity: 0.5; cursor: default; }
     }
   }
 
-  // ── Decided state (after CEO acts) ───────────────────────
+  // ── Decided state ─────────────────────────────────────────
   &__decided {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 13px;
+    padding: 14px;
     border-radius: 10px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     width: 100%;
 
     &--approved {
-      background: rgba(34, 197, 94, 0.08);
+      background: rgba($color-approved, 0.1);
       color: $color-approved;
-      border: 1px solid rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba($color-approved, 0.2);
     }
 
     &--rejected {
-      background: rgba(239, 68, 68, 0.08);
+      background: rgba($color-rejected, 0.08);
       color: $color-rejected;
-      border: 1px solid rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba($color-rejected, 0.18);
     }
   }
 
-  // ── Reject dialog ─────────────────────────────────────────
+  // ── Reject / cancel dialog ────────────────────────────────
   &__dialog-backdrop {
     position: fixed;
     inset: 0;
     z-index: $z-dialog;
-    background: rgba(15, 22, 35, 0.6);
+    background: rgba(13, 20, 32, 0.5);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     display: flex;
@@ -486,26 +455,26 @@
   }
 
   &__dialog-title {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 700;
     color: $text-primary;
   }
 
   &__dialog-close {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 6px;
     border: 1px solid $border;
     background: transparent;
-    color: $text-muted;
-    font-size: 16px;
+    color: $text-secondary;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all $transition-fast;
 
-    &:hover { color: $text-primary; border-color: $border; }
+    &:hover { color: $text-primary; border-color: darken($border, 8%); }
   }
 
   &__dialog-textarea {
@@ -536,27 +505,11 @@
     gap: 10px;
   }
 
-  // ── Ghost button (cancel in dialog) ───────────────────────
-  &__action-btn--ghost {
-    flex: 1;
-    padding: 13px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    background: transparent;
-    color: $text-secondary;
-    border: 1px solid $border;
-    transition: all $transition-fast;
-
-    &:hover { background: $bg-base; }
-    &:active { transform: scale(0.98); }
-  }
-
-  // ── Notes section ──────────────────────────────────────────
+  // ── Notes section ─────────────────────────────────────────
   &__notes-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     max-height: 320px;
     overflow-y: auto;
 
@@ -573,20 +526,22 @@
   &__note-bubble {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     padding: 10px 12px;
     border-radius: 10px;
     background: $bg-base;
     border: 1px solid $border-subtle;
-    position: relative;
 
     &--rejection {
       background: rgba($color-rejected, 0.04);
-      border-color: rgba($color-rejected, 0.15);
+      border-color: rgba($color-rejected, 0.18);
 
-      .po-detail__note-context {
-        color: $color-rejected;
-      }
+      .po-detail__note-context { color: $color-rejected; }
+    }
+
+    &--cancellation {
+      background: rgba($color-cancelled, 0.05);
+      border-color: rgba($color-cancelled, 0.2);
     }
   }
 
@@ -598,14 +553,14 @@
   }
 
   &__note-author {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
-    color: $text-secondary;
+    color: $text-primary;
   }
 
   &__note-context {
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: $text-muted;
@@ -613,13 +568,13 @@
 
   &__note-time {
     font-family: $font-mono;
-    font-size: 10px;
+    font-size: 11px;
     color: $text-muted;
     white-space: nowrap;
   }
 
   &__note-text {
-    font-size: 13px;
+    font-size: 14px;
     color: $text-primary;
     line-height: 1.6;
     word-break: break-word;
@@ -629,21 +584,21 @@
     display: flex;
     gap: 8px;
     align-items: flex-end;
-    padding-top: 4px;
+    padding-top: 8px;
     border-top: 1px solid $border-subtle;
     margin-top: 4px;
   }
 
   &__note-textarea {
     flex: 1;
-    min-height: 40px;
+    min-height: 42px;
     max-height: 120px;
     background: $bg-base;
     border: 1px solid $border;
     border-radius: 10px;
     padding: 10px 12px;
     font-family: $font-ui;
-    font-size: 13px;
+    font-size: 14px;
     color: $text-primary;
     resize: none;
     direction: rtl;
@@ -658,13 +613,13 @@
   }
 
   &__note-send {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 10px;
     background: $accent;
     border: none;
     color: #fff;
-    font-size: 16px;
+    font-size: 17px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -672,16 +627,17 @@
     flex-shrink: 0;
     transition: all $transition-fast;
 
-    &:hover { background: $accent-hover; }
-    &:active { transform: scale(0.95); }
+    &:hover   { background: $accent-hover; }
+    &:active  { transform: scale(0.95); }
     &:disabled {
-      opacity: 0.4;
+      opacity: 0.35;
       cursor: default;
       transform: none;
     }
   }
 
-  // ── Not found ─────────────────────────────────────────────
+  // ── Loading / not found ───────────────────────────────────
+  &__loading,
   &__not-found {
     display: flex;
     flex-direction: column;
@@ -690,70 +646,77 @@
     min-height: 60dvh;
     gap: 12px;
     color: $text-muted;
-    font-size: 14px;
+    font-size: 15px;
     text-align: center;
     padding: 24px;
   }
+
+  &__back-link {
+    font-size: 14px;
+    color: $accent;
+    font-weight: 500;
+  }
 }
 
-@keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-
+// ── Line item layout (defined outside block to avoid specificity conflict) ────
 .po-detail__item {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 3px;
-  padding: 10px 0;
+  gap: 4px;
+  padding: 11px 0;
   border-bottom: 1px solid $border-subtle;
- 
-  &:last-child {
-    border-bottom: none;
-  }
- 
+
+  &:first-child { padding-top: 0; }
+  &:last-child  { border-bottom: none; padding-bottom: 0; }
+
   &-main {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     gap: 8px;
   }
- 
+
   &-desc {
     font-size: 14px;
     color: $text-primary;
     flex: 1;
     line-height: 1.4;
   }
- 
+
   &-total {
     font-size: 14px;
+    font-weight: 600;
     color: $text-primary;
     white-space: nowrap;
     flex-shrink: 0;
   }
- 
+
   &-sub {
     display: flex;
-    justify-content: flex-start;
     align-items: center;
     gap: 8px;
   }
- 
+
   &-dept {
     font-size: 11px;
-    color: $text-muted;
+    font-weight: 500;
+    color: $text-secondary;
     background: $bg-base;
-    border: 1px solid $border-subtle;
+    border: 1px solid $border;
     border-radius: 4px;
-    padding: 1px 6px;
+    padding: 2px 6px;
     flex-shrink: 0;
   }
- 
+
   &-breakdown {
     font-size: 11px;
     color: $text-muted;
     white-space: nowrap;
   }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }

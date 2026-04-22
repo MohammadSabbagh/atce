@@ -1,32 +1,35 @@
 // ─── Color Tokens ───────────────────────────────────
-$bg-base:       #F5F6FA;
+$bg-base:       #EFF1F7;      // page background — slightly cooler/softer than before
 $bg-card:       #FFFFFF;
-$bg-card-hover: #F0F2F8;
-$border:        #E2E6F0;
-$border-subtle: #EDF0F7;
+$bg-card-hover: #F4F6FC;
 
-$text-primary:   #0F1623;
-$text-secondary: #5A6478;
-$text-muted:     #9AA3B5;
+$border:        #D8DCE8;      // slightly darker — more visible dividers
+$border-subtle: #E8EBF4;
+
+// Text — tightened for readability on white cards, small mobile text
+$text-primary:   #0D1420;    // near-black, unchanged
+$text-secondary: #3D4A5C;    // was #5A6478 — bumped for WCAG AA compliance
+$text-muted:     #6B7A8F;    // was #9AA3B5 — bumped significantly; old value failed AA at <14px
 
 // Status
-$color-pending:     #D97706;
-$color-approved:    #16A34A;
-$color-released:    #0D9488;
-$color-rejected:    #DC2626;
-$color-draft:       #4A7FA5;
-$color-cancelled:   #9AA3B5;
-$color-fulfilled:   #7C3AED;
-$color-open:        #2563EB;
+$color-pending:     #C05C00;    // was #D97706 — darker amber, better contrast on white
+$color-approved:    #146C35;    // was #16A34A — slightly deeper green
+$color-released:    #0A7A6E;    // was #0D9488 — slightly deeper teal
+$color-rejected:    #C41F1F;    // was #DC2626 — slightly deeper red
+$color-draft:       #3A6A8A;    // was #4A7FA5 — slightly deeper blue-gray
+$color-cancelled:   #6B7A8F;    // aligned with new $text-muted
+
+$color-fulfilled:   #6D28D9;
+$color-open:        #1D55D0;    // was #2563EB — slightly deeper
 
 // Tag colors
-$color-tag-freeform: #0891B2;
-$color-tag-skill:    #7C3AED;
+$color-tag-freeform: #0773A0;   // slightly deeper cyan
+$color-tag-skill:    #6D28D9;
 
 // Accent
-$accent:         #2563EB;
-$accent-dim:     rgba(37, 99, 235, 0.08);
-$accent-hover:   #1D4ED8;
+$accent:         #1D55D0;       // matched to $color-open
+$accent-dim:     rgba(29, 85, 208, 0.09);
+$accent-hover:   #1643A8;
 
 // ─── Typography ──────────────────────────────────────
 $font-ui:   'Tajawal', sans-serif;
