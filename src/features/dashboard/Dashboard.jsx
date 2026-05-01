@@ -14,10 +14,10 @@ import './Dashboard.scss'
 
 const QUICK_ACTIONS = [
   {
-    id: 'create-po',
-    label: 'طلب شراء جديد',
-    icon: '+',
-    to: '/po/create',
+    id: 'team-list',
+    label: 'الفريق',
+    icon: '🗄️',
+    to: '/assets',
     roles: ['purchase_manager', 'secretary'],
   },
   {
@@ -68,6 +68,14 @@ export default function Dashboard() {
         <LiveIndicator />
       </div>
 
+      {/* ── Stat cards ──────────────────────────── */}
+      <section className="dashboard__section">
+        {loading
+          ? <DashboardStatCardsSkeleton />
+          : <DashboardStatCards stats={stats} role={profile?.role} />
+        }
+      </section>
+
       {/* ── Quick actions ───────────────────────── */}
       <QuickActions role={profile?.role} />
 
@@ -78,21 +86,15 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Stat cards ──────────────────────────── */}
-      <section className="dashboard__section">
-        {loading
-          ? <DashboardStatCardsSkeleton />
-          : <DashboardStatCards stats={stats} role={profile?.role} />
-        }
-      </section>
+
 
       {/* ── Spending chart ──────────────────────── */}
-      <section className="dashboard__section">
+      {/* <section className="dashboard__section">
         {loading
           ? <ChartSkeleton />
           : <SpendingChart deptSpending={deptSpending} />
         }
-      </section>
+      </section> */}
     </div>
   )
 }

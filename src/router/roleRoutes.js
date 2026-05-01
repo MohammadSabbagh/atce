@@ -7,6 +7,7 @@ export const ROLE_ROUTES = {
   purchase_manager: [
     { path: '/dashboard', label: S.navDashboard, icon: 'home' },
     { path: '/po/list',   label: S.navPOList,    icon: 'list' },
+    { path: '/mo', label: S.moListTitle, icon: 'wrench'}
   ],
   secretary: [
     { path: '/dashboard', label: S.navDashboard, icon: 'home' },
@@ -16,14 +17,17 @@ export const ROLE_ROUTES = {
   hr: [
     { path: '/hr/dashboard', label: S.navDashboard, icon: 'home' },
     { path: '/po/list',      label: S.navPOList,    icon: 'list' },
+    { path: '/mo', label: S.moListTitle, icon: 'wrench'}
   ],
   ceo: [
     { path: '/dashboard', label: S.navDashboard, icon: 'home' },
     { path: '/po/list',   label: S.navPOList,    icon: 'list' },
+    { path: '/mo', label: S.moListTitle, icon: 'wrench'}
   ],
   finance: [
     { path: '/dashboard', label: S.navDashboard, icon: 'home' },
     { path: '/po/list',   label: S.navPOList,    icon: 'list' },
+    { path: '/mo', label: S.moListTitle, icon: 'wrench'}
   ],
 }
 

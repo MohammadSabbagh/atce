@@ -1,10 +1,11 @@
 // src/features/po/POList.jsx
-
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react'
 import { usePOList } from './hooks/usePOList'
 import { S } from '@/lib/strings'
 import POCard from './POCard'
 import FilterChips from '@/components/ui/FilterChips'
+import NavIcon from "@/components/layout/NavIcon";
 import { LiveIndicator } from '@/features/sync/LiveIndicator'
 import './po-list.scss'
 
@@ -41,7 +42,8 @@ export default function POList() {
   } = usePOList()
 
   const [filtersOpen, setFiltersOpen] = useState(false)
-
+  const navigate = useNavigate();
+  
   const activeStatus = filterKey === 'ceo_pending'
     ? 'ceo_pending'
     : filterKey === 'finance_pending'
@@ -73,7 +75,12 @@ export default function POList() {
         <span className="po-list__count mono">{pos.length}</span>
 
         <LiveIndicator />
-
+        <button
+          className="po-list__add-btn"
+          onClick={() => navigate('/po/create')}
+        >
+          <NavIcon name={'plus'} />
+        </button>
         <button
           className={`po-list__funnel ${hasSecondary ? 'po-list__funnel--active' : ''}`}
           onClick={() => setFiltersOpen(prev => !prev)}

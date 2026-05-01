@@ -359,7 +359,7 @@ function Step1({ form, set, assets, selectedAsset, assetSearch, setAssetSearch, 
                     <span className="create-mo__asset-option-name">{a.name}</span>
                     <div className="create-mo__asset-option-meta">
                       <span className={`create-mo__asset-option-type create-mo__asset-option-type--${a.type}`}>
-                        {a.type === 'car' ? 'مركبة' : 'عام'}
+                        {a.type === 'car' ? S.assetTypeCar : S.assetTypeOther}
                       </span>
                       {a.plate_number && (
                         <span className="create-mo__asset-option-plate">{a.plate_number}</span>

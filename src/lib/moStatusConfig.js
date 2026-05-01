@@ -2,30 +2,20 @@
 // Single source of truth for MO status TRANSITION logic.
 // Mirrors poStatusConfig.js — same two-path lifecycle, same roles.
 //
-// Status labels and CSS classes are NOT defined here:
-//   - Labels live in src/lib/strings.js (S.statusDraft, S.statusPending, ...)
-//   - CSS classes live in components/ui/status-badge.scss
-// Always render via <StatusBadge status={...} /> — never with a local class.
+// Status labels live in src/lib/strings.js (S.statusDraft, S.statusPending, …)
+// Action button labels also live in strings.js (S.pmConfirm, S.approve, …)
+// Render badges via <StatusBadge status={...} /> — never with a local class.
+
+import { S } from './strings'
 
 export const MO_STATUSES = {
-  DRAFT: 'draft',
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  RELEASED: 'released',
-  REJECTED: 'rejected',
+  DRAFT:     'draft',
+  PENDING:   'pending',
+  APPROVED:  'approved',
+  RELEASED:  'released',
+  REJECTED:  'rejected',
   CANCELLED: 'cancelled',
-};
-
-// Action button labels (Arabic) — used in MO detail action bar.
-// These are intentionally kept here (not in strings.js) because they're
-// part of the transition spec and only appear in MO action UI.
-const ACTION_LABELS = {
-  pending:   'تأكيد الأمر',   // PM confirms draft → pending
-  approved:  'اعتماد',         // CEO approves
-  released:  'إصدار',          // Finance releases
-  rejected:  'رفض',
-  cancelled: 'إلغاء',
-};
+}
 
 /**
  * STATUS_TRANSITIONS
@@ -54,7 +44,7 @@ export const STATUS_TRANSITIONS = [
     to: 'pending',
     roles: ['purchase_manager'],
     requiresNote: false,
-    actionLabel: ACTION_LABELS.pending,
+    actionLabel: S.pmConfirm,
   },
 
   // CEO approves (CEO path only — enforced in getAvailableTransitions)
@@ -63,7 +53,7 @@ export const STATUS_TRANSITIONS = [
     to: 'approved',
     roles: ['ceo'],
     requiresNote: false,
-    actionLabel: ACTION_LABELS.approved,
+    actionLabel: S.approve,
   },
 
   // Finance releases — CEO path (approved → released)
@@ -72,7 +62,7 @@ export const STATUS_TRANSITIONS = [
     to: 'released',
     roles: ['finance'],
     requiresNote: false,
-    actionLabel: ACTION_LABELS.released,
+    actionLabel: S.release,
   },
 
   // Finance releases — direct path (pending → released, requires_ceo=false only)
@@ -82,7 +72,7 @@ export const STATUS_TRANSITIONS = [
     to: 'released',
     roles: ['finance'],
     requiresNote: false,
-    actionLabel: ACTION_LABELS.released,
+    actionLabel: S.release,
   },
 
   // CEO rejects pending (CEO path)
@@ -91,7 +81,7 @@ export const STATUS_TRANSITIONS = [
     to: 'rejected',
     roles: ['ceo'],
     requiresNote: true,
-    actionLabel: ACTION_LABELS.rejected,
+    actionLabel: S.reject,
   },
 
   // Finance rejects pending (direct path only — enforced in getAvailableTransitions)
@@ -100,7 +90,7 @@ export const STATUS_TRANSITIONS = [
     to: 'rejected',
     roles: ['finance'],
     requiresNote: true,
-    actionLabel: ACTION_LABELS.rejected,
+    actionLabel: S.reject,
   },
 
   // Finance rejects approved (direct path only — cannot reject CEO-approved)
@@ -109,7 +99,7 @@ export const STATUS_TRANSITIONS = [
     to: 'rejected',
     roles: ['finance'],
     requiresNote: true,
-    actionLabel: ACTION_LABELS.rejected,
+    actionLabel: S.reject,
   },
 
   // PM/Secretary cancel before released
@@ -118,16 +108,16 @@ export const STATUS_TRANSITIONS = [
     to: 'cancelled',
     roles: ['purchase_manager', 'secretary'],
     requiresNote: true,
-    actionLabel: ACTION_LABELS.cancelled,
+    actionLabel: S.cancel,
   },
   {
     from: 'approved',
     to: 'cancelled',
     roles: ['purchase_manager', 'secretary'],
     requiresNote: true,
-    actionLabel: ACTION_LABELS.cancelled,
+    actionLabel: S.cancel,
   },
-];
+]
 
 /**
  * Returns available transitions for the current user on a given MO.
@@ -138,34 +128,34 @@ export const STATUS_TRANSITIONS = [
  * @returns {Array}          - Filtered list of transition objects
  */
 export function getAvailableTransitions(mo, role, userId) {
-  if (!mo || !role) return [];
+  if (!mo || !role) return []
 
-  const terminal = ['released', 'rejected', 'cancelled'];
-  if (terminal.includes(mo.status)) return [];
+  const terminal = ['released', 'rejected', 'cancelled']
+  if (terminal.includes(mo.status)) return []
 
   return STATUS_TRANSITIONS.filter((t) => {
     // Must match current status and role
-    if (t.from !== mo.status) return false;
-    if (!t.roles.includes(role)) return false;
+    if (t.from !== mo.status) return false
+    if (!t.roles.includes(role)) return false
 
     // CEO can only approve/reject requires_ceo MOs
-    if (role === 'ceo' && !mo.requires_ceo) return false;
+    if (role === 'ceo' && !mo.requires_ceo) return false
 
     // Finance: pending → released only on direct path (requires_ceo = false)
     if (role === 'finance' && t.from === 'pending' && t.to === 'released') {
-      if (mo.requires_ceo) return false;
+      if (mo.requires_ceo) return false
     }
 
     // Finance: pending → rejected only on direct path
     if (role === 'finance' && t.from === 'pending' && t.to === 'rejected') {
-      if (mo.requires_ceo) return false;
+      if (mo.requires_ceo) return false
     }
 
     // Finance: cannot reject CEO-approved MOs
     if (role === 'finance' && t.from === 'approved' && t.to === 'rejected') {
-      if (mo.requires_ceo) return false;
+      if (mo.requires_ceo) return false
     }
 
-    return true;
-  });
+    return true
+  })
 }

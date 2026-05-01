@@ -40,7 +40,7 @@
     color: $text-secondary;
     cursor: pointer;
     flex-shrink: 0;
-    margin-inline-start: auto;
+    //margin-inline-start: auto;
     transition: color $transition-fast, border-color $transition-fast, background $transition-fast;
 
     &:hover {
@@ -343,5 +343,33 @@
     padding: 48px 16px;
     color: $text-muted;
     font-size: 14px;
+  }
+
+  &__add-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid $border;
+    background: $bg-card;
+    color: $text-secondary;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    transition: color $transition-fast, border-color $transition-fast, background $transition-fast;
+
+    &:hover {
+      color: $text-primary;
+      border-color: $text-muted;
+    }
+
+    &--active {
+      color: $accent;
+      border-color: $accent;
+      background: $accent-dim;
+    }
   }
 }

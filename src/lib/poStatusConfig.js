@@ -1,6 +1,9 @@
 // poStatusConfig.js
-// Single source of truth for PO status flow, labels, colors, and transition rules.
-// All status-related logic in the app derives from this file.
+// Single source of truth for PO status flow and transition rules.
+// Status labels live in src/lib/strings.js (S.statusXxx) — render via <StatusBadge />.
+// Action button labels also live in strings.js (S.pmConfirm, S.approve, S.reject, S.release, S.cancel).
+
+import { S } from './strings'
 
 // ─────────────────────────────────────────
 // Status definitions
@@ -16,7 +19,7 @@ export const PO_STATUS = {
 
 // ─────────────────────────────────────────
 // Display config per status
-// label: Arabic UI string
+// label: Arabic UI string (legacy — prefer S.statusXxx via StatusBadge)
 // color: maps to $variable token in SCSS
 // cssClass: BEM modifier for status badges
 // ─────────────────────────────────────────
@@ -56,7 +59,10 @@ export const STATUS_CONFIG = {
 // ─────────────────────────────────────────
 // Flow rules
 // Defines which roles can perform which transitions
-// and whether a note is required
+// and whether a note is required.
+//
+// actionLabel pulls from strings.js so all status-action button text
+// has a single source of truth (PO + MO + future HR).
 //
 // Full lifecycle:
 //   Secretary creates → draft
@@ -73,6 +79,7 @@ export const STATUS_TRANSITIONS = {
     to:           PO_STATUS.PENDING,
     allowedRoles: ['purchase_manager'],
     requiresNote: false,
+    actionLabel:  S.pmConfirm,
     condition:    () => true,
   },
 
@@ -82,6 +89,7 @@ export const STATUS_TRANSITIONS = {
     to:           PO_STATUS.CANCELLED,
     allowedRoles: ['secretary'],
     requiresNote: false,
+    actionLabel:  S.cancel,
     condition:    (po, userId) => po.created_by === userId,
   },
 
@@ -91,6 +99,7 @@ export const STATUS_TRANSITIONS = {
     to:           PO_STATUS.APPROVED,
     allowedRoles: ['ceo'],
     requiresNote: false,
+    actionLabel:  S.approve,
     condition:    (po) => po.requires_ceo === true,
   },
 
@@ -100,6 +109,7 @@ export const STATUS_TRANSITIONS = {
     to:           PO_STATUS.REJECTED,
     allowedRoles: ['ceo'],
     requiresNote: true,
+    actionLabel:  S.reject,
     condition:    (po) => po.requires_ceo === true,
   },
 
@@ -109,6 +119,7 @@ export const STATUS_TRANSITIONS = {
     to:           PO_STATUS.RELEASED,
     allowedRoles: ['finance'],
     requiresNote: false,
+    actionLabel:  S.release,
     condition:    () => true,
   },
 
@@ -118,6 +129,7 @@ export const STATUS_TRANSITIONS = {
     to:           PO_STATUS.RELEASED,
     allowedRoles: ['finance'],
     requiresNote: false,
+    actionLabel:  S.release,
     condition:    (po) => po.requires_ceo === false,
   },
 
@@ -128,6 +140,7 @@ export const STATUS_TRANSITIONS = {
     to:           PO_STATUS.REJECTED,
     allowedRoles: ['finance'],
     requiresNote: true,
+    actionLabel:  S.reject,
     condition:    (po) => po.requires_ceo === false,
   },
 
@@ -137,6 +150,7 @@ export const STATUS_TRANSITIONS = {
     to:           PO_STATUS.CANCELLED,
     allowedRoles: ['purchase_manager', 'secretary'],
     requiresNote: false,
+    actionLabel:  S.cancel,
     condition:    (po, userId) => po.created_by === userId,
   },
 }
@@ -148,16 +162,16 @@ export const STATUS_TRANSITIONS = {
 export function getAvailableTransitions(po, role, userId) {
   return Object.entries(STATUS_TRANSITIONS)
     .filter(([, config]) => {
-      const roleAllowed  = config.allowedRoles.includes(role)
+      const roleAllowed   = config.allowedRoles.includes(role)
       const statusAllowed = config.from.includes(po.status)
-      const conditionMet = config.condition(po, userId)
+      const conditionMet  = config.condition(po, userId)
       return roleAllowed && statusAllowed && conditionMet
     })
     .map(([key]) => key)
 }
 
 // ─────────────────────────────────────────
-// Helper: get label for a status key
+// Helper: get label for a status key (legacy)
 // ─────────────────────────────────────────
 export function getStatusLabel(status) {
   return STATUS_CONFIG[status]?.label ?? status

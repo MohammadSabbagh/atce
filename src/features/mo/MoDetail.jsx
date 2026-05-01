@@ -9,6 +9,7 @@ import Tag from '@/components/ui/Tag'
 import NavIcon from '@/components/layout/NavIcon'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { getAvailableTransitions } from '@/lib/moStatusConfig'
+import { S } from '@/lib/strings'
 import './MODetail.scss'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -43,7 +44,7 @@ const auditLabel = (action) => {
   return map[action] ?? action
 }
 
-const typeLabel = (type) => type === 'car' ? '🚗 سيارة' : '🔧 عام'
+const typeLabel = (type) => type === 'car' ? S.assetTypeCarWithIcon : S.assetTypeOtherWithIcon
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function AuditTrail({ audit }) {
