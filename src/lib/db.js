@@ -1,6 +1,6 @@
 // src/lib/db.js
 // Local IndexedDB cache via Dexie.
-// Provides instant reads for PO list and dashboard — Supabase Realtime keeps it fresh.
+// Provides instant reads for PO list, MO list, and dashboard — Supabase Realtime keeps it fresh.
 
 import Dexie from 'dexie'
 
@@ -34,6 +34,33 @@ db.version(3).stores({
 db.version(4).stores({
   purchase_orders: 'id, po_number, status, created_at, requires_ceo, updated_at, created_by',
   po_line_items:   'id, po_id, department',
+  _meta: 'key',
+})
+
+// version(5): add po_tags table. Indexed on po_id for per-PO lookups.
+db.version(5).stores({
+  purchase_orders: 'id, po_number, status, created_at, requires_ceo, updated_at, created_by',
+  po_line_items:   'id, po_id, department',
+  po_tags:         'id, po_id',
+  _meta: 'key',
+})
+
+// version(6): Phase 6 — Assets, Team Members, Maintenance Orders.
+//
+// assets        — registry of company assets (cars and other equipment).
+//                 Indexed on type and department for list filtering.
+// team_members  — staff registry. Lightweight for now; will connect with HR module later.
+// maintenance_orders — same status lifecycle as purchase_orders.
+//                 Indexed identically for MO list + dashboard queries.
+// mo_tags       — same pattern as po_tags.
+db.version(7).stores({
+  purchase_orders:    'id, po_number, status, created_at, requires_ceo, updated_at, created_by',
+  po_line_items:      'id, po_id, department',
+  po_tags:            'id, po_id',
+  assets:             'id, type, department, is_active, updated_at',
+  team_members:       'id, department, is_active, updated_at',
+  maintenance_orders: 'id, mo_number, status, type, asset_id, created_at, requires_ceo, updated_at, created_by',
+  mo_tags:            'id, mo_id',
   _meta: 'key',
 })
 

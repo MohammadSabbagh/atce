@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { MOCK_USERS } from '@/lib/constants'
-import { clearCache, stopSync } from '@/lib/poSync'
+import { clearAllCaches, stopAllSyncs } from '@/lib/syncManager'
 
 const AuthContext = createContext(null)
 
@@ -9,7 +9,7 @@ const IS_DEV = import.meta.env.VITE_DEV_MODE === 'true'
 const DEFAULT_MOCK_USER = MOCK_USERS[0]
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(undefined)  // undefined = not yet known
+  const [session, setSession] = useState(IS_DEV ? null : undefined)  // undefined = not yet known; null = known (no session)
   const [profile, setProfile] = useState(IS_DEV ? DEFAULT_MOCK_USER : null)
   const [profileReady, setProfileReady] = useState(IS_DEV) // true once profile fetch completes
   const [authError, setAuthError] = useState(null)
@@ -194,8 +194,8 @@ export function AuthProvider({ children }) {
   }
 
   const signOut = async () => {
-    stopSync()
-    await clearCache()
+    stopAllSyncs()
+    await clearAllCaches()
     if (IS_DEV) {
       setProfile(null)
       return

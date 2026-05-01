@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/features/auth/AuthContext'
 import { ROLE_HOME } from './roleRoutes'
 import RootLayout from '@/components/layout/RootLayout'
 import LoginScreen from '@/features/auth/LoginScreen'
@@ -7,6 +7,13 @@ import POList from '@/features/po/POList'
 import CreatePO from '@/features/po/create/CreatePO'
 import Dashboard from '@/features/dashboard/Dashboard'
 import PODetail from '../features/po/PODetail'
+
+import AssetsPage from '../features/assets/AssetsPage';
+import AssetDetail from '../features/assets/AssetDetail';
+import AssetForm from '../features/assets/AssetForm';
+
+import MOList   from '../features/mo/MOList';
+import MOCreate from '../features/mo/MOCreate';
 
 const Placeholder = ({ name }) => (
   <div style={{ padding: '2rem', color: '#fff', fontFamily: 'monospace' }}>
@@ -83,6 +90,15 @@ export default function AppRouter() {
         <Route path="/hr/requests/fulfill" element={<Placeholder name="Fulfill Requests" />} />
         <Route path="/hr/org-chart"        element={<Placeholder name="Org Chart" />} />
         <Route path="/hr/approvals"        element={<Placeholder name="HR Approvals" />} />
+        
+        <Route path="/assets" element={<AssetsPage />} />
+        <Route path="/assets/new" element={<AssetForm />} />
+        <Route path="/assets/:id" element={<AssetDetail />} />
+        <Route path="/assets/:id/edit" element={<AssetForm />} />
+
+        <Route path="/mo"        element={<MOList />} />
+        <Route path="/mo/create" element={<MOCreate />} />
+        {/* <Route path="/mo/:id"    element={<MODetail />} /> */}
 
         <Route
           path="*"

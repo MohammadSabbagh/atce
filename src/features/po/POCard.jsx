@@ -1,15 +1,17 @@
-import { useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import StatusBadge from '@/components/ui/StatusBadge'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import db from '@/lib/db'
-import '@/styles/po-card.scss'
+import './po-card.scss'
 
-export default function POCard({ po }) {
-  const navigate = useNavigate()
-
+export default function POCard({ po, onClick }) {
   const lineItems = useLiveQuery(
     () => db.po_line_items.where('po_id').equals(po.id).toArray(),
+    [po.id]
+  )
+
+  const poTags = useLiveQuery(
+    () => db.po_tags.where('po_id').equals(po.id).toArray(),
     [po.id]
   )
 
@@ -17,10 +19,15 @@ export default function POCard({ po }) {
     ? [...new Set(lineItems.map(i => i.department).filter(Boolean))].sort()
     : []
 
+  const tags = poTags ? poTags.map(t => t.tag).filter(Boolean) : []
+
+  // currency falls back to 'USD' for any PO created before the column was added
+  const currency = po.currency ?? 'USD'
+
   return (
     <div
       className={`po-card po-card--status-${po.status}`}
-      onClick={() => navigate(`/po/${po.id}`)}
+      onClick={onClick}
     >
       <div className="po-card__header">
         <div className="po-card__header-right">
@@ -30,18 +37,27 @@ export default function POCard({ po }) {
             <span className="po-card__ceo-flag">CEO</span>
           )}
         </div>
-        <span className="po-card__total mono">{formatCurrency(po.total)}</span>
+        <span className="po-card__total mono">{formatCurrency(po.total, currency)}</span>
       </div>
 
       <div className="po-card__title">{po.title}</div>
 
       <div className="po-card__meta">
         <span className="po-card__date">{formatDate(po.created_at)}</span>
-        <div className="po-card__depts">
-          {departments.map(dept => (
-            <span key={dept} className="po-card__dept">{dept}</span>
-          ))}
-        </div>
+        {departments.length > 0 && (
+          <div className="po-card__depts">
+            {departments.map(dept => (
+              <span key={dept} className="po-card__dept">{dept}</span>
+            ))}
+          </div>
+        )}
+        {tags.length > 0 && (
+          <div className="po-card__tags-row">
+            {tags.map(tag => (
+              <span key={tag} className="po-card__tag">{tag}</span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

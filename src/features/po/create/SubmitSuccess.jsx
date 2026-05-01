@@ -1,5 +1,5 @@
 import { S } from '@/lib/strings'
-import '@/styles/create-po.scss'
+import './create-po.scss'
 
 export default function SubmitSuccess({ onDone }) {
   return (

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import * as RadioGroup from '@radix-ui/react-radio-group'
 import Tag from '@/components/ui/Tag'
 import { S } from '@/lib/strings'
 import '@/styles/form.scss'
@@ -63,6 +64,33 @@ export default function Step1Details({ wizard }) {
           onChange={(e) => setField('description', e.target.value)}
           rows={3}
         />
+      </div>
+
+      {/* ── Currency ── */}
+      <div className="form__field">
+        <label className="form__label">{S.poCurrency}</label>
+        <RadioGroup.Root
+          className="currency-radio"
+          value={form.currency}
+          onValueChange={(val) => setField('currency', val)}
+          dir="rtl"
+        >
+          <RadioGroup.Item value="SYP" className="currency-radio__item">
+            <RadioGroup.Indicator className="currency-radio__indicator" />
+            <div className="currency-radio__content">
+              <span className="currency-radio__symbol">ل.س</span>
+              <span className="currency-radio__label">{S.currencyLS}</span>
+            </div>
+          </RadioGroup.Item>
+
+          <RadioGroup.Item value="USD" className="currency-radio__item">
+            <RadioGroup.Indicator className="currency-radio__indicator" />
+            <div className="currency-radio__content">
+              <span className="currency-radio__symbol">$</span>
+              <span className="currency-radio__label">{S.currencyUSD}</span>
+            </div>
+          </RadioGroup.Item>
+        </RadioGroup.Root>
       </div>
 
       <div className="form__field">

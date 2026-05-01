@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/features/auth/AuthContext'
 import { ROLE_HOME } from '@/router/roleRoutes'
-import '@/styles/login.scss'
+import './login.scss'
 
 export default function LoginScreen() {
   const { signIn, authError } = useAuth()

@@ -5,8 +5,8 @@ import { usePOList } from './hooks/usePOList'
 import { S } from '@/lib/strings'
 import POCard from './POCard'
 import FilterChips from '@/components/ui/FilterChips'
-import { LiveIndicator } from '@/features/dashboard/components/LiveIndicator'
-import '@/styles/po-list.scss'
+import { LiveIndicator } from '@/features/sync/LiveIndicator'
+import './po-list.scss'
 
 const STATUS_FILTERS = [
   { value: 'all',              label: S.filterAll },

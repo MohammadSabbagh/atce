@@ -95,6 +95,13 @@ export const S = {
   requiresCeo:        'يتطلب موافقة الرئيس التنفيذي',
   requiresCeoHint:    'يُحوَّل هذا الطلب إلى قائمة اعتماد الرئيس التنفيذي',
 
+  // ── Currency ─────────────────────────────
+  poCurrency:         'العملة',
+  currencyUSD:        'دولار أمريكي',
+  currencyLS:         'ليرة سورية',
+  currencySymbolUSD:  'USD',
+  currencySymbolLS:   'ل.س',
+
   // ── Create PO — Step 2: Line Items ───────
   itemDescription:    'وصف البند',
   itemPrice:          'السعر',
@@ -139,6 +146,113 @@ export const S = {
   viewAll:       'عرض الكل',
   requiredField: 'هذا الحقل مطلوب',
   required:      '*',
+
+  // ─── Add these keys to src/lib/strings.js ───────────────────────────────────
+  // Paste into the S object alongside existing keys.
+
+  // Assets — general
+  assetsTitle: 'الأصول',
+  assetsAddNew: '+ أصل جديد',
+  assetsSearchPlaceholder: 'بحث...',
+  assetsEmpty: 'لا توجد أصول',
+  assetActive: 'نشط',
+  assetInactive: 'غير نشط',
+  assetTypeCar: 'مركبة',
+  assetTypeOther: 'عام',
+  assetAssignedTo: 'مسؤول عنه',
+  assetInfoSection: 'التفاصيل',
+  assetSerialNumber: 'الرقم التسلسلي',
+  assetSourcePO: 'أمر الشراء',
+  assetPlateNumber: 'رقم اللوحة',
+  assetModel: 'الموديل',
+  assetNotes: 'ملاحظات',
+  assetAddImage: 'إضافة صورة',
+  assetChangeImage: 'تغيير الصورة',
+
+// Asset form
+assetCreateTitle: 'أصل جديد',
+assetEditTitle: 'تعديل الأصل',
+assetType: 'النوع',
+assetName: 'الاسم',
+assetNamePlaceholder: 'اسم الأصل',
+assetDepartment: 'القسم',
+assetDeptPlaceholder: 'اختر القسم',
+assetPlatePlaceholder: 'مثال: ب أ 1234',
+assetModelPlaceholder: 'مثال: تويوتا كامري 2022',
+assetSerialPlaceholder: 'الرقم التسلسلي',
+assetAssignedPlaceholder: 'اسم المسؤول',
+assetNotesPlaceholder: 'أي ملاحظات إضافية...',
+assetActiveLabel: 'نشط',
+assetSaveChanges: 'حفظ التعديلات',
+assetCreate: 'إنشاء الأصل',
+
+// Asset form validation
+assetErrorName: 'يرجى إدخال اسم الأصل',
+assetErrorDept: 'يرجى اختيار القسم',
+
+// Shared
+back: '→ رجوع',
+edit: 'تعديل',
+saving: 'جارٍ الحفظ...',
+errorGeneric: 'حدث خطأ، يرجى المحاولة مجدداً',
+filterAll: 'الكل',
+
+// ─── Add these keys to src/lib/strings.js ───────────────────────────────────
+
+// MO List
+moListTitle: 'أوامر الصيانة',
+moAddNew: '+ أمر جديد',
+moEmpty: 'لا توجد أوامر صيانة',
+
+// MO Create wizard
+moCreateTitle: 'أمر صيانة جديد',
+moStep1Label: 'الخطوة 1 — التفاصيل',
+moStep2Label: 'الخطوة 2 — التكلفة والوسوم',
+moStep3Label: 'الخطوة 3 — المرفقات',
+moStep4Label: 'الخطوة 4 — المراجعة',
+
+moTitle: 'العنوان',
+moTitlePlaceholder: 'عنوان أمر الصيانة',
+moDescription: 'الوصف',
+moDescPlaceholder: 'وصف المشكلة أو العمل المطلوب',
+moAsset: 'الأصل',
+moSelectAsset: 'اختر أصلاً',
+moChangeAsset: 'تغيير',
+moServiceProvider: 'مزود الخدمة',
+moServiceProviderPlaceholder: 'اسم الشركة أو الفني',
+moHandler: 'المسؤول',
+moHandlerPlaceholder: 'اسم المسؤول عن التنفيذ',
+requiresCEO: 'يستلزم موافقة الرئيس',
+
+moCurrency: 'العملة',
+moItemDescription: 'وصف العمل / القطعة',
+moItemDescPlaceholder: 'مثال: تغيير زيت المحرك',
+moItemPrice: 'التكلفة',
+moTags: 'الوسوم',
+moTagPlaceholder: 'وسم جديد',
+moAddTag: 'إضافة',
+
+moAddAttachment: 'إضافة مرفق',
+moAttachmentOptional: 'المرفقات اختيارية',
+moAttachments: 'المرفقات',
+moAttachmentCount: 'ملفات',
+
+moSubmit: 'حفظ كمسودة',
+moPrev: 'رجوع',
+moNext: 'التالي',
+
+// MO validation errors
+moErrorTitle: 'يرجى إدخال عنوان أمر الصيانة',
+moErrorAsset: 'يرجى اختيار الأصل',
+moErrorDept: 'يرجى اختيار القسم',
+moErrorItemDesc: 'يرجى إدخال وصف العمل',
+moErrorItemPrice: 'يرجى إدخال تكلفة صحيحة',
+
+moSubmit:   'إنشاء أمر الصيانة',
+saving:     'جارٍ الحفظ…',
+moPrev:     'السابق',
+moNext:     'التالي',
+
 }
 
 // ── Greeting by time of day ──────────────────
@@ -148,14 +262,4 @@ export function getGreeting() {
   if (hour >= 12 && hour < 17) return 'مساء الخير'
   if (hour >= 17 && hour < 21) return 'مساء النور'
   return 'مرحباً'
-}
-
-// ── Currency formatter ───────────────────────
-export function formatCurrency(amount) {
-  if (amount == null) return '—'
-  return new Intl.NumberFormat('en-US', {
-    style:                 'currency',
-    currency:              'USD',
-    maximumFractionDigits: 0,
-  }).format(amount)
 }

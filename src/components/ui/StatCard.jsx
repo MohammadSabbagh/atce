@@ -1,4 +1,4 @@
-import '@/styles/stat-card.scss'
+import './stat-card.scss'
 
 /**
  * Unified StatCard — used by all role dashboards.

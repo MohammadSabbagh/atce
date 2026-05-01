@@ -1,0 +1,631 @@
+// src/features/mo/create-mo.scss
+
+
+.create-mo {
+  min-height: 100vh;
+  background: $bg-base;
+  direction: rtl;
+
+  &__topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid $border-subtle;
+    position: sticky;
+    top: 0;
+    background: $bg-base;
+    z-index: $z-header;
+  }
+
+  &__back {
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $accent;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+    min-width: 48px;
+  }
+
+  &__title {
+    font-family: $font-ui;
+    font-size: 16px;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0;
+    text-align: center;
+  }
+
+  // Step dots
+  &__stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 0 0;
+  }
+
+  &__step-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $border;
+    transition: all $transition-fast;
+
+    &--active {
+      background: $accent;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    &--done {
+      background: $accent-dim;
+      border: 1px solid $accent;
+    }
+  }
+
+  &__body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  &__step {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__step-label {
+    font-family: $font-ui;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-muted;
+    margin: 0 0 4px;
+  }
+
+  // Fields
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__field-label {
+    font-family: $font-ui;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-muted;
+  }
+
+  &__input {
+    font-family: $font-ui;
+    font-size: 15px;
+    color: $text-primary;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 11px 14px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color $transition-fast;
+
+    &::placeholder { color: $text-muted; }
+    &:focus { border-color: $accent; }
+
+    &--mono {
+      font-family: $font-mono;
+      font-size: 14px;
+    }
+  }
+
+  &__textarea {
+    font-family: $font-ui;
+    font-size: 15px;
+    color: $text-primary;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 11px 14px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    line-height: 1.5;
+    transition: border-color $transition-fast;
+
+    &::placeholder { color: $text-muted; }
+    &:focus { border-color: $accent; }
+  }
+
+  &__select {
+    font-family: $font-ui;
+    font-size: 15px;
+    color: $text-primary;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 11px 14px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color $transition-fast;
+
+    &:focus { border-color: $accent; }
+
+    option {
+      background: $bg-card;
+      color: $text-primary;
+    }
+  }
+
+  // Asset picker
+  &__asset-picker {
+    position: relative;
+  }
+
+  &__asset-btn {
+    width: 100%;
+    font-family: $font-ui;
+    font-size: 15px;
+    color: $text-muted;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 11px 14px;
+    text-align: right;
+    cursor: pointer;
+    transition: border-color $transition-fast;
+
+    &:focus { border-color: $accent; }
+  }
+
+  &__asset-selected {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: $bg-card;
+    border: 1px solid $accent;
+    border-radius: 10px;
+    padding: 11px 14px;
+    cursor: pointer;
+  }
+
+  &__asset-name {
+    font-family: $font-ui;
+    font-size: 15px;
+    color: $text-primary;
+    flex: 1;
+  }
+
+  &__asset-plate {
+    font-family: $font-mono;
+    font-size: 12px;
+    color: $text-muted;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+
+  &__asset-change {
+    font-family: $font-ui;
+    font-size: 12px;
+    color: $accent;
+  }
+
+  &__asset-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: $z-dialog;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  &__asset-search {
+    width: 100%;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    background: $bg-base;
+    border: none;
+    border-bottom: 1px solid $border-subtle;
+    padding: 12px 14px;
+    outline: none;
+    box-sizing: border-box;
+
+    &::placeholder { color: $text-muted; }
+  }
+
+  &__asset-list {
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  &__asset-option {
+    padding: 12px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid $border-subtle;
+    transition: background $transition-fast;
+
+    &:last-child { border-bottom: none; }
+    &:active { background: $bg-base; }
+  }
+
+  &__asset-option-name {
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  &__asset-option-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__asset-option-type {
+    font-family: $font-ui;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 1px 6px;
+
+    &--car {
+      color: #60a5fa;
+      background: rgba(96, 165, 250, 0.1);
+    }
+    &--other {
+      color: #a78bfa;
+      background: rgba(167, 139, 250, 0.1);
+    }
+  }
+
+  &__asset-option-plate {
+    font-family: $font-mono;
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__asset-option-dept {
+    font-family: $font-ui;
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__asset-empty {
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $text-muted;
+    text-align: center;
+    padding: 24px;
+    margin: 0;
+  }
+
+  // Toggle
+  &__toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  &__toggle-label {
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+  }
+
+  &__toggle {
+    position: relative;
+    width: 48px;
+    height: 28px;
+    background: $border;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background $transition-fast;
+    flex-shrink: 0;
+
+    &--on { background: $accent; }
+  }
+
+  &__toggle-knob {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 22px;
+    height: 22px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform $transition-fast;
+
+    .create-mo__toggle--on & {
+      transform: translateX(-20px);
+    }
+  }
+
+  // Currency toggle
+  &__currency-toggle {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__currency-btn {
+    flex: 1;
+    font-family: $font-mono;
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-muted;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &--active {
+      color: $accent;
+      border-color: $accent;
+      background: $accent-dim;
+    }
+  }
+
+  // Tags
+  &__tag-input-row {
+    display: flex;
+    gap: 8px;
+
+    .create-mo__input {
+      flex: 1;
+    }
+  }
+
+  &__tag-add-btn {
+    font-family: $font-ui;
+    font-size: 13px;
+    font-weight: 600;
+    color: $accent;
+    background: $accent-dim;
+    border: none;
+    border-radius: 10px;
+    padding: 0 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background $transition-fast;
+
+    &:active { background: $accent-hover; color: $bg-base; }
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: $font-ui;
+    font-size: 13px;
+    color: #22d3ee;
+    background: rgba(34, 211, 238, 0.1);
+    border-radius: 20px;
+    padding: 4px 12px;
+  }
+
+  &__tag-remove {
+    font-size: 16px;
+    line-height: 1;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.6;
+
+    &:hover { opacity: 1; }
+  }
+
+  // Attachments
+  &__file-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $accent;
+    background: $accent-dim;
+    border: 1.5px dashed $accent;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    justify-content: center;
+    transition: background $transition-fast;
+
+    &:active { background: $accent-hover; color: $bg-base; }
+  }
+
+  &__file-icon {
+    font-size: 20px;
+  }
+
+  &__attachments {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__attachment {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+
+  &__attachment-name {
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $text-primary;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__attachment-size {
+    font-family: $font-mono;
+    font-size: 12px;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+
+  &__attachment-remove {
+    font-size: 18px;
+    color: $text-muted;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+
+    &:active { color: $color-rejected; }
+  }
+
+  &__optional-note {
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $text-muted;
+    text-align: center;
+    margin: 0;
+    padding: 24px 0;
+  }
+
+  // Review
+  &__review-card {
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  &__review-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid $border-subtle;
+    gap: 16px;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__review-label {
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+
+  &__review-value {
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    text-align: left;
+
+    &--mono {
+      font-family: $font-mono;
+      font-size: 14px;
+    }
+  }
+
+  &__review-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+
+  &__review-tag {
+    font-family: $font-ui;
+    font-size: 12px;
+    color: #22d3ee;
+    background: rgba(34, 211, 238, 0.1);
+    border-radius: 12px;
+    padding: 2px 10px;
+  }
+
+  // Error
+  &__error {
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $color-rejected;
+    text-align: center;
+    margin: 0;
+  }
+
+  // Footer
+  &__footer {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: $bg-base;
+    border-top: 1px solid $border-subtle;
+    z-index: $z-action;
+    display: flex;
+    gap: 10px;
+  }
+
+  &__prev-btn {
+    font-family: $font-ui;
+    font-size: 15px;
+    font-weight: 600;
+    color: $text-primary;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background $transition-fast;
+
+    &:active { background: $border; }
+  }
+
+  &__next-btn,
+  &__submit-btn {
+    flex: 1;
+    font-family: $font-ui;
+    font-size: 16px;
+    font-weight: 700;
+    color: $bg-base;
+    background: $accent;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: background $transition-fast;
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    &:not(:disabled):active { background: $accent-hover; }
+  }
+}

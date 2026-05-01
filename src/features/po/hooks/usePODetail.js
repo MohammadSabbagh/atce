@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/features/auth/AuthContext'
+import { getAvailableTransitions } from '@/lib/poStatusConfig'
 
 const PO_SELECT = `
   id,
@@ -12,6 +13,7 @@ const PO_SELECT = `
   description,
   requires_ceo,
   status,
+  currency,
   total,
   created_at,
   created_by,
@@ -83,7 +85,6 @@ export function usePODetail() {
     data.audit = auditResult.data ?? []
     data.notes = notesResult.data ?? []
 
-    // After setting data.audit and data.notes
     if (data.attachments?.length) {
       const signed = await Promise.all(
         data.attachments.map(async (att) => {
@@ -100,6 +101,14 @@ export function usePODetail() {
     setLoading(false)
   }
 
+  // ─── Transition guard ────────────────────────────────────
+  // Single source of truth for "is this action currently valid?"
+  // Delegates entirely to poStatusConfig — no duplicated logic here.
+  function canDo(transitionKey) {
+    if (!po || !profile) return false
+    return getAvailableTransitions(po, profile.role, profile.id).includes(transitionKey)
+  }
+
   // ─── Shared audit writer ─────────────────────────────────
   async function writeAudit(action) {
     return supabase.from('audit_log').insert({
@@ -113,6 +122,7 @@ export function usePODetail() {
   // ─── CEO: Approve ────────────────────────────────────────
   async function approvePO() {
     if (!po || acting) return
+    if (!canDo('ceo_approve')) return
     setActing(true)
     try {
       const { error: updateError } = await supabase
@@ -130,9 +140,11 @@ export function usePODetail() {
     }
   }
 
-  // ─── CEO / Finance: Reject ───────────────────────────────
+  // ─── CEO: Reject ─────────────────────────────────────────
   async function rejectPO(note) {
     if (!po || acting) return
+    const transitionKey = profile?.role === 'ceo' ? 'ceo_reject' : 'finance_reject'
+    if (!canDo(transitionKey)) return
     setActing(true)
     try {
       const { error: updateError } = await supabase
@@ -162,6 +174,10 @@ export function usePODetail() {
   // ─── Finance: Release ────────────────────────────────────
   async function releasePO() {
     if (!po || acting) return
+    const transitionKey = po.requires_ceo
+      ? 'finance_release_from_approved'
+      : 'finance_release_from_pending'
+    if (!canDo(transitionKey)) return
     setActing(true)
     try {
       const { error: updateError } = await supabase
@@ -200,6 +216,8 @@ export function usePODetail() {
   // ─── PM/Secretary: Cancel ────────────────────────────────
   async function cancelPO(note) {
     if (!po || acting) return
+    const transitionKey = po.status === 'draft' ? 'cancel_draft' : 'cancel'
+    if (!canDo(transitionKey)) return
     setActing(true)
     try {
       const { error: updateError } = await supabase
@@ -229,6 +247,7 @@ export function usePODetail() {
   // ─── PM: Confirm draft → pending ────────────────────────
   async function confirmPO() {
     if (!po || acting) return
+    if (!canDo('pm_confirm')) return
     setActing(true)
     // Optimistic update — flip status immediately so PMActionBar unmounts
     // cleanly in this render cycle before any async work begins.

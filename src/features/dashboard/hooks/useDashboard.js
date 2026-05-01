@@ -36,31 +36,46 @@ export function useDashboard() {
     // 4. Rejected count
     const rejectedCount = pos.filter(p => p.status === 'rejected').length
 
-    // 5. Total awaiting value: sum of all pending POs
-    const totalAwaitingValue = pos
-      .filter(p => p.status === 'pending')
+    // 5. Awaiting value split by currency — no cross-currency aggregation.
+    //    Includes all pending POs regardless of path.
+    //    Falls back to 'USD' for POs created before the currency column existed.
+    const pendingPOs = pos.filter(p => p.status === 'pending')
+    const totalAwaitingUSD = pendingPOs
+      .filter(p => (p.currency ?? 'USD') === 'USD')
+      .reduce((sum, p) => sum + (p.total ?? 0), 0)
+    const totalAwaitingLS = pendingPOs
+      .filter(p => (p.currency ?? 'USD') === 'SYP')
       .reduce((sum, p) => sum + (p.total ?? 0), 0)
 
     // ── Department spending chart ───────────
     // Aggregate line item spend per department, excluding cancelled POs.
-    // This is more accurate than PO-level grouping — a single PO can have
-    // items across multiple departments, each charged to the correct budget.
+    // Split by currency — no cross-currency aggregation on dept charts either.
     const cancelledIds = new Set(
       allPOs.filter(p => p.status === 'cancelled').map(p => p.id)
     )
 
+    // Build po_id → currency map for enriching line items
+    const poCurrencyMap = {}
+    for (const p of allPOs) {
+      poCurrencyMap[p.id] = p.currency ?? 'USD'
+    }
+
     const allLineItems = await db.po_line_items.toArray()
 
+    // deptMap[department][currency] = total spend
     const deptMap = {}
     for (const item of allLineItems) {
       if (cancelledIds.has(item.po_id)) continue
       if (!item.department) continue
-      deptMap[item.department] = (deptMap[item.department] ?? 0) + (item.price ?? 0)
+      const lineCurrency = poCurrencyMap[item.po_id] ?? 'USD'
+      const lineValue = (item.quantity ?? 0) * (item.unit_price ?? 0)
+      if (!deptMap[item.department]) deptMap[item.department] = { USD: 0, SYP: 0 }
+      deptMap[item.department][lineCurrency] = (deptMap[item.department][lineCurrency] ?? 0) + lineValue
     }
 
     const deptSpending = Object.entries(deptMap)
-      .map(([department, total]) => ({ department, total }))
-      .sort((a, b) => b.total - a.total)
+      .map(([department, totals]) => ({ department, totalUSD: totals.USD, totalLS: totals.SYP }))
+      .sort((a, b) => (b.totalUSD + b.totalLS) - (a.totalUSD + a.totalLS))
 
     return {
       stats: {
@@ -68,7 +83,8 @@ export function useDashboard() {
         ceoPendingCount,
         financePendingCount,
         rejectedCount,
-        totalAwaitingValue,
+        totalAwaitingUSD,
+        totalAwaitingLS,
       },
       deptSpending,
     }

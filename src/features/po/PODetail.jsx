@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/features/auth/AuthContext'
 import { usePODetail } from './hooks/usePODetail'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Tag from '@/components/ui/Tag'
 import NavIcon from '@/components/layout/NavIcon'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import '@/styles/po-detail.scss'
+import './po-detail.scss'
 import { getAvailableTransitions } from '@/lib/poStatusConfig'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -308,6 +308,7 @@ export default function PODetail() {
     po, loading, error, acting,
     approvePO, rejectPO, releasePO, cancelPO, confirmPO, addNote,
   } = usePODetail()
+  const currency = po?.currency ?? 'USD'
 
   const isCEO     = role === 'ceo'
   const isFinance = role === 'finance'
@@ -384,6 +385,7 @@ export default function PODetail() {
           </div>
         </div>
 
+
         {/* ── Line items card ── */}
         <div className="po-detail__card">
           <span className="po-detail__section-label">بنود الطلب</span>
@@ -396,12 +398,12 @@ export default function PODetail() {
                 <div key={item.id} className="po-detail__item">
                   <div className="po-detail__item-main">
                     <span className="po-detail__item-desc">{item.description}</span>
-                    <span className="po-detail__item-total mono">{formatCurrency(subtotal)}</span>
+                    <span className="po-detail__item-total mono">{formatCurrency(subtotal, currency)}</span>
                   </div>
                   <div className="po-detail__item-sub">
                     <span className="po-detail__item-dept">{item.department}</span>
                     <span className="po-detail__item-breakdown mono">
-                      {`${qty} × ${formatCurrency(price)}`}
+                      {`${qty} × ${formatCurrency(price, currency)}`}
                     </span>
                   </div>
                 </div>
@@ -411,7 +413,7 @@ export default function PODetail() {
           <div className="po-detail__total-row">
             <span className="po-detail__total-label">الإجمالي</span>
             <span className="po-detail__total-value mono">
-              {formatCurrency(po.total)}
+              {formatCurrency(po.total, currency)}
             </span>
           </div>
         </div>

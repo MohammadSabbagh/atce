@@ -4,9 +4,9 @@
 // This component is intentionally role-agnostic in structure.
 
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '@/features/auth/AuthContext'
 import { useDashboard } from './hooks/useDashboard'
-import { LiveIndicator } from './components/LiveIndicator'
+import { LiveIndicator } from '@/features/sync/LiveIndicator'
 import { DashboardStatCards } from './components/DashboardStatCards'
 import { SpendingChart } from './components/SpendingChart'
 import { getGreeting } from '../../lib/strings'
@@ -20,6 +20,13 @@ const QUICK_ACTIONS = [
     to: '/po/create',
     roles: ['purchase_manager', 'secretary'],
   },
+  {
+    id: 'asset-list',
+    label: 'الأصول',
+    icon: '🗄️',
+    to: '/assets',
+    roles: ['purchase_manager', 'secretary'],
+  }
   // Future: { id: 'create-hr', label: 'طلب توظيف جديد', icon: '👤', to: '/hr/requests/create', roles: ['purchase_manager'] }
 ]
 

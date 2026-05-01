@@ -30,7 +30,8 @@ const PO_CACHE_SELECT = `
   created_by,
   created_at,
   updated_at,
-  line_items:po_line_items(id, po_id, description, department, quantity, unit_price, sort_order)
+  line_items:po_line_items(id, po_id, description, department, quantity, unit_price, sort_order),
+  tags:po_tags(id, po_id, tag)
 `
 
 let channel = null
@@ -77,20 +78,19 @@ async function upsertPOsWithLineItems(rows) {
 
   const poHeaders  = []
   const lineItems  = []
+  const tags       = []
 
   for (const row of rows) {
-    const { line_items, ...header } = row
+    const { line_items, tags: rowTags, ...header } = row
     poHeaders.push(header)
-    if (line_items?.length) {
-      lineItems.push(...line_items)
-    }
+    if (line_items?.length) lineItems.push(...line_items)
+    if (rowTags?.length)    tags.push(...rowTags)
   }
 
-  await db.transaction('rw', db.purchase_orders, db.po_line_items, async () => {
+  await db.transaction('rw', db.purchase_orders, db.po_line_items, db.po_tags, async () => {
     await db.purchase_orders.bulkPut(poHeaders)
-    if (lineItems.length) {
-      await db.po_line_items.bulkPut(lineItems)
-    }
+    if (lineItems.length) await db.po_line_items.bulkPut(lineItems)
+    if (tags.length)      await db.po_tags.bulkPut(tags)
   })
 }
 
@@ -176,9 +176,10 @@ export function stopSync() {
  * Called on user switch or explicit logout.
  */
 export async function clearCache() {
-  await db.transaction('rw', db.purchase_orders, db.po_line_items, db._meta, async () => {
+  await db.transaction('rw', db.purchase_orders, db.po_line_items, db.po_tags, db._meta, async () => {
     await db.purchase_orders.clear()
     await db.po_line_items.clear()
+    await db.po_tags.clear()
     await db._meta.clear()
   })
 }
@@ -222,9 +223,10 @@ function subscribeRealtime() {
           if (payload.eventType === 'DELETE') {
             if (payload.old?.id) {
               // Cascade delete line items from cache too
-              await db.transaction('rw', db.purchase_orders, db.po_line_items, async () => {
+              await db.transaction('rw', db.purchase_orders, db.po_line_items, db.po_tags, async () => {
                 await db.purchase_orders.delete(payload.old.id)
                 await db.po_line_items.where('po_id').equals(payload.old.id).delete()
+                await db.po_tags.where('po_id').equals(payload.old.id).delete()
               })
             }
           } else {

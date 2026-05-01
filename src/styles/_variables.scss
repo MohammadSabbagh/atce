@@ -26,6 +26,10 @@ $color-open:        #1D55D0;    // was #2563EB — slightly deeper
 $color-tag-freeform: #0773A0;   // slightly deeper cyan
 $color-tag-skill:    #6D28D9;
 
+// Type chips (Asset / MO car vs other)
+$color-type-car:     #1D55D0;   // matched to $accent / blue family
+$color-type-other:   #6D28D9;   // matched to $color-tag-skill / purple family
+
 // Accent
 $accent:         #1D55D0;       // matched to $color-open
 $accent-dim:     rgba(29, 85, 208, 0.09);

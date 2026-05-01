@@ -1,7 +1,8 @@
 // features/dashboard/components/DashboardStatCards.jsx
 import { useNavigate } from 'react-router-dom'
 import StatCard from '@/components/ui/StatCard'
-import { S, formatCurrency } from '@/lib/strings'
+import { S } from '@/lib/strings'
+import { formatCurrency } from '@/lib/utils'
 
 export function DashboardStatCards({ stats, role }) {
   const navigate = useNavigate()

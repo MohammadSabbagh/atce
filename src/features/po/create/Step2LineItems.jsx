@@ -5,6 +5,8 @@ import '@/styles/form.scss'
 
 export default function Step2LineItems({ wizard }) {
   const { form, addLineItem, updateLineItem, removeLineItem, lineTotal } = wizard
+  const currency = form.currency ?? 'SYP'
+  const currencyPrefix = currency === 'USD' ? '$' : 'SYP'
 
   return (
     <div className="form">
@@ -67,7 +69,7 @@ export default function Step2LineItems({ wizard }) {
                 <div className="form__line-item-price-field">
                   <label className="form__inline-label">{S.unitPrice ?? 'سعر الوحدة'}</label>
                   <div className="form__price-wrap">
-                    <span className="form__currency-prefix">$</span>
+                    {/* <span className="form__currency-prefix">{currencyPrefix}</span> */}
                     <input
                       className="form__input form__input--price mono"
                       type="number"
@@ -82,7 +84,10 @@ export default function Step2LineItems({ wizard }) {
 
                 {/* Line total — read only, updates live */}
                 <span className="form__line-item-subtotal mono">
-                  {formatCurrency((parseFloat(item.quantity) || 0) * (parseFloat(item.unit_price) || 0))}
+                  {formatCurrency(
+                    (parseFloat(item.quantity) || 0) * (parseFloat(item.unit_price) || 0),
+                    currency
+                  )}
                 </span>
               </div>
             </div>
@@ -97,7 +102,7 @@ export default function Step2LineItems({ wizard }) {
 
       <div className="form__total">
         <span className="form__total-label">{S.total}</span>
-        <span className="form__total-value mono">{formatCurrency(lineTotal)}</span>
+        <span className="form__total-value mono">{formatCurrency(lineTotal, currency)}</span>
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import '@/styles/status-badge.scss'
+import './StatusBadge.scss'
 import { S } from '@/lib/strings'
 
 const STATUS_LABELS = {

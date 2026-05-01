@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/features/auth/AuthContext'
 import { ROLE_ROUTES } from '@/router/roleRoutes'
 import NavIcon from './NavIcon'
-import '@/styles/bottom-nav.scss'
+import './bottom-nav.scss'
 
 export default function BottomNav() {
   const { role } = useAuth()

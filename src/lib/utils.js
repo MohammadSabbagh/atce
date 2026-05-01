@@ -1,8 +1,12 @@
-export function formatCurrency(amount) {
-  return '$' + Number(amount).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+// currency: 'USD' | 'SYP'  (defaults to 'USD' for backward compat)
+export function formatCurrency(amount, currency = 'USD') {
+  if (amount == null) return '—'
+  const n = Number(amount).toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   })
+  if (currency === 'SYP') return `SYP ${n}`
+  return `$${n}`
 }
 
 export function formatDate(dateStr) {

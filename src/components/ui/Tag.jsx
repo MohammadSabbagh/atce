@@ -1,4 +1,4 @@
-import '@/styles/tag.scss'
+import './tag.scss'
 
 // variant: 'freeform' (cyan) | 'skill' (purple)
 export default function Tag({ label, variant = 'freeform' }) {

@@ -1,5 +1,5 @@
 // features/dashboard/components/LiveIndicator.jsx
-import { useSyncState } from '@/lib/useSyncState'
+import { useSyncState } from '@/features/sync/useSyncState'
 import './LiveIndicator.scss'
 
 const STATE_CONFIG = {

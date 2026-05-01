@@ -6,7 +6,7 @@ import Step3Attachments from './Step3Attachments'
 import Step4Review from './Step4Review'
 import SubmitSuccess from './SubmitSuccess'
 import { S } from '@/lib/strings'
-import '@/styles/create-po.scss'
+import './create-po.scss'
 
 const STEP_LABELS = [S.stepDetails, S.stepItems, S.stepAttach, S.stepReview]
 

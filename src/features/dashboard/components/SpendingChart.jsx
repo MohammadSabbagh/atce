@@ -1,6 +1,7 @@
 // features/dashboard/components/SpendingChart.jsx
 import './SpendingChart.scss'
-import { S, formatCurrency } from '../../../lib/strings'
+import { S } from '@/lib/strings'
+import { formatCurrency } from '@/lib/utils'
 
 // Pure CSS bar chart — no charting library needed for this simple case.
 // Bars are horizontal, RTL-aware, scaled relative to max department spend.

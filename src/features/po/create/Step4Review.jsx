@@ -1,5 +1,5 @@
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/features/auth/AuthContext'
 import { S } from '@/lib/strings'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Tag from '@/components/ui/Tag'
@@ -8,6 +8,7 @@ import '@/styles/form.scss'
 export default function Step4Review({ wizard }) {
   const { form, lineTotal } = wizard
   const { profile } = useAuth()
+  const currency = form.currency ?? 'SYP'
 
   return (
     <div className="form form--review">
@@ -29,8 +30,10 @@ export default function Step4Review({ wizard }) {
             <span className="review__value">{formatDate(form.date)}</span>
           </div>
           <div className="review__row">
-            <span className="review__label">{S.reviewDepartment}</span>
-            <span className="review__value">{form.department}</span>
+            <span className="review__label">{S.poCurrency}</span>
+            <span className="review__value mono">
+              {currency === 'SYP' ? S.currencyLS : S.currencyUSD}
+            </span>
           </div>
           <div className="review__row">
             <span className="review__label">{S.reviewSubmittedBy}</span>
@@ -70,13 +73,16 @@ export default function Step4Review({ wizard }) {
                 {item.description}
               </span>
               <span className="review__item-price mono">
-                {formatCurrency(parseFloat(item.price) || 0)}
+                {formatCurrency(
+                  (parseFloat(item.quantity) || 0) * (parseFloat(item.unit_price) || 0),
+                  currency
+                )}
               </span>
             </div>
           ))}
           <div className="review__item review__item--total">
             <span>{S.reviewTotal}</span>
-            <span className="mono">{formatCurrency(lineTotal)}</span>
+            <span className="mono">{formatCurrency(lineTotal, currency)}</span>
           </div>
         </div>
       </div>

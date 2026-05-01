@@ -1,0 +1,758 @@
+// src/features/mo/MODetail.scss
+
+.mo-detail {
+  min-height: 100dvh;
+  background: $bg-base;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+
+  // ── Sticky header ─────────────────────────────────────────
+  &__header {
+    position: sticky;
+    top: 0;
+    z-index: $z-header;
+    background: $bg-card;
+    border-bottom: 1px solid $border;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid $border;
+    background: transparent;
+    color: $text-secondary;
+    flex-shrink: 0;
+    transition: all $transition-fast;
+
+    &:hover {
+      border-color: darken($border, 8%);
+      color: $text-primary;
+    }
+  }
+
+  &__mo-number {
+    font-family: $font-mono;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-secondary;
+    letter-spacing: 0.04em;
+  }
+
+  .status-badge {
+    margin-right: auto;
+    font-size: 13px;
+    padding: 4px 10px;
+  }
+
+  // ── Content ───────────────────────────────────────────────
+  &__content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  // ── Cards ─────────────────────────────────────────────────
+  &__card {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $card-radius;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__section-label {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: $text-secondary;
+  }
+
+  // ── Overview card ─────────────────────────────────────────
+  &__overview-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__title {
+    font-size: 19px;
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1.3;
+    flex: 1;
+  }
+
+  &__meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &__meta-chip {
+    font-size: 12px;
+    font-weight: 500;
+    color: $text-secondary;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 5px;
+    padding: 3px 8px;
+  }
+
+  &__meta-date {
+    font-family: $font-mono;
+    font-size: 12px;
+    font-weight: 500;
+    color: $text-secondary;
+  }
+
+  &__ceo-flag {
+    font-size: 11px;
+    font-weight: 600;
+    color: $color-pending;
+    background: rgba($color-pending, 0.1);
+    border-radius: 5px;
+    padding: 3px 8px;
+  }
+
+  &__type-chip {
+    font-size: 12px;
+    font-weight: 500;
+    color: $text-secondary;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 5px;
+    padding: 3px 8px;
+  }
+
+  &__description {
+    font-size: 14px;
+    color: $text-secondary;
+    line-height: 1.65;
+  }
+
+  // ── Asset link ────────────────────────────────────────────
+  &__asset-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color $transition-fast, background $transition-fast;
+    text-align: right;
+
+    &:hover {
+      border-color: $accent;
+      background: $bg-card-hover;
+    }
+  }
+
+  &__asset-link-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  &__asset-link-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-primary;
+    flex: 1;
+  }
+
+  &__asset-link-plate {
+    font-family: $font-mono;
+    font-size: 12px;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+
+  &__asset-link-arrow {
+    font-size: 14px;
+    color: $text-secondary;
+    flex-shrink: 0;
+  }
+
+  // ── Field row (service provider / handler) ────────────────
+  &__field-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+  }
+
+  &__field-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__field-value {
+    font-size: 14px;
+    color: $text-primary;
+  }
+
+  &__creator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: $text-secondary;
+
+    strong {
+      color: $text-primary;
+      font-weight: 600;
+    }
+  }
+
+  // ── Cost card ─────────────────────────────────────────────
+  &__cost-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  &__cost-desc {
+    font-size: 14px;
+    color: $text-primary;
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  &__cost-amount {
+    font-family: $font-mono;
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  &__total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 2px solid $border;
+    margin-top: 4px;
+  }
+
+  &__total-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-secondary;
+  }
+
+  &__total-value {
+    font-family: $font-mono;
+    font-size: 20px;
+    font-weight: 700;
+    color: $text-primary;
+    letter-spacing: -0.5px;
+  }
+
+  // ── Tags ──────────────────────────────────────────────────
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  // ── Attachments ───────────────────────────────────────────
+  &__attachments {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__attachment {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color $transition-fast, background $transition-fast;
+
+    &:hover {
+      border-color: $accent;
+      background: $bg-card-hover;
+    }
+  }
+
+  &__attachment-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  &__attachment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__attachment-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__attachment-size {
+    font-family: $font-mono;
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__attachment-arrow {
+    color: $text-secondary;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  &__no-attachments {
+    font-size: 13px;
+    color: $text-muted;
+    font-style: italic;
+  }
+
+  // ── Audit trail ───────────────────────────────────────────
+  &__audit {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  &__audit-item {
+    display: flex;
+    gap: 14px;
+    position: relative;
+    padding-bottom: 18px;
+
+    &:last-child {
+      padding-bottom: 0;
+
+      .mo-detail__audit-line { display: none; }
+    }
+  }
+
+  &__audit-dot-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 16px;
+  }
+
+  &__audit-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid $border;
+    background: $bg-card;
+    flex-shrink: 0;
+    margin-top: 3px;
+    position: relative;
+    z-index: 1;
+
+    &--created   { border-color: $color-draft;    background: rgba($color-draft,    0.15); }
+    &--confirmed { border-color: $color-pending;  background: rgba($color-pending,  0.15); }
+    &--approved  { border-color: $color-approved; background: rgba($color-approved, 0.15); }
+    &--released  { border-color: $color-released; background: rgba($color-released, 0.15); }
+    &--rejected  { border-color: $color-rejected; background: rgba($color-rejected, 0.15); }
+    &--cancelled { border-color: $color-cancelled;background: rgba($color-cancelled,0.15); }
+  }
+
+  &__audit-line {
+    width: 2px;
+    flex: 1;
+    background: $border;
+    margin-top: 4px;
+    border-radius: 1px;
+  }
+
+  &__audit-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-top: 1px;
+  }
+
+  &__audit-action {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__audit-by {
+    font-size: 13px;
+    color: $text-secondary;
+  }
+
+  &__audit-time {
+    font-family: $font-mono;
+    font-size: 11px;
+    color: $text-muted;
+    margin-top: 1px;
+  }
+
+  // ── Bottom action bar ─────────────────────────────────────
+  &__action-bar {
+    position: relative;
+    z-index: $z-action;
+    background: $bg-card;
+    border-top: 1px solid $border;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 10px;
+  }
+
+  &__action-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all $transition-fast;
+    border: none;
+
+    &--approve {
+      background: $color-approved;
+      color: #fff;
+
+      &:hover  { background: darken($color-approved, 6%); }
+      &:active { transform: scale(0.98); }
+      &:disabled { opacity: 0.5; cursor: default; transform: none; }
+    }
+
+    &--reject {
+      background: rgba($color-rejected, 0.1);
+      color: $color-rejected;
+      border: 1px solid rgba($color-rejected, 0.25);
+
+      &:hover  { background: rgba($color-rejected, 0.16); }
+      &:active { transform: scale(0.98); }
+      &:disabled { opacity: 0.5; cursor: default; transform: none; }
+    }
+
+    &--ghost {
+      background: transparent;
+      color: $text-secondary;
+      border: 1px solid $border;
+
+      &:hover  { background: $bg-base; color: $text-primary; }
+      &:active { transform: scale(0.98); }
+      &:disabled { opacity: 0.5; cursor: default; }
+    }
+  }
+
+  // ── Decided state ─────────────────────────────────────────
+  &__decided {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+
+    &--approved {
+      background: rgba($color-approved, 0.1);
+      color: $color-approved;
+      border: 1px solid rgba($color-approved, 0.2);
+    }
+
+    &--rejected {
+      background: rgba($color-rejected, 0.08);
+      color: $color-rejected;
+      border: 1px solid rgba($color-rejected, 0.18);
+    }
+  }
+
+  // ── Reject / cancel dialog ────────────────────────────────
+  &__dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: $z-dialog;
+    background: rgba(13, 20, 32, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-end;
+    padding: 0;
+
+    @media (min-width: 480px) {
+      align-items: center;
+      padding: 24px;
+    }
+  }
+
+  &__dialog {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $card-radius-lg $card-radius-lg 0 0;
+    padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: moSlideUp 180ms ease;
+
+    @media (min-width: 480px) {
+      border-radius: $card-radius-lg;
+      max-width: 420px;
+      margin: 0 auto;
+      animation: none;
+    }
+  }
+
+  &__dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__dialog-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $text-primary;
+  }
+
+  &__dialog-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid $border;
+    background: transparent;
+    color: $text-secondary;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover { color: $text-primary; border-color: darken($border, 8%); }
+  }
+
+  &__dialog-textarea {
+    width: 100%;
+    min-height: 100px;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 12px;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    resize: none;
+    direction: rtl;
+    line-height: 1.6;
+    transition: border-color $transition-fast;
+    box-sizing: border-box;
+
+    &::placeholder { color: $text-muted; }
+    &:focus {
+      outline: none;
+      border-color: $color-rejected;
+    }
+  }
+
+  &__dialog-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  // ── Notes section ─────────────────────────────────────────
+  &__notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 320px;
+    overflow-y: auto;
+
+    &:empty::after {
+      content: 'لا توجد ملاحظات بعد';
+      font-size: 13px;
+      color: $text-muted;
+      font-style: italic;
+      text-align: center;
+      padding: 8px 0;
+    }
+  }
+
+  &__note-bubble {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: $bg-base;
+    border: 1px solid $border-subtle;
+
+    &--rejection {
+      background: rgba($color-rejected, 0.04);
+      border-color: rgba($color-rejected, 0.18);
+
+      .mo-detail__note-context { color: $color-rejected; }
+    }
+
+    &--cancellation {
+      background: rgba($color-cancelled, 0.05);
+      border-color: rgba($color-cancelled, 0.2);
+    }
+  }
+
+  &__note-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__note-author {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__note-context {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $text-muted;
+  }
+
+  &__note-time {
+    font-family: $font-mono;
+    font-size: 11px;
+    color: $text-muted;
+    white-space: nowrap;
+  }
+
+  &__note-text {
+    font-size: 14px;
+    color: $text-primary;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  &__note-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    padding-top: 8px;
+    border-top: 1px solid $border-subtle;
+    margin-top: 4px;
+  }
+
+  &__note-textarea {
+    flex: 1;
+    min-height: 42px;
+    max-height: 120px;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    resize: none;
+    direction: rtl;
+    line-height: 1.5;
+    transition: border-color $transition-fast;
+
+    &::placeholder { color: $text-muted; }
+    &:focus {
+      outline: none;
+      border-color: $accent;
+    }
+  }
+
+  &__note-send {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: $accent;
+    border: none;
+    color: #fff;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all $transition-fast;
+
+    &:hover   { background: $accent-hover; }
+    &:active  { transform: scale(0.95); }
+    &:disabled {
+      opacity: 0.35;
+      cursor: default;
+      transform: none;
+    }
+  }
+
+  // ── Loading / not found ───────────────────────────────────
+  &__loading,
+  &__not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60dvh;
+    gap: 12px;
+    color: $text-muted;
+    font-size: 15px;
+    text-align: center;
+    padding: 24px;
+  }
+
+  &__back-link {
+    font-size: 14px;
+    color: $accent;
+    font-weight: 500;
+  }
+}
+
+@keyframes moSlideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}

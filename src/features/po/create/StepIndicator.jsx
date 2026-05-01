@@ -1,4 +1,4 @@
-import '@/styles/step-indicator.scss'
+import './step-indicator.scss'
 
 export default function StepIndicator({ current, labels }) {
   return (

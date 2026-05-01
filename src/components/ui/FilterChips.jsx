@@ -1,4 +1,4 @@
-import '@/styles/filter-chips.scss'
+import './filter-chips.scss'
 
 export default function FilterChips({ options, value, onChange, variant = 'status' }) {
   return (

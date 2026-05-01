@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth } from '@/features/auth/AuthContext'
 import { supabase } from '@/lib/supabase'
 
 const INITIAL_FORM = {
@@ -8,6 +8,7 @@ const INITIAL_FORM = {
   title: '',
   description: '',
   date: new Date().toISOString().split('T')[0],
+  currency: 'SYP',   // default: Syrian Pound
   tags: [],
   requires_ceo: false,
 
@@ -113,13 +114,14 @@ export function useCreatePO() {
     setSubmitError(null)
 
     try {
-      // 1. Insert PO header — no department field, it lives on line items now
+      // 1. Insert PO header — currency stored here; inherited by all line items
       const { data: po, error: poError } = await supabase
         .from('purchase_orders')
         .insert({
           title:        form.title.trim(),
           description:  form.description.trim() || null,
           requires_ceo: form.requires_ceo,
+          currency:     form.currency,
           status:       profile.role === 'secretary' ? 'draft' : 'pending',
           total:        lineTotal,
           created_by:   profile.id,
@@ -185,7 +187,7 @@ export function useCreatePO() {
         entity_id:    poId,
         action:       profile.role === 'secretary' ? 'draft' : 'created',
         performed_by: profile.id,
-        details:      { title: form.title, total: lineTotal },
+        details:      { title: form.title, total: lineTotal, currency: form.currency },
       })
 
       setSubmitted(true)
