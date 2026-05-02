@@ -1,0 +1,150 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  ASTE — Tokens (raw palette)
+//
+//  Pure color, spacing, type, and motion values. No semantic meaning here —
+//  this file does not know what an "accent" or a "border" is.
+//
+//  Semantic meaning lives in _theme.scss. Feature SCSS imports _variables.scss,
+//  which re-exports the chosen theme.
+//
+//  Loaded by Vite's additionalData (see vite.config.js). Never imported
+//  directly by feature SCSS.
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+// ─── Brand teal (logo, hero, primary accent) ─────────────────────────────────
+
+$aste-teal-50:   #E8F5F2;
+$aste-teal-100:  #C6E8E0;
+$aste-teal-200:  #9DD4C8;
+$aste-teal-300:  #6BBFB0;
+$aste-teal-400:  #4DBFA6;
+$aste-teal-500:  #2E9B82;  // primary brand teal
+$aste-teal-600:  #247A67;
+$aste-teal-700:  #1A5A4B;
+$aste-teal-800:  #103C32;
+$aste-teal-900:  #071F19;
+
+
+// ─── Ink (neutrals — surfaces, borders, text) ────────────────────────────────
+
+$aste-ink-0:     #FAFCFB;
+$aste-ink-50:    #F0F4F2;
+$aste-ink-100:   #D6E0DC;
+$aste-ink-200:   #AABFB8;
+$aste-ink-300:   #7A9E95;
+$aste-ink-400:   #5A7A72;
+$aste-ink-500:   #3A5A52;
+$aste-ink-600:   #264039;
+$aste-ink-700:   #162C26;
+$aste-ink-800:   #0D1F1B;  // primary dark ink
+$aste-ink-900:   #060E0B;
+
+
+// ─── Status (PO/MO lifecycle) ────────────────────────────────────────────────
+// Tuned for AA contrast on white surfaces. Preserved from prior file —
+// these values were carefully chosen and shouldn't drift.
+
+$status-pending:    #C05C00;
+$status-approved:   #146C35;
+$status-released:   #0A7A6E;
+$status-rejected:   #C41F1F;
+$status-draft:      #3A6A8A;
+$status-cancelled:  #6B7A8F;
+
+
+// ─── HR statuses ─────────────────────────────────────────────────────────────
+
+$status-fulfilled:  #6D28D9;
+$status-open:       #1D55D0;
+
+
+// ─── Tag colors ──────────────────────────────────────────────────────────────
+// Intentionally non-brand — tags need to read as distinct from interactive
+// affordances.
+
+$tag-freeform:  #0773A0;
+$tag-skill:     #6D28D9;
+
+
+// ─── Type chips (Asset / MO car vs other) ────────────────────────────────────
+
+$type-car:    $aste-teal-500;
+$type-other:  $aste-ink-400;
+
+
+// ─── Spacing scale (4-based) ─────────────────────────────────────────────────
+
+$space-0:   0;
+$space-1:   4px;
+$space-2:   8px;
+$space-3:   12px;
+$space-4:   16px;
+$space-5:   20px;
+$space-6:   24px;
+$space-8:   32px;
+$space-10:  40px;
+$space-12:  48px;
+$space-16:  64px;
+
+
+// ─── Border radius scale ─────────────────────────────────────────────────────
+
+$radius-sm:    4px;
+$radius-md:    8px;
+$radius-lg:    12px;
+$radius-xl:    16px;
+$radius-pill:  9999px;
+$radius-full:  50%;
+
+
+// ─── Typography ──────────────────────────────────────────────────────────────
+
+$font-ui:    'Tajawal', 'Helvetica Neue', sans-serif;
+$font-mono:  'JetBrains Mono', 'IBM Plex Mono', monospace;
+
+// Type scale (rem-based; 16px root)
+$text-xs:    0.625rem;   // 10px
+$text-sm:    0.75rem;    // 12px
+$text-base:  0.8125rem;  // 13px
+$text-md:    0.875rem;   // 14px
+$text-lg:    1rem;       // 16px
+$text-xl:    1.125rem;   // 18px
+$text-2xl:   1.5rem;     // 24px
+
+// Weights
+$fw-light:     300;
+$fw-regular:   400;
+$fw-medium:    500;
+$fw-semibold:  600;
+$fw-bold:      700;
+
+// Line heights
+$leading-tight:   1.2;
+$leading-snug:    1.35;
+$leading-normal:  1.5;
+$leading-loose:   1.75;
+
+// Letter spacing
+$tracking-tight:   -0.01em;
+$tracking-normal:   0;
+$tracking-wide:     0.04em;
+$tracking-wider:    0.08em;
+$tracking-caps:     0.15em;
+
+
+// ─── Motion ──────────────────────────────────────────────────────────────────
+
+$duration-fast:   120ms;
+$duration-base:   200ms;
+$duration-slow:   350ms;
+
+$ease-out:        cubic-bezier(0.16, 1, 0.3, 1);
+$ease-in-out:     cubic-bezier(0.4, 0, 0.2, 1);
+
+
+// ─── Layout constants ────────────────────────────────────────────────────────
+
+$bottom-nav-height: 64px;
+$header-height:     56px;
+$max-content-width: 720px;

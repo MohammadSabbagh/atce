@@ -4,7 +4,6 @@
   min-height: 100vh;
   background: $bg-base;
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
-  direction: rtl;
 
   &--loading,
   &--error {

@@ -6,7 +6,6 @@ import { S } from '@/lib/strings'
 import POCard from './POCard'
 import FilterChips from '@/components/ui/FilterChips'
 import NavIcon from "@/components/layout/NavIcon";
-import { LiveIndicator } from '@/features/sync/LiveIndicator'
 import './po-list.scss'
 
 const STATUS_FILTERS = [
@@ -73,8 +72,6 @@ export default function POList() {
       <div className="po-list__header">
         <h1 className="po-list__title">{S.navPOList}</h1>
         <span className="po-list__count mono">{pos.length}</span>
-
-        <LiveIndicator />
         <button
           className="po-list__add-btn"
           onClick={() => navigate('/po/create')}

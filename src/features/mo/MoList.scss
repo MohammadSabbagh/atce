@@ -1,71 +1,57 @@
-.mo-list {
-  padding: 16px;
-  min-height: 100vh;
-  background: $bg-base;
+// src/features/mo/MoList.scss
+//
+// Mirrors po-list.scss verbatim, plus an additional type-chips row above
+// the status chips — type is MO-specific and important enough to stay
+// always-visible alongside status.
 
+.mo-list {
+  padding: 24px 16px 16px;
+
+  // ── Header ──────────────────────────────────────────────────────────
   &__header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 12px;
   }
 
   &__title {
-    font-family: $font-ui;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: $text-primary;
     margin: 0;
   }
 
-  &__add-btn {
-    font-family: $font-ui;
-    font-size: 14px;
-    font-weight: 600;
-    color: $bg-base;
-    background: $accent;
-    border: none;
-    border-radius: 10px;
-    padding: 8px 16px;
-    cursor: pointer;
-    transition: background $transition-fast;
-
-    &:active {
-      background: $accent-hover;
-    }
-  }
-
-  &__filters {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  &__filter-row {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  &__chip {
-    font-family: $font-ui;
-    font-size: 13px;
-    font-weight: 500;
-    color: $text-muted;
+  &__count {
+    font-size: 12px;
+    color: $text-secondary;
     background: $bg-card;
     border: 1px solid $border;
     border-radius: 20px;
-    padding: 6px 14px;
-    white-space: nowrap;
+    padding: 2px 8px;
+  }
+
+  // ── Add button ──────────────────────────────────────────────────────
+  &__add-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid $border;
+    background: $bg-card;
+    color: $text-secondary;
     cursor: pointer;
-    transition: all $transition-fast;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    transition: color $transition-fast, border-color $transition-fast, background $transition-fast;
+
+    &:hover {
+      color: $text-primary;
+      border-color: $text-muted;
+    }
 
     &--active {
       color: $accent;
@@ -74,10 +60,311 @@
     }
   }
 
-  &__body {
+  // ── Funnel toggle button ────────────────────────────────────────────
+  &__funnel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid $border;
+    background: $bg-card;
+    color: $text-secondary;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color $transition-fast, border-color $transition-fast, background $transition-fast;
+
+    &:hover {
+      color: $text-primary;
+      border-color: $text-muted;
+    }
+
+    &--active {
+      color: $accent;
+      border-color: $accent;
+      background: $accent-dim;
+    }
+  }
+
+  &__funnel-dot {
+    position: absolute;
+    top: 5px;
+    left: 5px;   // RTL: logical "end" — the dot shows on the left (far side in RTL)
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $accent;
+  }
+
+  // ── Collapsible secondary filters panel ─────────────────────────────
+  &__secondary-filters {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 12px;
+  }
+
+  // ── Search field ──────────────────────────────────────────────────
+  &__search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__search-label {
+    font-family: $font-ui;
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__search-input {
+    font-family: $font-mono;
+    font-size: 13px;
+    color: $text-primary;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 8px 10px;
+    width: 100%;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+
+    &::-webkit-search-cancel-button { display: none; }
+    &::-ms-clear { display: none; }
+
+    &:focus {
+      border-color: $accent;
+    }
+
+    &:not(:placeholder-shown) {
+      padding-inline-end: 32px;
+    }
+  }
+
+  &__search-clear {
+    position: absolute;
+    inset-inline-end: 10px;
+    font-size: 11px;
+    color: $text-muted;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+
+  // ── Department field ──────────────────────────────────────────────
+  &__dept-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__dept-label {
+    font-family: $font-ui;
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__dept-select {
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $text-primary;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 8px 10px;
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 10px center;
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+
+  // ── Date range filter ─────────────────────────────────────────────
+  &__date-range {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  &__date-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  &__date-label {
+    font-family: $font-ui;
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__date-input {
+    font-family: $font-mono;
+    font-size: 13px;
+    color: $text-primary;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 7px 10px;
+    width: 100%;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+
+    &:focus {
+      border-color: $accent;
+    }
+
+    &::-webkit-calendar-picker-indicator {
+      opacity: 0.5;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__date-sep {
+    font-size: 14px;
+    color: $text-muted;
+    flex-shrink: 0;
+    height: 33px;
+    display: flex;
+    align-items: center;
+  }
+
+  &__date-clear {
+    font-size: 14px;
+    color: $text-muted;
+    background: transparent;
+    border: 1px solid $border;
+    border-radius: 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+    align-self: flex-end;
+    padding: 12px 12px;
+    line-height: 1;
+
+    &:hover {
+      color: $text-primary;
+      border-color: $text-muted;
+    }
+  }
+
+  // ── Active filter summary tags ──────────────────────────────────────
+  &__active-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  &__active-tag {
+    display: inline-flex;
+    align-items: center;
+    font-family: $font-ui;
+    font-size: 12px;
+    color: $accent;
+    background: $accent-dim;
+    border: 1px solid $accent;
+    border-radius: 16px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background $transition-fast;
+
+    // Tajawal gap fix
+    .mo-list__active-tag-label {
+      &::after {
+        content: "";
+        display: block;
+        height: 0;
+        width: 0;
+        margin-top: -0.3em;
+      }
+    }
+
+    &:hover {
+      background: rgba($accent, 0.12);
+    }
+  }
+
+  &__active-tag-x {
+    font-size: 10px;
+    color: $accent;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: opacity $transition-fast, background $transition-fast;
+    margin-right: 6px;
+
+    span {
+      &::after {
+        content: "";
+        display: block;
+        height: 0;
+        width: 0;
+        margin-top: -0.3em;
+      }
+    }
+
+    &:hover {
+      opacity: 1;
+      background: rgba($accent, 0.15);
+    }
+  }
+
+  // ── Type chips — always visible (MO-specific primary axis) ──────────
+  &__type-chips {
+    margin-bottom: 8px;
+  }
+
+  // ── Status chips — always visible ───────────────────────────────────
+  &__status-chips {
+    margin-bottom: 16px;
+  }
+
+  // ── MO items list ───────────────────────────────────────────────────
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 48px 16px;
+    color: $text-muted;
+    font-size: 14px;
   }
 
   &__skeleton {
@@ -85,14 +372,6 @@
     background: $bg-card;
     border-radius: 14px;
     animation: pulse 1.4s ease-in-out infinite;
-  }
-
-  &__empty {
-    font-family: $font-ui;
-    font-size: 14px;
-    color: $text-muted;
-    text-align: center;
-    padding: 48px 0;
   }
 }
 

@@ -1,55 +1,18 @@
-// ─── Color Tokens ───────────────────────────────────
-$bg-base:       #EFF1F7;      // page background — slightly cooler/softer than before
-$bg-card:       #FFFFFF;
-$bg-card-hover: #F4F6FC;
+// ─────────────────────────────────────────────────────────────────────────────
+//  ASTE — Variables (public import surface)
+//
+//  Feature SCSS imports this file (via Vite's additionalData). It re-exports
+//  everything from _tokens.scss (raw palette) and _theme.scss (semantic
+//  mappings), so a single `@use 'variables' as *` gives you both layers.
+//
+//  Architecture:
+//    _tokens.scss    →  raw palette: $aste-teal-500, $space-4, $radius-md
+//    _theme.scss     →  semantic:    $accent, $bg-card, $text-primary
+//    _variables.scss →  this file — re-exports both
+//
+//  Why split? When dark mode ships, only _theme.scss forks. Feature SCSS,
+//  _tokens.scss, _primitives.scss, and this file are unaffected.
+// ─────────────────────────────────────────────────────────────────────────────
 
-$border:        #D8DCE8;      // slightly darker — more visible dividers
-$border-subtle: #E8EBF4;
-
-// Text — tightened for readability on white cards, small mobile text
-$text-primary:   #0D1420;    // near-black, unchanged
-$text-secondary: #3D4A5C;    // was #5A6478 — bumped for WCAG AA compliance
-$text-muted:     #6B7A8F;    // was #9AA3B5 — bumped significantly; old value failed AA at <14px
-
-// Status
-$color-pending:     #C05C00;    // was #D97706 — darker amber, better contrast on white
-$color-approved:    #146C35;    // was #16A34A — slightly deeper green
-$color-released:    #0A7A6E;    // was #0D9488 — slightly deeper teal
-$color-rejected:    #C41F1F;    // was #DC2626 — slightly deeper red
-$color-draft:       #3A6A8A;    // was #4A7FA5 — slightly deeper blue-gray
-$color-cancelled:   #6B7A8F;    // aligned with new $text-muted
-
-$color-fulfilled:   #6D28D9;
-$color-open:        #1D55D0;    // was #2563EB — slightly deeper
-
-// Tag colors
-$color-tag-freeform: #0773A0;   // slightly deeper cyan
-$color-tag-skill:    #6D28D9;
-
-// Type chips (Asset / MO car vs other)
-$color-type-car:     #1D55D0;   // matched to $accent / blue family
-$color-type-other:   #6D28D9;   // matched to $color-tag-skill / purple family
-
-// Accent
-$accent:         #1D55D0;       // matched to $color-open
-$accent-dim:     rgba(29, 85, 208, 0.09);
-$accent-hover:   #1643A8;
-
-// ─── Typography ──────────────────────────────────────
-$font-ui:   'Tajawal', sans-serif;
-$font-mono: 'JetBrains Mono', monospace;
-
-// ─── Spacing ─────────────────────────────────────────
-$bottom-nav-height: 64px;
-$card-radius:       14px;
-$card-radius-lg:    16px;
-
-// ─── Z-index ──────────────────────────────────────────
-$z-header:  20;
-$z-action:  30;
-$z-nav:     100;
-$z-dialog:  110;
-
-// ─── Transitions ─────────────────────────────────────
-$transition-fast: 120ms ease;
-$transition-base: 200ms ease;
+@forward 'tokens';
+@forward 'theme';

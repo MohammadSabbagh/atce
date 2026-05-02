@@ -1,0 +1,98 @@
+// Dev-only styles for the primitives style-guide page.
+// These rules live OUTSIDE _primitives.scss because they describe the
+// preview page itself, not any reusable primitive.
+
+.primitives-preview {
+  padding: $space-6 $space-4;
+  max-width: $max-content-width;
+  margin: 0 auto;
+  background: $bg-base;
+  min-height: 100vh;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $space-4;
+    padding-bottom: $space-6;
+    margin-bottom: $space-6;
+    border-bottom: 1px solid $border;
+
+    h1 {
+      font-size: $text-2xl;
+      margin-bottom: $space-1;
+    }
+
+    p {
+      color: $text-secondary;
+      font-size: $text-md;
+      margin: 0;
+    }
+  }
+
+  &__section {
+    margin-bottom: $space-10;
+
+    h2 {
+      font-size: $text-xl;
+      margin-bottom: $space-4;
+      color: $text-primary;
+    }
+  }
+
+  &__section-body {
+    display: flex;
+    flex-direction: column;
+    gap: $space-5;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+  }
+
+  &__group-label {
+    font-size: $text-sm;
+    font-weight: $fw-medium;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: $tracking-wide;
+  }
+
+  &__group-items {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-4;
+    background: $bg-card;
+    border: 1px dashed $border;
+    border-radius: $radius-md;
+  }
+
+  &__form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-4;
+    padding: $space-4;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__card-demo {
+    padding: $space-4;
+    min-width: 180px;
+
+    p {
+      margin: $space-2 0 0;
+      color: $text-secondary;
+      font-size: $text-md;
+    }
+  }
+}

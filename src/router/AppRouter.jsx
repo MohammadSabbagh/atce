@@ -15,6 +15,8 @@ import AssetForm from '../features/assets/AssetForm';
 import MOList   from '../features/mo/MOList';
 import MOCreate from '../features/mo/MOCreate';
 
+import PrimitivesPreview from '@/components/dev/PrimitivesPreview'
+
 const Placeholder = ({ name }) => (
   <div style={{ padding: '2rem', color: '#fff', fontFamily: 'monospace' }}>
     <h2>{name}</h2>
@@ -99,6 +101,9 @@ export default function AppRouter() {
         <Route path="/mo"        element={<MOList />} />
         <Route path="/mo/create" element={<MOCreate />} />
         {/* <Route path="/mo/:id"    element={<MODetail />} /> */}
+
+        {/* DEV */}
+        <Route path="/dev/primitives" element={<PrimitivesPreview />} />
 
         <Route
           path="*"

@@ -5,7 +5,7 @@ export function formatCurrency(amount, currency = 'USD') {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })
-  if (currency === 'SYP') return `SYP ${n}`
+  if (currency === 'SYP') return `LS ${n}`
   return `$${n}`
 }
 
