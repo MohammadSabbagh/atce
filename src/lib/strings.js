@@ -240,6 +240,32 @@ export const S = {
   moErrorDept:      'يرجى اختيار القسم',
   moErrorItemDesc:  'يرجى إدخال وصف العمل',
   moErrorItemPrice: 'يرجى إدخال تكلفة صحيحة',
+
+  // ── Team — general ───────────────────────
+  teamTitle:               'فريق العمل',
+  teamAddNew:              '+ عضو جديد',
+  teamSearchPlaceholder:   'بحث بالاسم أو المسمى...',
+  teamEmpty:               'لا يوجد أعضاء',
+  teamMemberActive:        'نشط',
+  teamMemberInactive:      'غير نشط',
+  teamMemberFullName:      'الاسم الكامل',
+  teamMemberTitle:         'المسمى الوظيفي',
+  teamMemberDepartment:    'القسم',
+
+  // ── Team form ────────────────────────────
+  teamCreateTitle:         'عضو فريق جديد',
+  teamEditTitle:           'تعديل بيانات العضو',
+  teamNamePlaceholder:     'مثال: أحمد فرحات',
+  teamTitlePlaceholder:    'مثال: محاسب أول',
+  teamDeptPlaceholder:     'اختر القسم',
+  teamActiveLabel:         'نشط',
+  teamSaveChanges:         'حفظ التعديلات',
+  teamCreate:              'إنشاء العضو',
+
+  // ── Team validation ──────────────────────
+  teamErrorName:  'يرجى إدخال الاسم',
+  teamErrorTitle: 'يرجى إدخال المسمى الوظيفي',
+  teamErrorDept:  'يرجى اختيار القسم',
 }
 
 // ── Greeting by time of day ──────────────────

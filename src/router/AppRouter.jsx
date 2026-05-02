@@ -17,6 +17,10 @@ import MOCreate from '../features/mo/MOCreate';
 
 import PrimitivesPreview from '@/components/dev/PrimitivesPreview'
 
+import TeamPage   from '../features/team/TeamPage';
+import TeamDetail from '../features/team/TeamDetail';
+import TeamForm   from '../features/team/TeamForm';
+
 const Placeholder = ({ name }) => (
   <div style={{ padding: '2rem', color: '#fff', fontFamily: 'monospace' }}>
     <h2>{name}</h2>
@@ -101,6 +105,11 @@ export default function AppRouter() {
         <Route path="/mo"        element={<MOList />} />
         <Route path="/mo/create" element={<MOCreate />} />
         {/* <Route path="/mo/:id"    element={<MODetail />} /> */}
+
+        <Route path="/team"          element={<TeamPage />} />
+        <Route path="/team/new"      element={<TeamForm />} />
+        <Route path="/team/:id"      element={<TeamDetail />} />
+        <Route path="/team/:id/edit" element={<TeamForm />} />        
 
         {/* DEV */}
         <Route path="/dev/primitives" element={<PrimitivesPreview />} />
