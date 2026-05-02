@@ -6,6 +6,7 @@ export default function FilterChips({ options, value, onChange, variant = 'statu
       {options.map((opt) => (
         <button
           key={opt.value}
+          data-status={variant === 'status' ? opt.value : undefined}
           className={`filter-chips__chip ${value === opt.value ? 'filter-chips__chip--active' : ''}`}
           onClick={() => onChange(opt.value)}
         >

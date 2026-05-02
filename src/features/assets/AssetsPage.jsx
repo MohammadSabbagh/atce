@@ -4,13 +4,12 @@ import { useAssets } from './useAssets';
 import AssetCard from './AssetCard';
 import FilterChips from '@/components/ui/FilterChips';
 import { S } from '@/lib/strings';
-import { DEPARTMENTS } from '@/lib/constants';
+import { DEPARTMENTS, ASSET_TYPES } from '@/lib/constants';
 import './AssetsPage.scss';
 
 const TYPE_FILTERS = [
-  { value: 'all',   label: S.filterAll },
-  { value: 'car',   label: S.assetTypeCar },
-  { value: 'other', label: S.assetTypeOther },
+  { value: 'all', label: S.filterAll },
+  ...ASSET_TYPES.map((t) => ({ value: t.value, label: t.label })),
 ];
 
 const DEPT_FILTERS = [

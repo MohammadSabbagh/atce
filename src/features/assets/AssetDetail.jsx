@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
-import { S } from '../../lib/strings';
+import { supabase } from '@/lib/supabase';
+import { S } from '@/lib/strings';
 import './AssetDetail.scss';
 
 export default function AssetDetail() {
@@ -16,7 +16,7 @@ export default function AssetDetail() {
       setLoading(true);
       const { data, error } = await supabase
         .from('assets')
-        .select('*')
+        .select('*, assignee:team_members!assigned_to(id, full_name, title)')
         .eq('id', id)
         .single();
 
@@ -94,8 +94,8 @@ export default function AssetDetail() {
             {asset.serial_number && (
               <DetailRow label={S.assetSerialNumber} value={asset.serial_number} mono />
             )}
-            {asset.assigned_to && (
-              <DetailRow label={S.assetAssignedTo} value={asset.assigned_to} />
+            {asset.assignee?.full_name && (
+              <DetailRow label={S.assetAssignedTo} value={asset.assignee.full_name} />
             )}
             {asset.source_po_number && (
               <DetailRow label={S.assetSourcePO} value={asset.source_po_number} mono />

@@ -1,5 +1,6 @@
 import { S } from '../../lib/strings';
 import './AssetCard.scss';
+import { getAssetTypeLabel } from '@/lib/constants';
 
 export default function AssetCard({ asset, onClick }) {
   const imageUrl = asset.image_url
@@ -26,21 +27,16 @@ export default function AssetCard({ asset, onClick }) {
           </span>
         </div>
 
-        <div className="asset-card__meta">
-          <span className={`asset-card__type-badge asset-card__type-badge--${asset.type}`}>
-            {asset.type === 'car' ? S.assetTypeCar : S.assetTypeOther}
-          </span>
-          <span className="asset-card__dept">{asset.department}</span>
-        </div>
-
         <div className="asset-card__bottom">
+          <span className={`asset-card__type-badge asset-card__type-badge--${asset.type}`}>
+            {getAssetTypeLabel(asset.type)}
+          </span>
+
           {asset.type === 'car' && asset.plate_number && (
             <span className="asset-card__plate">{asset.plate_number}</span>
           )}
-          {asset.assigned_to && (
-            <span className="asset-card__assigned">
-              {S.assetAssignedTo}: {asset.assigned_to}
-            </span>
+          {asset.assignee_name && (
+            <span className="chip--neutral asset-card__assigned">{asset.assignee_name}</span>
           )}
         </div>
       </div>

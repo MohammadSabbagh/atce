@@ -1,3 +1,13 @@
+import { S } from './strings';
+
+export const ASSET_TYPES = [
+  { value: 'car',   label: S.assetTypeCar,   chipClass: 'car'   },
+  { value: 'other', label: S.assetTypeOther, chipClass: 'other' },
+];
+
+export const getAssetTypeLabel = (value) =>
+  ASSET_TYPES.find((t) => t.value === value)?.label ?? value;
+
 export const DEPARTMENTS = [
   'اداري',
   'مالي',

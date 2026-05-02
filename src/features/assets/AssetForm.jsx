@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { supabase } from '../../lib/supabase';
+import db from '@/lib/db';
 import { useAuth } from '../auth/AuthContext';
 import { S } from '../../lib/strings';
-import { DEPARTMENTS } from '../../lib/constants';
+import { DEPARTMENTS, ASSET_TYPES } from '@/lib/constants';
 import './AssetForm.scss';
 
 const EMPTY_FORM = {
@@ -34,9 +36,46 @@ export default function AssetForm() {
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
+  // ── Team member picker state ─────────────────────────────────
+  // Mirrors MoCreate's asset picker pattern: form holds the FK
+  // (assigned_to UUID) for persistence; selectedMember holds the
+  // hydrated row for display in the trigger.
+  const [memberSearch, setMemberSearch]         = useState('');
+  const [memberPickerOpen, setMemberPickerOpen] = useState(false);
+  const [selectedMember, setSelectedMember]     = useState(null);
+
+  const members = useLiveQuery(
+    () =>
+      db.team_members
+        .filter((m) => m.is_active !== false)
+        .toArray()
+        .then((rows) =>
+          rows.sort((a, b) => (a.full_name ?? '').localeCompare(b.full_name ?? '', 'ar'))
+        ),
+    []
+  ) ?? [];
+
+  const filteredMembers = memberSearch
+    ? members.filter((m) =>
+        m.full_name?.toLowerCase().includes(memberSearch.toLowerCase()) ||
+        m.title?.toLowerCase().includes(memberSearch.toLowerCase())
+      )
+    : members;
+
+  const selectMember = (member) => {
+    setSelectedMember(member);
+    setForm((prev) => ({ ...prev, assigned_to: member.id }));
+    setMemberPickerOpen(false);
+    setMemberSearch('');
+  };
+
+  const clearMember = () => {
+    setSelectedMember(null);
+    setForm((prev) => ({ ...prev, assigned_to: '' }));
+  };
+
   // Load existing asset on edit
   useEffect(() => {
-    console.log('isEdit: '+ isEdit)
     if (!isEdit) return;
     async function load() {
       const { data, error } = await supabase
@@ -65,6 +104,12 @@ export default function AssetForm() {
         setImagePreview(
           `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/attachments/${data.image_url}`
         );
+      }
+
+      // Hydrate selected member from Dexie cache (already synced)
+      if (data.assigned_to) {
+        const member = await db.team_members.get(data.assigned_to);
+        if (member) setSelectedMember(member);
       }
 
       setLoading(false);
@@ -109,7 +154,7 @@ export default function AssetForm() {
         serial_number: form.serial_number.trim() || null,
         plate_number: form.type === 'car' ? (form.plate_number.trim() || null) : null,
         model: form.type === 'car' ? (form.model.trim() || null) : null,
-        assigned_to: form.assigned_to.trim() || null,
+        assigned_to: form.assigned_to || null,
         source_po_number: form.source_po_number.trim() || null,
         notes: form.notes.trim() || null,
         is_active: form.is_active,
@@ -195,20 +240,17 @@ export default function AssetForm() {
         </div>
 
         {/* Type toggle */}
-        <div className="asset-form__field">
-          <label className="asset-form__label">{S.assetType}</label>
-          <div className="asset-form__type-toggle">
-            {['other', 'car'].map((t) => (
-              <button
-                key={t}
-                className={`asset-form__type-btn${form.type === t ? ' asset-form__type-btn--active' : ''}`}
-                onClick={() => setForm((prev) => ({ ...prev, type: t }))}
-                type="button"
-              >
-                {t === 'car' ? S.assetTypeCar : S.assetTypeOther}
-              </button>
-            ))}
-          </div>
+        <div className="asset-form__type-picker">
+          {ASSET_TYPES.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              className={`asset-form__type-option ${form.type === t.value ? 'asset-form__type-option--active' : ''}`}
+              onClick={() => setForm((prev) => ({ ...prev, type: t.value }))}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
         {/* Name */}
@@ -281,17 +323,80 @@ export default function AssetForm() {
           />
         </div>
 
-        {/* Assigned to */}
+        {/* Assigned to — team member picker */}
+        {/* Candidate for extraction into <EntityPicker /> primitive
+            once a 3rd caller arrives (HR module's employment_requests
+            employee picker is the likely third). */}
         <div className="asset-form__field">
           <label className="asset-form__label">{S.assetAssignedTo}</label>
-          <input
-            className="asset-form__input"
-            type="text"
-            value={form.assigned_to}
-            onChange={set('assigned_to')}
-            placeholder={S.assetAssignedPlaceholder}
-            dir="rtl"
-          />
+
+          <div className="asset-form__member-picker">
+            {selectedMember ? (
+              <div
+                className="asset-form__member-selected"
+                onClick={() => setMemberPickerOpen(true)}
+              >
+                <span className="asset-form__member-name">{selectedMember.full_name}</span>
+                {selectedMember.title && (
+                  <span className="asset-form__member-title">{selectedMember.title}</span>
+                )}
+                <button
+                  type="button"
+                  className="asset-form__member-clear"
+                  onClick={(e) => { e.stopPropagation(); clearMember(); }}
+                  aria-label="مسح"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="asset-form__member-btn"
+                onClick={() => setMemberPickerOpen(true)}
+              >
+                {S.assetSelectAssignee}
+              </button>
+            )}
+          </div>
+
+          {memberPickerOpen && (
+            <div className="asset-form__member-dropdown">
+              <input
+                className="asset-form__member-search"
+                type="text"
+                value={memberSearch}
+                onChange={(e) => setMemberSearch(e.target.value)}
+                placeholder={S.teamSearchPlaceholder}
+                dir="rtl"
+                autoFocus
+              />
+              <div className="asset-form__member-list">
+                {filteredMembers.length === 0 ? (
+                  <p className="asset-form__member-empty">{S.teamEmpty}</p>
+                ) : (
+                  filteredMembers.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      className="asset-form__member-option"
+                      onClick={() => selectMember(m)}
+                    >
+                      <span className="asset-form__member-option-name">{m.full_name}</span>
+                      <div className="asset-form__member-option-meta">
+                        {m.title && (
+                          <span className="asset-form__member-option-title">{m.title}</span>
+                        )}
+                        {m.department && (
+                          <span className="asset-form__member-option-dept">{m.department}</span>
+                        )}
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Source PO */}

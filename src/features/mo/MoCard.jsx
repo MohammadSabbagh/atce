@@ -4,6 +4,7 @@ import { S } from '@/lib/strings'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import db from '@/lib/db'
 import './MoCard.scss'
+import { getAssetTypeLabel } from '@/lib/constants';
 
 export default function MOCard({ mo, onClick }) {
   const moTags = useLiveQuery(
@@ -39,7 +40,7 @@ export default function MOCard({ mo, onClick }) {
         <span className="mo-card__date">{formatDate(mo.created_at)}</span>
         {mo.type && (
           <span className={`mo-card__type-badge mo-card__type-badge--${mo.type}`}>
-            {typeLabel}
+            {getAssetTypeLabel(mo.type)}
           </span>
         )}
         {mo.department && (

@@ -1,5 +1,3 @@
-
-
 .filter-chips {
   display: flex;
   gap: 6px;
@@ -38,6 +36,128 @@
         background: $accent-hover;
         border-color: $accent-hover;
         color: #fff;
+      }
+    }
+  }
+
+  // Status variant — when active, chip adopts its status color (mirrors StatusBadge treatment)
+  &--status {
+    .filter-chips__chip--active {
+      // pending
+      &[data-status='pending'] {
+        background: rgba($color-pending, 0.15);
+        border-color: rgba($color-pending, 0.5);
+        color: darken($color-pending, 8%);
+
+        &:hover {
+          background: rgba($color-pending, 0.22);
+          border-color: rgba($color-pending, 0.65);
+          color: darken($color-pending, 8%);
+        }
+      }
+
+      // approved
+      &[data-status='approved'] {
+        background: rgba($color-approved, 0.13);
+        border-color: rgba($color-approved, 0.5);
+        color: darken($color-approved, 5%);
+
+        &:hover {
+          background: rgba($color-approved, 0.20);
+          border-color: rgba($color-approved, 0.65);
+          color: darken($color-approved, 5%);
+        }
+      }
+
+      // released
+      &[data-status='released'] {
+        background: rgba($color-released, 0.13);
+        border-color: rgba($color-released, 0.5);
+        color: darken($color-released, 5%);
+
+        &:hover {
+          background: rgba($color-released, 0.20);
+          border-color: rgba($color-released, 0.65);
+          color: darken($color-released, 5%);
+        }
+      }
+
+      // rejected
+      &[data-status='rejected'] {
+        background: rgba($color-rejected, 0.12);
+        border-color: rgba($color-rejected, 0.5);
+        color: darken($color-rejected, 5%);
+
+        &:hover {
+          background: rgba($color-rejected, 0.20);
+          border-color: rgba($color-rejected, 0.65);
+          color: darken($color-rejected, 5%);
+        }
+      }
+
+      // draft
+      &[data-status='draft'] {
+        background: rgba($color-draft, 0.12);
+        border-color: rgba($color-draft, 0.5);
+        color: darken($color-draft, 8%);
+
+        &:hover {
+          background: rgba($color-draft, 0.20);
+          border-color: rgba($color-draft, 0.65);
+          color: darken($color-draft, 8%);
+        }
+      }
+
+      // cancelled
+      &[data-status='cancelled'] {
+        background: rgba($text-muted, 0.14);
+        border-color: rgba($text-muted, 0.45);
+        color: $text-secondary;
+
+        &:hover {
+          background: rgba($text-muted, 0.22);
+          border-color: rgba($text-muted, 0.6);
+          color: $text-secondary;
+        }
+      }
+
+      // compound finance filter — uses approved palette since it's the dominant case
+      &[data-status='finance_pending'] {
+        background: rgba($color-approved, 0.13);
+        border-color: rgba($color-approved, 0.5);
+        color: darken($color-approved, 5%);
+
+        &:hover {
+          background: rgba($color-approved, 0.20);
+          border-color: rgba($color-approved, 0.65);
+          color: darken($color-approved, 5%);
+        }
+      }
+
+      // fulfilled (HR / future)
+      &[data-status='fulfilled'] {
+        background: rgba($color-fulfilled, 0.12);
+        border-color: rgba($color-fulfilled, 0.5);
+        color: darken($color-fulfilled, 5%);
+
+        &:hover {
+          background: rgba($color-fulfilled, 0.20);
+          border-color: rgba($color-fulfilled, 0.65);
+          color: darken($color-fulfilled, 5%);
+        }
+      }
+
+      // open (HR / future)
+      &[data-status='open'] {
+        background: rgba($color-open, 0.12);
+        border-color: rgba($color-open, 0.5);
+        color: darken($color-open, 5%);
+
+        &:hover {
+          background: rgba($color-open, 0.20);
+          border-color: rgba($color-open, 0.65);
+          color: darken($color-open, 5%);
+        }
       }
     }
   }

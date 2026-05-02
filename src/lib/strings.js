@@ -266,6 +266,10 @@ export const S = {
   teamErrorName:  'يرجى إدخال الاسم',
   teamErrorTitle: 'يرجى إدخال المسمى الوظيفي',
   teamErrorDept:  'يرجى اختيار القسم',
+
+  // assets type
+  assetTypeCar: 'مركبة',
+  assetTypeOther: 'عام',
 }
 
 // ── Greeting by time of day ──────────────────
