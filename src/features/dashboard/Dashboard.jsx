@@ -17,7 +17,7 @@ const QUICK_ACTIONS = [
     id: 'team-list',
     label: 'الفريق',
     icon: '🗄️',
-    to: '/assets',
+    to: '/team',
     roles: ['purchase_manager', 'secretary'],
   },
   {
