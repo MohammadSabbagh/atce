@@ -1,0 +1,62 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  FormShell
+//
+//  Shell layout for single-page forms. Consumed by AssetForm (and future
+//  HR forms). Tokens only.
+// ─────────────────────────────────────────────────────────────────────────────
+
+.form-shell {
+  min-height: 100vh;
+  background: $bg-base;
+
+  &__topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-3 $space-4;
+    border-bottom: 1px solid $border-subtle;
+    position: sticky;
+    top: 0;
+    background: $bg-base;
+    z-index: $z-header;
+  }
+
+  &__back {
+    font-family: $font-ui;
+    font-size: $text-md;
+    color: $accent;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $space-1 0;
+    min-width: 48px;
+  }
+
+  &__title {
+    font-family: $font-ui;
+    font-size: $text-lg;
+    font-weight: $fw-bold;
+    color: $text-primary;
+    margin: 0;
+    text-align: center;
+  }
+
+  // Sized to match the back button so the title remains optically centered.
+  &__spacer {
+    width: 48px;
+  }
+
+  &__body {
+    padding: $space-4;
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+  }
+
+  &__footer {
+    padding: $space-3 $space-4 calc(#{$space-3} + env(safe-area-inset-bottom));
+    background: $bg-base;
+    border-top: 1px solid $border-subtle;
+    z-index: $z-action;
+  }
+}

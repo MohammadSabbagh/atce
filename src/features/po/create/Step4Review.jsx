@@ -3,7 +3,6 @@ import { useAuth } from '@/features/auth/AuthContext'
 import { S } from '@/lib/strings'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Tag from '@/components/ui/Tag'
-import '@/styles/form.scss'
 
 export default function Step4Review({ wizard }) {
   const { form, lineTotal } = wizard

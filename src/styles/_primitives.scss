@@ -260,7 +260,7 @@ $_status-map: (
 
 
 // ═════════════════════════════════════════════════════════════════════════════
-//  FORM — field, label, input, textarea
+//  FORM — field, label, input, textarea, select, toggle
 // ═════════════════════════════════════════════════════════════════════════════
 // Used by: create-po, asset-form, mo-create. Shared visual contract;
 // each form previously declared its own version.
@@ -269,6 +269,14 @@ $_status-map: (
   display: flex;
   flex-direction: column;
   gap: $space-2;
+  margin-bottom: $space-4;
+}
+
+// Inline variant — label and control on the same row (e.g. is_active toggle).
+.field--inline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: $space-4;
 }
 
@@ -336,6 +344,29 @@ $_status-map: (
   resize: vertical;
 }
 
+// Mono variant — monospace digits/IDs (line item qty/price, serial numbers).
+.input--mono {
+  font-family: $font-mono;
+  font-size: $text-base;
+  letter-spacing: 0.3px;
+}
+
+// Select — same base as input, with chevron-down SVG arrow on the leading
+// (left in RTL) side. Inline data-uri keeps this self-contained.
+.input--select {
+  appearance: none;
+  cursor: pointer;
+  padding-inline-start: $space-8;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A8399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left $space-3 center;
+
+  option {
+    background: $bg-card;
+    color: $text-primary;
+  }
+}
+
 // Error state — apply via .input--error / .textarea--error.
 .input--error,
 .textarea--error {
@@ -344,6 +375,62 @@ $_status-map: (
   &:focus {
     border-color: $status-rejected;
     box-shadow: 0 0 0 3px rgba($status-rejected, 0.20);
+  }
+}
+
+
+// ─── Toggle switch ───────────────────────────────────────────────────────────
+// Atom-level. Used by: create-po (requires_ceo), mo-create (requires_ceo),
+// asset-form (is_active). 48×28 track sized for mobile tap target.
+//
+// Markup contract:
+//   <button class="toggle" data-state="on|off" onClick={…}>
+//     <span class="toggle__knob" />
+//   </button>
+//
+// `data-state` is the source of truth for the visual; toggling the attribute
+// in JSX is enough — no input[type=checkbox] needed.
+
+.toggle {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  background: $border;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background $duration-fast $ease-out;
+
+  &[data-state='on'] {
+    background: $accent;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.toggle__knob {
+  position: absolute;
+  top: 3px;
+  // RTL-aware: knob starts on the right (off) and slides left when on.
+  // In LTR, the `right` anchor still works because we use translateX.
+  right: 3px;
+  width: 22px;
+  height: 22px;
+  background: $text-inverse;
+  border-radius: 50%;
+  transition: transform $duration-fast $ease-out;
+
+  .toggle[data-state='on'] & {
+    transform: translateX(-20px);
   }
 }
 

@@ -1,0 +1,58 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  StepIndicator
+//
+//  Paired with StepIndicator.jsx. Consumed by <WizardShell>.
+//  Tokens only — no hardcoded colors.
+// ─────────────────────────────────────────────────────────────────────────────
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+
+  &__step {
+    display: flex;
+    align-items: center;
+  }
+
+  &__dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $text-sm;
+    font-weight: $fw-bold;
+    font-family: $font-mono;
+    flex-shrink: 0;
+    transition: background    $duration-base $ease-out,
+                border-color  $duration-base $ease-out,
+                color         $duration-base $ease-out;
+
+    .step-indicator__step--idle & {
+      background: $bg-card;
+      border: 1px solid $border;
+      color: $text-muted;
+    }
+
+    .step-indicator__step--active & {
+      background: $accent;
+      border: 1px solid $accent;
+      color: $text-inverse;
+    }
+
+    .step-indicator__step--done & {
+      background: rgba($color-approved, 0.15);
+      border: 1px solid $color-approved;
+      color: $color-approved;
+    }
+  }
+
+  &__line {
+    height: 1px;
+    width: 28px;
+    background: $border;
+    margin: 0 $space-1;
+    flex-shrink: 0;
+  }
+}

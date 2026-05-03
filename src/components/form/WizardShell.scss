@@ -1,0 +1,53 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  WizardShell
+//
+//  Shell layout for multi-step wizards. Consumed by Create PO + Create MO.
+//  Tokens only.
+// ─────────────────────────────────────────────────────────────────────────────
+
+.wizard-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: calc(100dvh - $bottom-nav-height);
+
+  &__header {
+    padding: $space-6 $space-4 $space-4;
+    border-bottom: 1px solid $border-subtle;
+  }
+
+  &__title {
+    font-size: $text-xl;
+    font-weight: $fw-bold;
+    color: $text-primary;
+    margin-bottom: $space-4;
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: $space-5 $space-4;
+  }
+
+  // Inline error banner above the footer. Soft danger tint, not a primitive
+  // (only one caller). Promote to primitive if a 2nd caller appears.
+  &__error {
+    margin: 0 $space-4 $space-3;
+    padding: $space-3;
+    border-radius: $radius-md;
+    background: rgba($status-rejected, 0.08);
+    border: 1px solid rgba($status-rejected, 0.22);
+    color: $status-rejected;
+    font-size: $text-base;
+    text-align: center;
+  }
+
+  &__footer {
+    padding: $space-3 $space-4 calc(#{$space-3} + env(safe-area-inset-bottom));
+    border-top: 1px solid $border-subtle;
+    display: flex;
+    gap: $space-3;
+    background: $bg-base;
+    z-index: $z-action;
+  }
+}

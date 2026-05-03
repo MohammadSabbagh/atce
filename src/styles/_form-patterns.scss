@@ -1,0 +1,608 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  ASTE — Form Patterns (canonical)
+//
+//  Composed form patterns one level above primitives. Used by every wizard
+//  and form across the app — PO, MO, future HR.
+//
+//  Was previously `src/styles/form.scss`, owned only by PO and imported per
+//  step file. Promoted in PR 3 to a partial that's @use'd from global.scss
+//  so every form has access automatically.
+//
+//  Layering reminder:
+//    _tokens          ← raw values
+//    _theme           ← semantic mappings ($accent, $bg-card)
+//    _primitives      ← atoms (.btn, .input, .field, .toggle)
+//    _form-patterns   ← THIS FILE — composed patterns (.form__line-item,
+//                       .form__tag-input, .form__dropzone, .review__row,
+//                       .currency-radio, .form__add-item)
+//    feature SCSS     ← layout only
+//
+//  Rules: tokens only, no hardcoded colors, no var(--*).
+// ─────────────────────────────────────────────────────────────────────────────
+
+@use 'variables' as *;
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  FORM CONTAINER
+// ═════════════════════════════════════════════════════════════════════════════
+// Used as the root of a wizard step's form. Stack of fields with consistent
+// gap. Pair with .field from primitives for individual rows.
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-5;
+
+  &__section-hint {
+    font-size: $text-base;
+    color: $text-secondary;
+    line-height: $leading-normal;
+  }
+
+  // Two-column row for grouped fields (e.g. label/value pairs in dense forms).
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-3;
+  }
+
+  // Review-mode flag — collapses the gap so review sections sit flush.
+  &--review {
+    gap: 0;
+  }
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  CURRENCY RADIO  (Radix RadioGroup pattern)
+// ═════════════════════════════════════════════════════════════════════════════
+// Two big radio cards, each with a currency symbol + bilingual label.
+// Used by PO Step 1 and MO Step 2. Restored in PR 3 — was accidentally
+// dropped from create-po.scss in PR 1.
+//
+// Markup:
+//   <RadioGroup.Root className="currency-radio" value={…} onValueChange={…}>
+//     <RadioGroup.Item value="SYP" className="currency-radio__item">
+//       <RadioGroup.Indicator className="currency-radio__indicator" />
+//       <div className="currency-radio__content">
+//         <span className="currency-radio__symbol">ل.س</span>
+//         <span className="currency-radio__label">{S.currencyLS}</span>
+//       </div>
+//     </RadioGroup.Item>
+//     …
+//   </RadioGroup.Root>
+
+.currency-radio {
+  display: flex;
+  gap: $space-3;
+
+  &__item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-3 14px;
+    border-radius: $radius-md;
+    border: 1.5px solid $border;
+    background: $bg-card;
+    cursor: pointer;
+    position: relative;
+    transition: border-color $duration-fast $ease-out,
+                background   $duration-fast $ease-out;
+
+    // Radix sets data-state="checked" on the selected item.
+    &[data-state='checked'] {
+      border-color: $accent;
+      background: $accent-dim;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $focus-ring;
+      outline-offset: 2px;
+    }
+  }
+
+  // The radio circle — sits before the label.
+  &__indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid $border;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color $duration-fast $ease-out;
+
+    [data-state='checked'] & {
+      border-color: $accent;
+      background: $accent;
+      // Inner dot via inset shadow — no extra element required.
+      box-shadow: inset 0 0 0 4px $bg-card;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+  }
+
+  &__symbol {
+    font-family: $font-mono;
+    font-size: $text-lg;
+    font-weight: $fw-bold;
+    color: $text-primary;
+    line-height: $leading-tight;
+  }
+
+  &__label {
+    font-size: $text-base;
+    color: $text-secondary;
+    line-height: $leading-snug;
+  }
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  TAG INPUT  (chip-style with optional suggestions)
+// ═════════════════════════════════════════════════════════════════════════════
+// Pills inline with input; suggestions render below as tappable chips.
+// Consumed by <TagInput> from @/components/form/TagInput.jsx — PO Step 1
+// and MO Step 2 use the same component, same styles.
+
+.form__tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-1;
+  align-items: center;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: $space-2 $space-3;
+  min-height: 44px;
+  cursor: text;
+  transition: border-color $duration-fast $ease-out,
+              box-shadow   $duration-fast $ease-out;
+
+  &:focus-within {
+    border-color: $accent;
+    box-shadow: 0 0 0 3px $focus-ring;
+  }
+}
+
+.form__tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+}
+
+.form__tag-remove {
+  font-size: $text-md;
+  color: $text-muted;
+  line-height: 1;
+  padding: 0 2px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: color $duration-fast $ease-out;
+
+  &:hover { color: $color-rejected; }
+}
+
+.form__tag-text {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: $text-primary;
+  font-size: $text-base;
+  font-family: $font-ui;
+  min-width: 80px;
+  flex: 1;
+
+  &::placeholder { color: $text-muted; }
+}
+
+.form__tag-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-1;
+  margin-top: $space-1;
+}
+
+.form__tag-suggestion {
+  font-size: $text-xs;
+  padding: 3px $space-2;
+  border-radius: $radius-pill;
+  border: 1px solid $border;
+  color: $text-secondary;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color $duration-fast $ease-out,
+              color        $duration-fast $ease-out;
+
+  &:hover {
+    border-color: $color-tag-freeform;
+    color: $color-tag-freeform;
+  }
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  LINE ITEMS  (PO-only, but the pattern lives canonical)
+// ═════════════════════════════════════════════════════════════════════════════
+// PO-specific layout for the qty × unit-price × subtotal row inside a wizard.
+// Lives here because it's a form pattern, not a wizard shell. MO doesn't use
+// this (single price, no line items).
+
+.form__line-items {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.form__line-item {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $space-2;
+  }
+
+  &-num {
+    font-size: $text-sm;
+    font-family: $font-mono;
+    color: $text-muted;
+    background: $bg-base;
+    border: 1px solid $border-subtle;
+    border-radius: $radius-sm;
+    padding: 2px 7px;
+  }
+
+  &-fields {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+  }
+
+  &-price-row {
+    display: flex;
+    align-items: flex-end;
+    gap: $space-2;
+  }
+
+  &-qty-field,
+  &-price-field {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+  }
+
+  &-qty-field   { flex: 0 0 72px; }
+  &-price-field { flex: 1; }
+
+  &-times {
+    font-size: $text-md;
+    color: $text-muted;
+    padding-bottom: 10px;
+    flex-shrink: 0;
+  }
+
+  &-subtotal {
+    font-size: $text-base;
+    font-family: $font-mono;
+    color: $text-secondary;
+    padding-bottom: 10px;
+    flex-shrink: 0;
+    min-width: 64px;
+    text-align: right;
+  }
+
+  &-remove {
+    font-size: $text-lg;
+    color: $text-muted;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $space-1;
+    transition: color $duration-fast $ease-out;
+    flex-shrink: 0;
+
+    &:hover { color: $color-rejected; }
+  }
+}
+
+.form__inline-label {
+  font-size: $text-xs;
+  color: $text-muted;
+  font-family: $font-ui;
+}
+
+.form__price-wrap {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+}
+
+// "+ إضافة بند" — full-width dashed accent button. PO-only. Distinct from
+// .btn primitives because it's a *content* action (add a row to a list),
+// not a CTA — different visual weight and styling intent.
+.form__add-item {
+  font-size: $text-base;
+  font-weight: $fw-semibold;
+  color: $accent;
+  border: 1px dashed $accent;
+  border-radius: $radius-md;
+  padding: $space-3;
+  width: 100%;
+  background: $accent-dim;
+  cursor: pointer;
+  transition: background $duration-fast $ease-out;
+
+  &:hover {
+    background: rgba($accent, 0.18);
+  }
+}
+
+// PO totals strip at the bottom of Step 2.
+.form__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $space-3 14px;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+}
+
+.form__total-label {
+  font-size: $text-base;
+  font-weight: $fw-semibold;
+  color: $text-secondary;
+}
+
+.form__total-value {
+  font-size: $text-xl;
+  font-weight: $fw-bold;
+  color: $text-primary;
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  ATTACHMENTS DROPZONE  +  FILE LIST
+// ═════════════════════════════════════════════════════════════════════════════
+// Used by <AttachmentsInput> from @/components/form/AttachmentsInput.jsx —
+// PO Step 3 and MO Step 3 share the same component and styles.
+
+.form__dropzone {
+  border: 2px dashed $border;
+  border-radius: $radius-lg;
+  padding: $space-8 $space-4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-2;
+  cursor: pointer;
+  transition: border-color $duration-base $ease-out,
+              background   $duration-base $ease-out;
+
+  &:hover {
+    border-color: $accent;
+    background: $accent-dim;
+  }
+}
+
+.form__dropzone-text {
+  font-size: $text-md;
+  font-weight: $fw-medium;
+  color: $text-secondary;
+}
+
+.form__dropzone-hint {
+  font-size: $text-xs;
+  color: $text-muted;
+}
+
+.form__file-list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-3;
+}
+
+.form__file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: $space-2 $space-3;
+}
+
+.form__file-info {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.form__file-icon {
+  font-size: $text-lg;
+}
+
+.form__file-name {
+  font-size: $text-base;
+  color: $text-primary;
+  font-weight: $fw-medium;
+}
+
+.form__file-size {
+  font-size: $text-xs;
+  color: $text-muted;
+  font-family: $font-mono;
+}
+
+.form__file-remove {
+  font-size: $text-lg;
+  color: $text-muted;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color $duration-fast $ease-out;
+
+  &:hover { color: $color-rejected; }
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  REVIEW  (key/value rows in wizard's final review step)
+// ═════════════════════════════════════════════════════════════════════════════
+// PR 3 decision: canonicalize the row primitive only. PO uses sectioned review
+// (multiple .review__section blocks); MO uses a flat single-card review. Both
+// compose with .review__row but their containers differ — that's correct,
+// not drift.
+
+.review {
+  &__section {
+    padding: $space-4 0;
+    border-bottom: 1px solid $border-subtle;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__section-title {
+    font-size: $text-xs;
+    font-weight: $fw-bold;
+    text-transform: uppercase;
+    letter-spacing: $tracking-wider;
+    color: $text-muted;
+    margin-bottom: $space-3;
+  }
+
+  &__grid {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+  }
+
+  // The row primitive — used by both PO (inside __section) and MO (inside
+  // a single review card). Container styling is up to the consumer.
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $space-3;
+  }
+
+  &__label {
+    font-size: $text-base;
+    color: $text-secondary;
+    flex-shrink: 0;
+  }
+
+  &__value {
+    font-size: $text-base;
+    color: $text-primary;
+    font-weight: $fw-medium;
+    text-align: right;
+
+    &--flag { color: $color-pending; }
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-1;
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+  }
+
+  &__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $space-3;
+    font-size: $text-base;
+    color: $text-secondary;
+
+    &--total {
+      border-top: 1px solid $border;
+      padding-top: $space-3;
+      margin-top: 2px;
+      color: $text-primary;
+      font-weight: $fw-bold;
+      font-size: $text-md;
+    }
+  }
+
+  &__item-desc { flex: 1; }
+
+  &__item-num {
+    color: $text-muted;
+    margin-inline-end: $space-1;
+    font-family: $font-mono;
+    font-size: $text-xs;
+  }
+
+  &__item-price {
+    white-space: nowrap;
+    color: $text-primary;
+  }
+
+  &__files {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+  }
+
+  &__file {
+    font-size: $text-sm;
+    color: $text-secondary;
+    padding: $space-1 0;
+  }
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  TOGGLE LABEL  (thin layout helper for label-on-left, toggle-on-right rows)
+// ═════════════════════════════════════════════════════════════════════════════
+// Used wherever a `.toggle` primitive sits in a labeled row. Consumers used
+// to hand-roll this (.create-mo__toggle-row, .form__toggle, etc.) — now
+// canonical.
+
+.form__toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $bg-card;
+  border: 1px solid $border-subtle;
+  border-radius: $radius-md;
+  padding: $space-3 14px;
+}
+
+.form__toggle-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &-text {
+    font-size: $text-md;
+    font-weight: $fw-medium;
+    color: $text-primary;
+  }
+
+  &-hint {
+    font-size: $text-xs;
+    color: $text-muted;
+  }
+}

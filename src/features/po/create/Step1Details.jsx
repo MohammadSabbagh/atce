@@ -1,53 +1,22 @@
-import { useState } from 'react'
 import * as RadioGroup from '@radix-ui/react-radio-group'
-import Tag from '@/components/ui/Tag'
+import TagInput from '@/components/form/TagInput'
 import { S } from '@/lib/strings'
-import '@/styles/form.scss'
 
-// Tag values stay in English — they are stored as data in the DB.
+// Tag values stay in English/Arabic data form — they are stored in the DB.
 // Translating them would break existing tag filtering.
-const SUGGESTED_TAGS = [
-  'مستعجل', 'فوري', 'فواتير'
-]
+const SUGGESTED_TAGS = ['مستعجل', 'فوري', 'فواتير']
 
 export default function Step1Details({ wizard }) {
   const { form, setField, addTag, removeTag } = wizard
-  const [tagInput, setTagInput] = useState('')
-
-  const handleTagInput = (e) => {
-    const val = e.target.value
-    if (val.endsWith(',') || val.endsWith(' ')) {
-      addTag(val.slice(0, -1))
-      setTagInput('')
-    } else {
-      setTagInput(val)
-    }
-  }
-
-  const handleTagKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      addTag(tagInput)
-      setTagInput('')
-    }
-    if (e.key === 'Backspace' && !tagInput && form.tags.length > 0) {
-      removeTag(form.tags[form.tags.length - 1])
-    }
-  }
-
-  const suggestions = SUGGESTED_TAGS.filter(
-    (t) => !form.tags.includes(t) &&
-      (!tagInput || t.toLowerCase().includes(tagInput.toLowerCase()))
-  )
 
   return (
     <div className="form">
-      <div className="form__field">
-        <label className="form__label">
-          {S.poTitle} <span className="form__required">{S.required}</span>
+      <div className="field">
+        <label className="field__label">
+          {S.poTitle} <span className="field__required">{S.required}</span>
         </label>
         <input
-          className="form__input"
+          className="input"
           type="text"
           placeholder={S.poTitlePlaceholder}
           value={form.title}
@@ -55,10 +24,10 @@ export default function Step1Details({ wizard }) {
         />
       </div>
 
-      <div className="form__field">
-        <label className="form__label">{S.poDescription}</label>
+      <div className="field">
+        <label className="field__label">{S.poDescription}</label>
         <textarea
-          className="form__input form__input--textarea"
+          className="textarea"
           placeholder={S.poDescPlaceholder}
           value={form.description}
           onChange={(e) => setField('description', e.target.value)}
@@ -67,8 +36,8 @@ export default function Step1Details({ wizard }) {
       </div>
 
       {/* ── Currency ── */}
-      <div className="form__field">
-        <label className="form__label">{S.poCurrency}</label>
+      <div className="field">
+        <label className="field__label">{S.poCurrency}</label>
         <RadioGroup.Root
           className="currency-radio"
           value={form.currency}
@@ -93,58 +62,33 @@ export default function Step1Details({ wizard }) {
         </RadioGroup.Root>
       </div>
 
-      <div className="form__field">
-        <label className="form__label">{S.poTags}</label>
-        <div className="form__tag-input">
-          {form.tags.map((tag) => (
-            <span key={tag} className="form__tag-pill">
-              <Tag label={tag} />
-              <button
-                className="form__tag-remove"
-                onClick={() => removeTag(tag)}
-              >×</button>
-            </span>
-          ))}
-          <input
-            className="form__tag-text"
-            type="text"
-            placeholder={form.tags.length === 0 ? S.poTagsPlaceholder : ''}
-            value={tagInput}
-            onChange={handleTagInput}
-            onKeyDown={handleTagKeyDown}
-          />
-        </div>
-
-        {suggestions.length > 0 && (
-          <div className="form__tag-suggestions">
-            {suggestions.slice(0, 8).map((s) => (
-              <button
-                key={s}
-                className="form__tag-suggestion"
-                onClick={() => addTag(s)}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        )}
+      {/* ── Tags ── */}
+      <div className="field">
+        <label className="field__label">{S.poTags}</label>
+        <TagInput
+          tags={form.tags}
+          onAdd={addTag}
+          onRemove={removeTag}
+          suggestions={SUGGESTED_TAGS}
+          placeholder={S.poTagsPlaceholder}
+        />
       </div>
 
-      <div className="form__field">
-        <label className="form__toggle">
-          <input
-            type="checkbox"
-            checked={form.requires_ceo}
-            onChange={(e) => setField('requires_ceo', e.target.checked)}
-          />
-          <div className="form__toggle-track">
-            <div className="form__toggle-thumb" />
-          </div>
-          <div className="form__toggle-label">
-            <span>{S.requiresCeo}</span>
-            <span className="form__toggle-hint">{S.requiresCeoHint}</span>
-          </div>
-        </label>
+      {/* ── CEO toggle ── */}
+      <div className="form__toggle-row">
+        <div className="form__toggle-label">
+          <span className="form__toggle-label-text">{S.requiresCeo}</span>
+          <span className="form__toggle-label-hint">{S.requiresCeoHint}</span>
+        </div>
+        <button
+          type="button"
+          className="toggle"
+          data-state={form.requires_ceo ? 'on' : 'off'}
+          onClick={() => setField('requires_ceo', !form.requires_ceo)}
+          aria-pressed={form.requires_ceo}
+        >
+          <span className="toggle__knob" />
+        </button>
       </div>
     </div>
   )

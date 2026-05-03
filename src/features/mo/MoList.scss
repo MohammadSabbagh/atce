@@ -1,6 +1,6 @@
 // src/features/mo/MoList.scss
 //
-// Mirrors po-list.scss verbatim, plus an additional type-chips row above
+// Mirrors po-list.scss verbatim. Type filter lives in secondary filters as a select.
 // the status chips — type is MO-specific and important enough to stay
 // always-visible alongside status.
 
@@ -171,11 +171,19 @@
     }
   }
 
+  // ── Select row (department + type, side by side) ──────────────────
+  &__select-row {
+    display: flex;
+    gap: 8px;
+  }
+
   // ── Department field ──────────────────────────────────────────────
   &__dept-field {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex: 1;
+    min-width: 0;
   }
 
   &__dept-label {
@@ -185,6 +193,43 @@
   }
 
   &__dept-select {
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $text-primary;
+    background: $bg-base;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 8px 10px;
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 10px center;
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+
+  // ── Type field ────────────────────────────────────────────────────
+  &__type-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__type-label {
+    font-family: $font-ui;
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__type-select {
     font-family: $font-ui;
     font-size: 13px;
     color: $text-primary;
@@ -341,11 +386,6 @@
       opacity: 1;
       background: rgba($accent, 0.15);
     }
-  }
-
-  // ── Type chips — always visible (MO-specific primary axis) ──────────
-  &__type-chips {
-    margin-bottom: 8px;
   }
 
   // ── Status chips — always visible ───────────────────────────────────

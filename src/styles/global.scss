@@ -1,8 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  ASTE — Global styles
-//----------------------------------------
- 
+// ─────────────────────────────────────────────────────────────────────────────
+
 @use 'primitives';
+@use 'form-patterns';
 
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -32,12 +33,12 @@ html, body, #root {
 // baked into the font metrics, causing text to sit off-center in
 // flex containers. These pseudo-elements trim the invisible space
 // so text appears visually centered without touching padding.
-button, 
+button,
 input:not(.po-list__date-input),
-[class*="chip"], 
+[class*="chip"],
 [class*="badge"],
-[class$="tag"], 
-.tag, 
+[class$="tag"],
+.tag,
 .status-badge,
 .po-list__active-tag-x,
 .po-card__meta>span,

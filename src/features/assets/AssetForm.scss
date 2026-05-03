@@ -1,61 +1,40 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  AssetForm — Asset-unique patterns
+//
+//  After PR 4, this file owns ONLY genuinely Asset-specific bits:
+//    • Image hero (180px asset photo — not an attachment, not a thumbnail)
+//    • Type toggle (segmented control — could canonicalize in PR 5+ if a
+//      3rd caller appears)
+//    • Team member picker (mirrors MO's asset picker — extract to
+//      <EntityPicker> when a 3rd caller appears, likely HR)
+//    • Loading state (skeleton, used while fetching for edit mode)
+//    • Inline error
+//
+//  Migrated to canonical sources (no longer in this file):
+//    • Form shell (topbar, body, footer)         → <FormShell>
+//    • All inputs/textareas/selects/labels       → primitives
+//    • Submit button                             → .btn .btn--primary .btn--block
+//    • Toggle                                    → .toggle / .toggle__knob
+// ─────────────────────────────────────────────────────────────────────────────
+
 .asset-form {
-  min-height: 100vh;
-  background: $bg-base;
-
+  // Loading variant — replaces the FormShell entirely while fetching.
+  // Only padding here; skeleton bars do their own thing.
   &--loading {
-    padding: 16px;
+    padding: $space-4;
   }
 
-  &__topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid $border-subtle;
-    position: sticky;
-    top: 0;
-    background: $bg-base;
-    z-index: $z-header;
-  }
+  // ── Image hero (asset photo) ───────────────────────────────────────────────
 
-  &__back {
-    font-family: $font-ui;
-    font-size: 14px;
-    color: $accent;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 0;
-    min-width: 48px;
-  }
-
-  &__title {
-    font-family: $font-ui;
-    font-size: 16px;
-    font-weight: 700;
-    color: $text-primary;
-    margin: 0;
-    text-align: center;
-  }
-
-  &__body {
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    //padding-bottom: 120px;
-  }
-
-  // Image upload area
   &__image-section {
     position: relative;
     width: 100%;
     height: 180px;
-    border-radius: 14px;
+    border-radius: $radius-xl;
     overflow: hidden;
     border: 1.5px dashed $border;
     cursor: pointer;
-    transition: border-color $transition-fast;
+    transition: border-color $duration-fast $ease-out;
 
     &:active {
       border-color: $accent;
@@ -76,7 +55,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: $space-2;
     background: $bg-card;
   }
 
@@ -86,7 +65,7 @@
 
   &__image-label {
     font-family: $font-ui;
-    font-size: 13px;
+    font-size: $text-base;
     color: $text-muted;
   }
 
@@ -95,145 +74,43 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba($aste-ink-900, 0.55);
     font-family: $font-ui;
-    font-size: 13px;
-    color: #fff;
+    font-size: $text-base;
+    color: $text-inverse;
     text-align: center;
-    padding: 8px;
+    padding: $space-2;
   }
 
-  // Type toggle
+  // ── Type toggle (car / other segmented control) ────────────────────────────
+
   &__type-toggle {
     display: flex;
-    gap: 8px;
+    gap: $space-2;
   }
 
   &__type-btn {
     flex: 1;
     font-family: $font-ui;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: $text-md;
+    font-weight: $fw-medium;
     color: $text-muted;
     background: $bg-card;
     border: 1px solid $border;
-    border-radius: 10px;
-    padding: 10px;
+    border-radius: $radius-md;
+    padding: $space-3;
     cursor: pointer;
-    transition: all $transition-fast;
+    transition: all $duration-fast $ease-out;
 
     &--active {
       color: $accent;
       border-color: $accent;
       background: $accent-dim;
-      font-weight: 600;
+      font-weight: $fw-semibold;
     }
   }
 
-  // Fields
-  &__field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    &--inline {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-  }
-
-  &__label {
-    font-family: $font-ui;
-    font-size: 13px;
-    font-weight: 600;
-    color: $text-muted;
-  }
-
-  &__required {
-    color: $color-rejected;
-  }
-
-  &__input {
-    font-family: $font-ui;
-    font-size: 15px;
-    color: $text-primary;
-    background: $bg-card;
-    border: 1px solid $border;
-    border-radius: 10px;
-    padding: 11px 14px;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-    transition: border-color $transition-fast;
-
-    &::placeholder {
-      color: $text-muted;
-    }
-
-    &:focus {
-      border-color: $accent;
-    }
-
-    &--mono {
-      font-family: $font-mono;
-      font-size: 14px;
-      letter-spacing: 0.3px;
-    }
-  }
-
-  &__select {
-    font-family: $font-ui;
-    font-size: 15px;
-    color: $text-primary;
-    background: $bg-card;
-    border: 1px solid $border;
-    border-radius: 10px;
-    padding: 11px 14px;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-    cursor: pointer;
-    appearance: none;
-    transition: border-color $transition-fast;
-
-    &:focus {
-      border-color: $accent;
-    }
-
-    option {
-      background: $bg-card;
-      color: $text-primary;
-    }
-  }
-
-  &__textarea {
-    font-family: $font-ui;
-    font-size: 15px;
-    color: $text-primary;
-    background: $bg-card;
-    border: 1px solid $border;
-    border-radius: 10px;
-    padding: 11px 14px;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-    resize: vertical;
-    line-height: 1.5;
-    transition: border-color $transition-fast;
-
-    &::placeholder {
-      color: $text-muted;
-    }
-
-    &:focus {
-      border-color: $accent;
-    }
-  }
-
-  // ── Team member picker ─────────────────────────────────────
-  // Mirrors the asset picker shape from MoCreate. Candidate for
-  // extraction into <EntityPicker /> when a 3rd caller appears.
+  // ── Team member picker ─────────────────────────────────────────────────────
 
   &__member-picker {
     width: 100%;
@@ -242,15 +119,15 @@
   &__member-btn {
     width: 100%;
     font-family: $font-ui;
-    font-size: 15px;
+    font-size: $text-md;
     color: $text-muted;
     background: $bg-card;
     border: 1px solid $border;
-    border-radius: 10px;
+    border-radius: $radius-md;
     padding: 11px 14px;
     cursor: pointer;
     text-align: right;
-    transition: border-color $transition-fast;
+    transition: border-color $duration-fast $ease-out;
 
     &:hover {
       border-color: $border-strong;
@@ -260,13 +137,13 @@
   &__member-selected {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: $space-2;
     background: $bg-card;
     border: 1px solid $border;
-    border-radius: 10px;
+    border-radius: $radius-md;
     padding: 11px 14px;
     cursor: pointer;
-    transition: border-color $transition-fast;
+    transition: border-color $duration-fast $ease-out;
 
     &:hover {
       border-color: $border-strong;
@@ -275,15 +152,15 @@
 
   &__member-name {
     font-family: $font-ui;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: $text-md;
+    font-weight: $fw-semibold;
     color: $text-primary;
     flex-shrink: 0;
   }
 
   &__member-title {
     font-family: $font-ui;
-    font-size: 13px;
+    font-size: $text-base;
     color: $text-muted;
     flex: 1;
     overflow: hidden;
@@ -297,7 +174,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: $text-lg;
     line-height: 1;
     color: $text-muted;
     background: $bg-muted;
@@ -305,7 +182,7 @@
     border-radius: 50%;
     cursor: pointer;
     flex-shrink: 0;
-    transition: background $transition-fast, color $transition-fast;
+    transition: background $duration-fast $ease-out, color $duration-fast $ease-out;
 
     &:hover {
       background: rgba($color-rejected, 0.12);
@@ -314,22 +191,22 @@
   }
 
   &__member-dropdown {
-    margin-top: 8px;
+    margin-top: $space-2;
     background: $bg-card;
     border: 1px solid $border;
-    border-radius: 10px;
+    border-radius: $radius-md;
     overflow: hidden;
   }
 
   &__member-search {
     width: 100%;
     font-family: $font-ui;
-    font-size: 14px;
+    font-size: $text-md;
     color: $text-primary;
     background: $bg-base;
     border: none;
     border-bottom: 1px solid $border-subtle;
-    padding: 10px 14px;
+    padding: $space-3 14px;
     outline: none;
     box-sizing: border-box;
 
@@ -345,25 +222,25 @@
 
   &__member-empty {
     font-family: $font-ui;
-    font-size: 13px;
+    font-size: $text-base;
     color: $text-muted;
     text-align: center;
-    padding: 16px;
+    padding: $space-4;
     margin: 0;
   }
 
   &__member-option {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: $space-1;
     width: 100%;
     background: transparent;
     border: none;
     border-bottom: 1px solid $border-subtle;
-    padding: 10px 14px;
+    padding: $space-3 14px;
     text-align: right;
     cursor: pointer;
-    transition: background $transition-fast;
+    transition: background $duration-fast $ease-out;
 
     &:last-child {
       border-bottom: none;
@@ -376,121 +253,62 @@
 
   &__member-option-name {
     font-family: $font-ui;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: $text-md;
+    font-weight: $fw-semibold;
     color: $text-primary;
   }
 
   &__member-option-meta {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: $space-2;
   }
 
   &__member-option-title {
     font-family: $font-ui;
-    font-size: 12px;
+    font-size: $text-sm;
     color: $text-muted;
   }
 
   &__member-option-dept {
     font-family: $font-ui;
-    font-size: 12px;
+    font-size: $text-sm;
     color: $text-secondary;
 
     &::before {
       content: '·';
-      margin-inline-end: 6px;
+      margin-inline-end: $space-1;
       color: $text-muted;
     }
   }
 
-  // Toggle switch
-  &__toggle {
-    position: relative;
-    width: 48px;
-    height: 28px;
-    background: $border;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    transition: background $transition-fast;
-    flex-shrink: 0;
-
-    &--on {
-      background: $accent;
-    }
-  }
-
-  &__toggle-knob {
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    width: 22px;
-    height: 22px;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform $transition-fast;
-
-    .asset-form__toggle--on & {
-      transform: translateX(-20px);
-    }
-  }
+  // ── Inline error ───────────────────────────────────────────────────────────
 
   &__error {
     font-family: $font-ui;
-    font-size: 13px;
+    font-size: $text-base;
     color: $color-rejected;
     text-align: center;
     margin: 0;
   }
 
-  &__footer {
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    background: $bg-base;
-    border-top: 1px solid $border-subtle;
-    z-index: $z-action;
-  }
+  // ── Skeleton (edit-mode loading) ───────────────────────────────────────────
 
-  &__submit {
-    width: 100%;
-    font-family: $font-ui;
-    font-size: 16px;
-    font-weight: 700;
-    color: $bg-base;
-    background: $accent;
-    border: none;
-    border-radius: 12px;
-    padding: 14px;
-    cursor: pointer;
-    transition: background $transition-fast;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    &:not(:disabled):active {
-      background: $accent-hover;
-    }
-  }
-
-  // Skeletons
   &__skeleton {
     height: 52px;
     background: $bg-card;
-    border-radius: 10px;
-    margin-bottom: 12px;
-    animation: pulse 1.4s ease-in-out infinite;
+    border-radius: $radius-md;
+    margin-bottom: $space-3;
+    animation: asset-form-pulse 1.4s ease-in-out infinite;
 
     &--tall {
       height: 180px;
-      border-radius: 14px;
+      border-radius: $radius-xl;
     }
   }
 }
 
-@keyframes pulse {
+@keyframes asset-form-pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50%      { opacity: 0.4; }
 }

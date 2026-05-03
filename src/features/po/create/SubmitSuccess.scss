@@ -1,0 +1,37 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  SubmitSuccess
+//
+//  Standalone view rendered after PO submit. Replaces the wizard entirely
+//  (consumer's choice — see CreatePO.jsx). The button uses .btn .btn--primary
+//  from primitives.
+// ─────────────────────────────────────────────────────────────────────────────
+
+.submit-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-12 $space-6;
+  min-height: calc(100dvh - $bottom-nav-height);
+  text-align: center;
+
+  &__icon {
+    color: $color-approved;
+    margin-bottom: $space-5;
+  }
+
+  &__title {
+    font-size: $text-2xl;
+    font-weight: $fw-bold;
+    color: $text-primary;
+    margin-bottom: $space-2;
+  }
+
+  &__subtitle {
+    font-size: $text-md;
+    color: $text-secondary;
+    line-height: $leading-normal;
+    max-width: 280px;
+    margin-bottom: $space-8;
+  }
+}
