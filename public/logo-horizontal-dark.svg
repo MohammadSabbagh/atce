@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 90" width="520" height="90" fill="none">
+  
+  <rect width="520" height="90" fill="#0D1F1B"></rect>
+
+  
+  <text x="8" y="66" font-family="&#39;Space Grotesk&#39;, &#39;Arial&#39;, sans-serif" font-weight="700" font-size="72" fill="#4DBFA6" letter-spacing="-2">A</text>
+  <text x="62" y="58" font-family="&#39;Space Grotesk&#39;, &#39;Arial&#39;, sans-serif" font-weight="400" font-size="52" fill="rgba(255,255,255,0.13)">·</text>
+  <text x="80" y="66" font-family="&#39;Space Grotesk&#39;, &#39;Arial&#39;, sans-serif" font-weight="700" font-size="72" fill="#4DBFA6" letter-spacing="-2">S</text>
+  <text x="131" y="58" font-family="&#39;Space Grotesk&#39;, &#39;Arial&#39;, sans-serif" font-weight="400" font-size="52" fill="rgba(255,255,255,0.13)">·</text>
+  <text x="149" y="66" font-family="&#39;Space Grotesk&#39;, &#39;Arial&#39;, sans-serif" font-weight="700" font-size="72" fill="#4DBFA6" letter-spacing="-2">T</text>
+  <text x="199" y="58" font-family="&#39;Space Grotesk&#39;, &#39;Arial&#39;, sans-serif" font-weight="400" font-size="52" fill="rgba(255,255,255,0.13)">·</text>
+  <text x="217" y="66" font-family="&#39;Space Grotesk&#39;, &#39;Arial&#39;, sans-serif" font-weight="700" font-size="72" fill="#4DBFA6" letter-spacing="-2">E</text>
+
+  
+  <defs>
+    <linearGradient id="divGradDk" x1="0" y1="0" x2="270" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4DBFA6"></stop>
+      <stop offset="100%" stop-color="#4DBFA6" stop-opacity="0"></stop>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="75" width="270" height="1.5" fill="url(#divGradDk)"></rect>
+
+  
+  <text x="8" y="88" font-family="&#39;Space Grotesk&#39;, &#39;Arial&#39;, sans-serif" font-weight="300" font-size="11" fill="rgba(255,255,255,0.45)" letter-spacing="3">AL SHATTA FOR TECHNICAL ENGINEERING</text>
+</svg>
