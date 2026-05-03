@@ -9,25 +9,28 @@ import { useDashboard } from './hooks/useDashboard'
 import { LiveIndicator } from '@/features/sync/LiveIndicator'
 import { DashboardStatCards } from './components/DashboardStatCards'
 import { SpendingChart } from './components/SpendingChart'
-import { getGreeting } from '../../lib/strings'
 import './Dashboard.scss'
+import { PersonIcon, CubeIcon } from '@radix-ui/react-icons'
+import { S, getGreeting } from '@/lib/strings'
+import QuickActionCard from './components/QuickActionCard'
 
 const QUICK_ACTIONS = [
   {
     id: 'team-list',
-    label: 'الفريق',
-    icon: '🗄️',
+    label: S.quickActionTeamLabel,
+    subtitle: S.quickActionTeamSubtitle,
+    icon: PersonIcon,
     to: '/team',
     roles: ['purchase_manager', 'secretary'],
   },
   {
     id: 'asset-list',
-    label: 'الأصول',
-    icon: '🗄️',
+    label: S.quickActionAssetsLabel,
+    subtitle: S.quickActionAssetsSubtitle,
+    icon: CubeIcon,
     to: '/assets',
     roles: ['purchase_manager', 'secretary'],
-  }
-  // Future: { id: 'create-hr', label: 'طلب توظيف جديد', icon: '👤', to: '/hr/requests/create', roles: ['purchase_manager'] }
+  },
 ]
 
 function QuickActions({ role }) {
@@ -38,14 +41,13 @@ function QuickActions({ role }) {
   return (
     <section className="dashboard__quick-actions">
       {actions.map(action => (
-        <button
+        <QuickActionCard
           key={action.id}
-          className="quick-action-card"
+          icon={action.icon}
+          label={action.label}
+          subtitle={action.subtitle}
           onClick={() => navigate(action.to)}
-        >
-          <span className="quick-action-card__icon">{action.icon}</span>
-          <span className="quick-action-card__label">{action.label}</span>
-        </button>
+        />
       ))}
     </section>
   )

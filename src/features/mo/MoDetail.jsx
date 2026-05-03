@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthContext'
-import { useMODetail } from './hooks/useMODetail'
+import { useMODetail } from './useMODetail'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Tag from '@/components/ui/Tag'
 import NavIcon from '@/components/layout/NavIcon'

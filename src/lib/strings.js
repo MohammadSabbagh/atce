@@ -270,6 +270,11 @@ export const S = {
   // assets type
   assetTypeCar: 'مركبة',
   assetTypeOther: 'عام',
+  // dahsboard
+  quickActionTeamLabel:      'الفريق',
+  quickActionTeamSubtitle:   'إدارة الأعضاء والأدوار',
+  quickActionAssetsLabel:    'الأصول',
+  quickActionAssetsSubtitle: 'تصفح وإدارة الأصول',
 }
 
 // ── Greeting by time of day ──────────────────
