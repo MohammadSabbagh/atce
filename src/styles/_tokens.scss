@@ -28,8 +28,11 @@ $aste-teal-900:  #071F19;
 
 // ─── Ink (neutrals — surfaces, borders, text) ────────────────────────────────
 
-$aste-ink-0:     #FAFCFB;
-$aste-ink-50:    #F0F4F2;
+// $aste-ink-0:     #FAFCFB;
+// $aste-ink-50:    #F0F4F2;
+
+$aste-ink-0:   #FAFBFB;   // was #FAFCFB  (drop 1pt green)
+$aste-ink-50:  #F2F4F3;   // was #F0F4F2  (raise red, drop green slightly)
 $aste-ink-100:   #D6E0DC;
 $aste-ink-200:   #AABFB8;
 $aste-ink-300:   #7A9E95;

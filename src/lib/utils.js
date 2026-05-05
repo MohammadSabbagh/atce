@@ -30,3 +30,25 @@ export function calcAge(dob) {
 export function calcYearsToRetirement(dob, retirementAge = 65) {
   return Math.max(0, retirementAge - calcAge(dob))
 }
+
+// src/lib/numerals.js
+const ARABIC_INDIC = '٠١٢٣٤٥٦٧٨٩';
+
+export const toWesternDigits = (str) => {
+  if (str == null) return '';
+  return String(str)
+    .replace(/[٠-٩]/g, (d) => ARABIC_INDIC.indexOf(d))
+    .replace(/٫/g, '.')   // Arabic decimal separator
+    .replace(/،/g, '');   // Arabic thousands separator (strip)
+};
+
+// For amounts: keep digits + one decimal point only
+export const sanitizeDecimalInput = (str) => {
+  const western = toWesternDigits(str);
+  // strip everything except digits and dots
+  const cleaned = western.replace(/[^\d.]/g, '');
+  // collapse multiple dots — keep first
+  const parts = cleaned.split('.');
+  if (parts.length <= 1) return cleaned;
+  return parts[0] + '.' + parts.slice(1).join('');
+};

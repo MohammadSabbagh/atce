@@ -26,6 +26,7 @@ const PO_CACHE_SELECT = `
   title,
   requires_ceo,
   status,
+  currency,
   total,
   created_by,
   created_at,

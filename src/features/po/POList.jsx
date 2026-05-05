@@ -243,7 +243,7 @@ export default function POList() {
           </div>
         ) : (
           pos.map((po) => (
-            <POCard key={po.id} po={po} />
+            <POCard key={po.id} po={po} onClick={() => navigate(`/po/${po.id}`)} />
           ))
         )}
       </div>

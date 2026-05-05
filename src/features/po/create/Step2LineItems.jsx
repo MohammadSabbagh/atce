@@ -1,4 +1,4 @@
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, sanitizeDecimalInput } from '@/lib/utils'
 import { DEPARTMENTS } from '@/lib/constants'
 import { S } from '@/lib/strings'
 
@@ -69,12 +69,12 @@ export default function Step2LineItems({ wizard }) {
                   <div className="form__price-wrap">
                     <input
                       className="input input--mono"
-                      type="number"
-                      min="0"
-                      step="any"
+                      type="text" 
+                      inputMode="decimal" // Forces numeric keypad on mobile
+                      //pattern="[0-9]*[.,]?[0-9]*" // Optional: helps with validation
                       placeholder="0.00"
                       value={item.unit_price}
-                      onChange={(e) => updateLineItem(item.id, 'unit_price', e.target.value)}
+                      onChange={(e) => updateLineItem(item.id, 'unit_price', sanitizeDecimalInput(e.target.value))}
                     />
                   </div>
                 </div>

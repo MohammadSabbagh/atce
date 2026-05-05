@@ -12,6 +12,7 @@ import { DEPARTMENTS } from '@/lib/constants';
 import WizardShell from '@/components/form/WizardShell';
 import TagInput from '@/components/form/TagInput';
 import AttachmentsInput from '@/components/form/AttachmentsInput';
+import { sanitizeDecimalInput } from '@/lib/utils'
 import './MoCreate.scss';
 
 const EMPTY_FORM = {
@@ -67,6 +68,8 @@ export default function CreateMO() {
 
   const set = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
+
+  const setPrice = (v) => setForm((prev) => ({ ...prev, ['item_price']: v }));
 
   const selectAsset = (asset) => {
     setSelectedAsset(asset);
@@ -230,6 +233,7 @@ export default function CreateMO() {
         <Step2
           form={form}
           set={set}
+          setPrice={setPrice}
           setForm={setForm}
           addTag={addTag}
           removeTag={removeTag}
@@ -397,7 +401,7 @@ function Step1({ form, set, assets, selectedAsset, assetSearch, setAssetSearch, 
 
 // ─── Step 2: Cost & Tags ──────────────────────────────────────────────────────
 
-function Step2({ form, set, setForm, addTag, removeTag }) {
+function Step2({ form, set, setPrice, setForm, addTag, removeTag }) {
   return (
     <div className="form">
       <Field label={S.moCurrency}>
@@ -439,13 +443,12 @@ function Step2({ form, set, setForm, addTag, removeTag }) {
       <Field label={`${S.moItemPrice} *`}>
         <input
           className="input input--mono"
-          type="number"
-          min="0"
-          step="0.01"
+          type="text" 
+          inputMode="decimal" // Forces numeric keypad on mobile
+          //pattern="[0-9]*[.,]?[0-9]*" // Optional: helps with validation
           value={form.item_price}
-          onChange={set('item_price')}
+          onChange={(e) => setPrice(sanitizeDecimalInput(e.target.value))}
           placeholder="0.00"
-          dir="ltr"
         />
       </Field>
 
