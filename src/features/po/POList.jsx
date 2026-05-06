@@ -1,7 +1,7 @@
 // src/features/po/POList.jsx
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react'
-import { usePOList } from './hooks/usePOList'
+import { usePOList } from './usePOList'
 import { S } from '@/lib/strings'
 import POCard from './POCard'
 import FilterChips from '@/components/ui/FilterChips'

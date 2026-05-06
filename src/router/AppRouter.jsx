@@ -16,6 +16,8 @@ import AssetForm from '../features/assets/AssetForm';
 import MOList   from '../features/mo/MOList';
 import MOCreate from '../features/mo/MOCreate';
 import MODetail from '../features/mo/MODetail';
+import MOEdit from '@/features/mo/MOEdit'
+
 
 import PrimitivesPreview from '@/components/dev/PrimitivesPreview'
 
@@ -109,6 +111,7 @@ export default function AppRouter() {
         <Route path="/mo"        element={<MOList />} />
         <Route path="/mo/create" element={<MOCreate />} />
         <Route path="/mo/:id"    element={<MODetail />} />
+        <Route path="/mo/:id/edit" element={<MOEdit />} />
 
         <Route path="/team"          element={<TeamPage />} />
         <Route path="/team/new"      element={<TeamForm />} />

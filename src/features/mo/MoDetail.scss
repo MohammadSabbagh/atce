@@ -754,3 +754,20 @@
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
+
+.mo-detail__action-btn--delete {
+  background: rgba($color-rejected, 0.12);
+  color: $color-rejected;
+  border: 1px solid rgba($color-rejected, 0.25);
+
+  &:hover:not(:disabled) {
+    background: rgba($color-rejected, 0.2);
+  }
+}
+
+.mo-detail__dialog-body {
+  font-size: 14px;
+  color: $text-secondary;
+  line-height: 1.6;
+  padding: 0 0 8px;
+}

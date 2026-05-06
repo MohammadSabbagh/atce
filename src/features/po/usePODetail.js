@@ -1,7 +1,7 @@
 // src/features/po/hooks/usePODetail.js
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/AuthContext'
 import { getAvailableTransitions } from '@/lib/poStatusConfig'
@@ -26,6 +26,7 @@ const PO_SELECT = `
 export function usePODetail() {
   const { id }           = useParams()
   const { profile }      = useAuth()
+  const navigate         = useNavigate()
   const [po, setPO]      = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState(null)
@@ -90,7 +91,7 @@ export function usePODetail() {
         data.attachments.map(async (att) => {
           const { data: url } = await supabase.storage
             .from('attachments')
-            .createSignedUrl(att.file_path, 60 * 60) // 1 hour
+            .createSignedUrl(att.file_path, 60 * 60)
           return { ...att, url: url?.signedUrl ?? null }
         })
       )
@@ -101,15 +102,11 @@ export function usePODetail() {
     setLoading(false)
   }
 
-  // ─── Transition guard ────────────────────────────────────
-  // Single source of truth for "is this action currently valid?"
-  // Delegates entirely to poStatusConfig — no duplicated logic here.
   function canDo(transitionKey) {
     if (!po || !profile) return false
     return getAvailableTransitions(po, profile.role, profile.id).includes(transitionKey)
   }
 
-  // ─── Shared audit writer ─────────────────────────────────
   async function writeAudit(action) {
     return supabase.from('audit_log').insert({
       entity_type:  'purchase_order',
@@ -140,7 +137,7 @@ export function usePODetail() {
     }
   }
 
-  // ─── CEO: Reject ─────────────────────────────────────────
+  // ─── CEO / Finance: Reject ───────────────────────────────
   async function rejectPO(note) {
     if (!po || acting) return
     const transitionKey = profile?.role === 'ceo' ? 'ceo_reject' : 'finance_reject'
@@ -186,8 +183,6 @@ export function usePODetail() {
         .eq('id', po.id)
       if (updateError) throw updateError
 
-      // For non-CEO path, Finance both approves and releases in one step —
-      // write both audit entries so the trail reflects the full lifecycle.
       const entries = []
       if (!po.requires_ceo) {
         entries.push({
@@ -213,11 +208,10 @@ export function usePODetail() {
     }
   }
 
-  // ─── PM/Secretary: Cancel ────────────────────────────────
+  // ─── PM/Secretary: Cancel (post-draft only) ──────────────
   async function cancelPO(note) {
     if (!po || acting) return
-    const transitionKey = po.status === 'draft' ? 'cancel_draft' : 'cancel'
-    if (!canDo(transitionKey)) return
+    if (!canDo('cancel')) return
     setActing(true)
     try {
       const { error: updateError } = await supabase
@@ -244,29 +238,49 @@ export function usePODetail() {
     }
   }
 
+  // ─── PM/Secretary: Delete draft ──────────────────────────
+  // Only available on draft status. Cleans up storage before deleting the row.
+  // Cascade handles po_line_items, po_tags, po_notes, po_attachments rows.
+  async function deletePO() {
+    if (!po || acting || po.status !== 'draft') return
+    setActing(true)
+    try {
+      // 1. Remove storage files if any
+      if (po.attachments?.length) {
+        const paths = po.attachments.map(a => a.file_path)
+        await supabase.storage.from('attachments').remove(paths)
+      }
+
+      // 2. Delete the PO row — cascade handles everything else
+      const { error: deleteError } = await supabase
+        .from('purchase_orders')
+        .delete()
+        .eq('id', po.id)
+      if (deleteError) throw deleteError
+
+      navigate('/po/list', { replace: true })
+    } catch (err) {
+      setError(err.message)
+      setActing(false)
+    }
+    // No finally setActing(false) — we're navigating away
+  }
+
   // ─── PM: Confirm draft → pending ────────────────────────
   async function confirmPO() {
     if (!po || acting) return
     if (!canDo('pm_confirm')) return
     setActing(true)
-    // Optimistic update — flip status immediately so PMActionBar unmounts
-    // cleanly in this render cycle before any async work begins.
     setPO(prev => prev ? { ...prev, status: 'pending' } : prev)
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({
-          status:      'pending',
-          updated_at:  new Date().toISOString(),
-        })
+        .update({ status: 'pending', updated_at: new Date().toISOString() })
         .eq('id', po.id)
       if (updateError) throw updateError
 
       await writeAudit('confirmed')
 
-      // Refresh audit trail and notes only — do NOT use fetchPO() which
-      // re-fetches the full PO and can overwrite the optimistic status
-      // if the DB read races with the write.
       const [auditResult, notesResult] = await Promise.all([
         supabase
           .from('audit_log')
@@ -287,7 +301,6 @@ export function usePODetail() {
         notes:  notesResult.data ?? prev.notes,
       } : prev)
     } catch (err) {
-      // Roll back optimistic update on failure
       setPO(prev => prev ? { ...prev, status: 'draft' } : prev)
       setError(err.message)
     } finally {
@@ -326,6 +339,7 @@ export function usePODetail() {
     rejectPO,
     releasePO,
     cancelPO,
+    deletePO,
     confirmPO,
     addNote,
     refetch: fetchPO,

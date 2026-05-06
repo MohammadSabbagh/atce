@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthContext'
-import { usePODetail } from './hooks/usePODetail'
+import { usePODetail } from './usePODetail'
 import StatusBadge from '@/components/ui/StatusBadge'
 import Tag from '@/components/ui/Tag'
 import NavIcon from '@/components/layout/NavIcon'
@@ -48,7 +48,6 @@ const auditLabel = (action) => {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function AuditTrail({ audit }) {
   if (!audit?.length) return null
-
   return (
     <div className="po-detail__card">
       <span className="po-detail__section-label">سجل المعاملات</span>
@@ -61,13 +60,43 @@ function AuditTrail({ audit }) {
             </div>
             <div className="po-detail__audit-body">
               <span className="po-detail__audit-action">{auditLabel(entry.action)}</span>
-              <span className="po-detail__audit-by">
-                {entry.actor?.full_name ?? '—'}
-              </span>
+              <span className="po-detail__audit-by">{entry.actor?.full_name ?? '—'}</span>
               <span className="po-detail__audit-time">{fmtDateTime(entry.created_at)}</span>
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+function DeleteDialog({ onConfirm, onCancel, acting }) {
+  return (
+    <div className="po-detail__dialog-backdrop" onClick={onCancel}>
+      <div className="po-detail__dialog" onClick={e => e.stopPropagation()}>
+        <div className="po-detail__dialog-header">
+          <span className="po-detail__dialog-title">حذف المسودة</span>
+          <button className="po-detail__dialog-close" onClick={onCancel}>×</button>
+        </div>
+        <p className="po-detail__dialog-body">
+          سيتم حذف هذه المسودة نهائياً مع جميع بنودها ومرفقاتها. لا يمكن التراجع عن هذا الإجراء.
+        </p>
+        <div className="po-detail__dialog-actions">
+          <button
+            className="po-detail__action-btn po-detail__action-btn--ghost"
+            onClick={onCancel}
+            disabled={acting}
+          >
+            إلغاء
+          </button>
+          <button
+            className="po-detail__action-btn po-detail__action-btn--delete"
+            onClick={onConfirm}
+            disabled={acting}
+          >
+            {acting ? 'جارٍ الحذف…' : 'حذف نهائي'}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -111,29 +140,119 @@ function RejectDialog({ onConfirm, onCancel, acting }) {
   )
 }
 
-function PMActionBar({ canConfirm, canCancel, onConfirm, onCancel, acting }) {
-  if (!canConfirm && !canCancel) return null
+// Draft state: PM sees confirm + edit + delete; Secretary sees edit (primary) + delete
+// Post-draft: both see cancel only
+function PMActionBar({ po, role, onConfirm, onCancel, onEdit, onDelete, acting }) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
 
+  const isDraft     = po.status === 'draft'
+  const isPM        = role === 'purchase_manager'
+  const isSecretary = role === 'secretary'
+
+  if (isDraft) {
+    return (
+      <>
+        <div className="po-detail__action-bar">
+          {/* PM only: confirm is primary */}
+          {isPM && (
+            <button
+              className="po-detail__action-btn po-detail__action-btn--approve"
+              onClick={onConfirm}
+              disabled={acting}
+            >
+              {acting ? 'جارٍ الحفظ…' : 'تأكيد وإحالة'}
+            </button>
+          )}
+
+          {/* Edit: primary for Secretary, ghost for PM */}
+          <button
+            className={`po-detail__action-btn ${isSecretary ? 'po-detail__action-btn--approve' : 'po-detail__action-btn--ghost'}`}
+            onClick={onEdit}
+            disabled={acting}
+          >
+            تعديل
+          </button>
+
+          {/* Delete: always danger */}
+          <button
+            className="po-detail__action-btn po-detail__action-btn--delete"
+            onClick={() => setDeleteDialogOpen(true)}
+            disabled={acting}
+          >
+            حذف
+          </button>
+        </div>
+
+        {deleteDialogOpen && (
+          <DeleteDialog
+            onConfirm={() => { setDeleteDialogOpen(false); onDelete() }}
+            onCancel={() => setDeleteDialogOpen(false)}
+            acting={acting}
+          />
+        )}
+      </>
+    )
+  }
+
+  // Post-draft: cancel only (with optional note dialog)
   return (
-    <div className="po-detail__action-bar">
-      {canConfirm && (
-        <button
-          className="po-detail__action-btn po-detail__action-btn--approve"
-          onClick={onConfirm}
-          disabled={acting}
-        >
-          {acting ? 'جارٍ الحفظ…' : 'تأكيد وإحالة'}
-        </button>
-      )}
-      {canCancel && (
+    <>
+      <div className="po-detail__action-bar">
         <button
           className="po-detail__action-btn po-detail__action-btn--ghost"
-          onClick={onCancel}
+          onClick={() => setCancelDialogOpen(true)}
           disabled={acting}
         >
           إلغاء الطلب
         </button>
+      </div>
+
+      {cancelDialogOpen && (
+        <CancelDialog
+          onConfirm={(note) => { setCancelDialogOpen(false); onCancel(note) }}
+          onCancel={() => setCancelDialogOpen(false)}
+          acting={acting}
+        />
       )}
+    </>
+  )
+}
+
+function CancelDialog({ onConfirm, onCancel, acting }) {
+  const [note, setNote] = useState('')
+  return (
+    <div className="po-detail__dialog-backdrop" onClick={onCancel}>
+      <div className="po-detail__dialog" onClick={e => e.stopPropagation()}>
+        <div className="po-detail__dialog-header">
+          <span className="po-detail__dialog-title">إلغاء الطلب</span>
+          <button className="po-detail__dialog-close" onClick={onCancel}>×</button>
+        </div>
+        <textarea
+          className="po-detail__dialog-textarea"
+          placeholder="سبب الإلغاء (اختياري)"
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          rows={4}
+          autoFocus
+        />
+        <div className="po-detail__dialog-actions">
+          <button
+            className="po-detail__action-btn po-detail__action-btn--ghost"
+            onClick={onCancel}
+            disabled={acting}
+          >
+            رجوع
+          </button>
+          <button
+            className="po-detail__action-btn po-detail__action-btn--reject"
+            onClick={() => onConfirm(note)}
+            disabled={acting}
+          >
+            {acting ? 'جارٍ الحفظ…' : 'تأكيد الإلغاء'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -225,7 +344,6 @@ function NotesSection({ notes = [], onAdd, acting }) {
 
   const contextLabel = (ctx) => {
     if (ctx === 'rejection')    return 'رفض'
-    if (ctx === 'resubmission') return 'إعادة تقديم'
     if (ctx === 'cancellation') return 'إلغاء'
     return null
   }
@@ -249,7 +367,6 @@ function NotesSection({ notes = [], onAdd, acting }) {
   return (
     <div className="po-detail__card">
       <span className="po-detail__section-label">الملاحظات</span>
-
       <div className="po-detail__notes-list">
         {notes.map((n) => (
           <div
@@ -257,18 +374,12 @@ function NotesSection({ notes = [], onAdd, acting }) {
             className={`po-detail__note-bubble po-detail__note-bubble--${n.context}`}
           >
             <div className="po-detail__note-header">
-              <span className="po-detail__note-author">
-                {n.author?.full_name ?? '—'}
-              </span>
+              <span className="po-detail__note-author">{n.author?.full_name ?? '—'}</span>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {contextLabel(n.context) && (
-                  <span className="po-detail__note-context">
-                    {contextLabel(n.context)}
-                  </span>
+                  <span className="po-detail__note-context">{contextLabel(n.context)}</span>
                 )}
-                <span className="po-detail__note-time">
-                  {fmtNoteTime(n.created_at)}
-                </span>
+                <span className="po-detail__note-time">{fmtNoteTime(n.created_at)}</span>
               </div>
             </div>
             <p className="po-detail__note-text">{n.note}</p>
@@ -306,23 +417,24 @@ export default function PODetail() {
 
   const {
     po, loading, error, acting,
-    approvePO, rejectPO, releasePO, cancelPO, confirmPO, addNote,
+    approvePO, rejectPO, releasePO, cancelPO, deletePO, confirmPO, addNote,
   } = usePODetail()
   const currency = po?.currency ?? 'USD'
 
-  const isCEO     = role === 'ceo'
-  const isFinance = role === 'finance'
-  const isPM      = role === 'purchase_manager'
+  const isCEO       = role === 'ceo'
+  const isFinance   = role === 'finance'
+  const isPM        = role === 'purchase_manager'
   const isSecretary = role === 'secretary'
 
-  const canEdit = po?.status === 'draft' && (isPM || isSecretary)
+  const transitions = po ? getAvailableTransitions(po, role, profile?.id) : []
+  const canRelease  = transitions.includes('finance_release_from_approved')
+                   || transitions.includes('finance_release_from_pending')
+  const canReject   = transitions.includes('finance_reject')
+  const canConfirm  = transitions.includes('pm_confirm')
+  const canCancel   = transitions.includes('cancel')
 
-  const transitions  = po ? getAvailableTransitions(po, role, profile?.id) : []
-  const canRelease   = transitions.includes('finance_release_from_approved')
-                    || transitions.includes('finance_release_from_pending')
-  const canReject    = transitions.includes('finance_reject')
-  const canConfirm   = transitions.includes('pm_confirm')
-  const canCancel    = transitions.includes('cancel') || transitions.includes('cancel_draft')
+  // PM/Secretary action bar renders for draft (edit+delete) or when they can cancel
+  const showPMBar = (isPM || isSecretary) && (po?.status === 'draft' || canCancel)
 
   if (loading) {
     return (
@@ -356,17 +468,6 @@ export default function PODetail() {
         </button>
         <span className="po-detail__po-number mono">{po.po_number}</span>
         <StatusBadge status={po.status} />
-
-        {/* Edit button — draft only, PM and Secretary */}
-        {canEdit && (
-          <button
-            className="po-detail__edit-btn"
-            onClick={() => navigate(`/po/${po.id}/edit`)}
-            title="تعديل المسودة"
-          >
-            <NavIcon name="edit" size={16} />
-          </button>
-        )}
       </div>
 
       <div className="po-detail__content">
@@ -453,9 +554,7 @@ export default function PODetail() {
                   onClick={() => att.url && window.open(att.url, '_blank', 'noopener,noreferrer')}
                   style={{ cursor: 'pointer' }}
                 >
-                  <span className="po-detail__attachment-icon">
-                    {fileIcon(att.file_type)}
-                  </span>
+                  <span className="po-detail__attachment-icon">{fileIcon(att.file_type)}</span>
                   <div className="po-detail__attachment-info">
                     <span className="po-detail__attachment-name">{att.file_name}</span>
                     <span className="po-detail__attachment-size mono">
@@ -504,13 +603,15 @@ export default function PODetail() {
         />
       )}
 
-      {/* ── PM bottom action bar ── */}
-      {isPM && (canConfirm || canCancel) && (
+      {/* ── PM / Secretary bottom action bar ── */}
+      {showPMBar && (
         <PMActionBar
-          canConfirm={canConfirm}
-          canCancel={canCancel}
+          po={po}
+          role={role}
           onConfirm={confirmPO}
           onCancel={cancelPO}
+          onEdit={() => navigate(`/po/${po.id}/edit`)}
+          onDelete={deletePO}
           acting={acting}
         />
       )}

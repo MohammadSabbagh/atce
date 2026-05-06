@@ -1,7 +1,7 @@
 // src/features/mo/hooks/useMODetail.js
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/AuthContext'
 import { getAvailableTransitions } from '@/lib/moStatusConfig'
@@ -32,6 +32,7 @@ const MO_SELECT = `
 export function useMODetail() {
   const { id }                = useParams()
   const { profile }           = useAuth()
+  const navigate              = useNavigate()
   const [mo, setMO]           = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState(null)
@@ -54,24 +55,13 @@ export function useMODetail() {
         .single(),
       supabase
         .from('audit_log')
-        .select(`
-          id,
-          action,
-          created_at,
-          actor:profiles!performed_by(full_name)
-        `)
+        .select(`id, action, created_at, actor:profiles!performed_by(full_name)`)
         .eq('entity_type', 'maintenance_order')
         .eq('entity_id', id)
         .order('created_at', { ascending: true }),
       supabase
         .from('mo_notes')
-        .select(`
-          id,
-          note,
-          context,
-          created_at,
-          author:profiles!created_by(full_name)
-        `)
+        .select(`id, note, context, created_at, author:profiles!created_by(full_name)`)
         .eq('mo_id', id)
         .order('created_at', { ascending: true }),
     ])
@@ -208,11 +198,10 @@ export function useMODetail() {
     }
   }
 
-  // ─── PM/Secretary: Cancel ────────────────────────────────
+  // ─── PM/Secretary: Cancel (post-draft only) ──────────────
   async function cancelMO(note) {
     if (!mo || acting) return
-    const transitionKey = mo.status === 'draft' ? 'cancel_draft' : 'cancel'
-    if (!canDo(transitionKey)) return
+    if (!canDo('cancel')) return
     setActing(true)
     try {
       const { error: updateError } = await supabase
@@ -235,6 +224,31 @@ export function useMODetail() {
     } catch (err) {
       setError(err.message)
     } finally {
+      setActing(false)
+    }
+  }
+
+  // ─── PM/Secretary: Delete draft ──────────────────────────
+  async function deleteMO() {
+    if (!mo || acting || mo.status !== 'draft') return
+    setActing(true)
+    try {
+      // 1. Remove storage files
+      if (mo.attachments?.length) {
+        const paths = mo.attachments.map(a => a.file_path)
+        await supabase.storage.from('attachments').remove(paths)
+      }
+
+      // 2. Delete row — cascade handles mo_tags, mo_notes, mo_attachments
+      const { error: deleteError } = await supabase
+        .from('maintenance_orders')
+        .delete()
+        .eq('id', mo.id)
+      if (deleteError) throw deleteError
+
+      navigate('/mo/list', { replace: true })
+    } catch (err) {
+      setError(err.message)
       setActing(false)
     }
   }
@@ -312,6 +326,7 @@ export function useMODetail() {
     rejectMO,
     releaseMO,
     cancelMO,
+    deleteMO,
     confirmMO,
     addNote,
     refetch: fetchMO,

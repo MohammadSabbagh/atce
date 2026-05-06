@@ -54,8 +54,8 @@ export default function Step2LineItems({ wizard }) {
                   <input
                     className="input input--mono"
                     type="number"
-                    min="0.001"
-                    step="any"
+                    min="0"
+                    step="1"
                     placeholder="1"
                     value={item.quantity}
                     onChange={(e) => updateLineItem(item.id, 'quantity', e.target.value)}

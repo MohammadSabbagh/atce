@@ -281,6 +281,9 @@ export const S = {
   saveDraft: 'حفظ التعديلات',
   attachExisting: 'المرفقات الحالية',
   attachHintEdit: 'إضافة مرفقات جديدة (PDF أو صورة، حد أقصى 10 ميغابايت)',
+
+  moEditTitle: 'تعديل أمر الصيانة',
+  moSaveEdit: 'حفظ التعديلات',
   
 }
 

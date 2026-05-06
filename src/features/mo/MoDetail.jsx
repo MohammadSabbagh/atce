@@ -71,6 +71,38 @@ function AuditTrail({ audit }) {
   )
 }
 
+function DeleteDialog({ onConfirm, onCancel, acting }) {
+  return (
+    <div className="mo-detail__dialog-backdrop" onClick={onCancel}>
+      <div className="mo-detail__dialog" onClick={e => e.stopPropagation()}>
+        <div className="mo-detail__dialog-header">
+          <span className="mo-detail__dialog-title">حذف المسودة</span>
+          <button className="mo-detail__dialog-close" onClick={onCancel}>×</button>
+        </div>
+        <p className="mo-detail__dialog-body">
+          سيتم حذف هذه المسودة نهائياً مع جميع مرفقاتها. لا يمكن التراجع عن هذا الإجراء.
+        </p>
+        <div className="mo-detail__dialog-actions">
+          <button
+            className="mo-detail__action-btn mo-detail__action-btn--ghost"
+            onClick={onCancel}
+            disabled={acting}
+          >
+            إلغاء
+          </button>
+          <button
+            className="mo-detail__action-btn mo-detail__action-btn--delete"
+            onClick={onConfirm}
+            disabled={acting}
+          >
+            {acting ? 'جارٍ الحذف…' : 'حذف نهائي'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function RejectDialog({ onConfirm, onCancel, acting }) {
   const [note, setNote] = useState('')
   return (
@@ -147,32 +179,71 @@ function CancelDialog({ onConfirm, onCancel, acting }) {
   )
 }
 
-function PMActionBar({ canConfirm, canCancel, onConfirm, onCancel, acting }) {
+// Draft: PM sees confirm + edit + delete; Secretary sees edit (primary) + delete
+// Post-draft: both see cancel only
+function PMActionBar({ mo, role, onConfirm, onCancel, onEdit, onDelete, acting }) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
-  if (!canConfirm && !canCancel) return null
 
+  const isDraft     = mo.status === 'draft'
+  const isPM        = role === 'purchase_manager'
+  const isSecretary = role === 'secretary'
+
+  if (isDraft) {
+    return (
+      <>
+        <div className="mo-detail__action-bar">
+          {isPM && (
+            <button
+              className="mo-detail__action-btn mo-detail__action-btn--approve"
+              onClick={onConfirm}
+              disabled={acting}
+            >
+              {acting ? 'جارٍ الحفظ…' : 'تأكيد وإحالة'}
+            </button>
+          )}
+
+          <button
+            className={`mo-detail__action-btn ${isSecretary ? 'mo-detail__action-btn--approve' : 'mo-detail__action-btn--ghost'}`}
+            onClick={onEdit}
+            disabled={acting}
+          >
+            تعديل
+          </button>
+
+          <button
+            className="mo-detail__action-btn mo-detail__action-btn--delete"
+            onClick={() => setDeleteDialogOpen(true)}
+            disabled={acting}
+          >
+            حذف
+          </button>
+        </div>
+
+        {deleteDialogOpen && (
+          <DeleteDialog
+            onConfirm={() => { setDeleteDialogOpen(false); onDelete() }}
+            onCancel={() => setDeleteDialogOpen(false)}
+            acting={acting}
+          />
+        )}
+      </>
+    )
+  }
+
+  // Post-draft: cancel only
   return (
     <>
       <div className="mo-detail__action-bar">
-        {canConfirm && (
-          <button
-            className="mo-detail__action-btn mo-detail__action-btn--approve"
-            onClick={onConfirm}
-            disabled={acting}
-          >
-            {acting ? 'جارٍ الحفظ…' : 'تأكيد وإحالة'}
-          </button>
-        )}
-        {canCancel && (
-          <button
-            className="mo-detail__action-btn mo-detail__action-btn--ghost"
-            onClick={() => setCancelDialogOpen(true)}
-            disabled={acting}
-          >
-            إلغاء الأمر
-          </button>
-        )}
+        <button
+          className="mo-detail__action-btn mo-detail__action-btn--ghost"
+          onClick={() => setCancelDialogOpen(true)}
+          disabled={acting}
+        >
+          إلغاء الأمر
+        </button>
       </div>
+
       {cancelDialogOpen && (
         <CancelDialog
           onConfirm={(note) => { setCancelDialogOpen(false); onCancel(note) }}
@@ -312,6 +383,7 @@ function NotesSection({ notes = [], onAdd, acting }) {
           </div>
         ))}
       </div>
+
       <div className="mo-detail__note-input-row">
         <textarea
           className="mo-detail__note-textarea"
@@ -342,21 +414,24 @@ export default function MODetail() {
 
   const {
     mo, loading, error, acting,
-    approveMO, rejectMO, releaseMO, cancelMO, confirmMO, addNote,
+    approveMO, rejectMO, releaseMO, cancelMO, deleteMO, confirmMO, addNote,
   } = useMODetail()
 
   const currency = mo?.currency ?? 'USD'
 
-  const isCEO     = role === 'ceo'
-  const isFinance = role === 'finance'
-  const isPM      = role === 'purchase_manager'
+  const isCEO       = role === 'ceo'
+  const isFinance   = role === 'finance'
+  const isPM        = role === 'purchase_manager'
+  const isSecretary = role === 'secretary'
 
   const transitions = mo ? getAvailableTransitions(mo, role, profile?.id) : []
   const canRelease  = transitions.includes('finance_release_from_approved')
                    || transitions.includes('finance_release_from_pending')
   const canReject   = transitions.includes('finance_reject')
   const canConfirm  = transitions.includes('pm_confirm')
-  const canCancel   = transitions.includes('cancel') || transitions.includes('cancel_draft')
+  const canCancel   = transitions.includes('cancel')
+
+  const showPMBar = (isPM || isSecretary) && (mo?.status === 'draft' || canCancel)
 
   if (loading) {
     return (
@@ -406,7 +481,7 @@ export default function MODetail() {
               <span className="mo-detail__ceo-flag">⚑ موافقة المدير العام</span>
             )}
             <span className="mo-detail__meta-chip">{mo.department}</span>
-            <span className="mo-detail__type-chip mo-detail__type-chip--{mo.type}">
+            <span className={`mo-detail__type-chip mo-detail__type-chip--${mo.type}`}>
               {typeLabel(mo.type)}
             </span>
           </div>
@@ -415,7 +490,6 @@ export default function MODetail() {
             <p className="mo-detail__description">{mo.description}</p>
           )}
 
-          {/* Asset link */}
           {mo.asset && (
             <button
               className="mo-detail__asset-link"
@@ -430,7 +504,6 @@ export default function MODetail() {
             </button>
           )}
 
-          {/* Service provider + handler */}
           <div className="mo-detail__field-row">
             {mo.service_provider && (
               <div className="mo-detail__field">
@@ -540,13 +613,15 @@ export default function MODetail() {
         />
       )}
 
-      {/* ── PM bottom action bar ── */}
-      {isPM && (canConfirm || canCancel) && (
+      {/* ── PM / Secretary bottom action bar ── */}
+      {showPMBar && (
         <PMActionBar
-          canConfirm={canConfirm}
-          canCancel={canCancel}
+          mo={mo}
+          role={role}
           onConfirm={confirmMO}
           onCancel={cancelMO}
+          onEdit={() => navigate(`/mo/${mo.id}/edit`)}
+          onDelete={deleteMO}
           acting={acting}
         />
       )}
