@@ -160,7 +160,7 @@ export function useCreatePO() {
 
       // 4. Upload attachments
       for (const file of form.attachments) {
-        const filePath = `${poId}/${Date.now()}-${file.name}`
+        const filePath = `po/${poId}/${Date.now()}-${file.name}`
 
         const { error: uploadError } = await supabase.storage
           .from('attachments')

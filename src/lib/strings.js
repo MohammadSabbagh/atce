@@ -275,6 +275,13 @@ export const S = {
   quickActionTeamSubtitle:   'إدارة الأعضاء والأدوار',
   quickActionAssetsLabel:    'الأصول',
   quickActionAssetsSubtitle: 'تصفح وإدارة الأصول',
+
+  //PO edit 
+  editPO: 'تعديل طلب الشراء',
+  saveDraft: 'حفظ التعديلات',
+  attachExisting: 'المرفقات الحالية',
+  attachHintEdit: 'إضافة مرفقات جديدة (PDF أو صورة، حد أقصى 10 ميغابايت)',
+  
 }
 
 // ── Greeting by time of day ──────────────────

@@ -33,14 +33,14 @@ const fileIcon = (type) => {
 
 const auditLabel = (action) => {
   const map = {
-    created:     'تم الإنشاء',
-    submitted:   'تم التقديم',
-    approved:    'تم الاعتماد',
-    rejected:    'تم الرفض',
-    released:    'تم الإصدار',
-    confirmed:   'تم التأكيد والإحالة',
-    cancelled:   'تم الإلغاء',
-    fulfilled:   'تم التنفيذ',
+    created:   'تم الإنشاء',
+    submitted: 'تم التقديم',
+    approved:  'تم الاعتماد',
+    rejected:  'تم الرفض',
+    released:  'تم الإصدار',
+    confirmed: 'تم التأكيد والإحالة',
+    cancelled: 'تم الإلغاء',
+    fulfilled: 'تم التنفيذ',
   }
   return map[action] ?? action
 }
@@ -313,6 +313,9 @@ export default function PODetail() {
   const isCEO     = role === 'ceo'
   const isFinance = role === 'finance'
   const isPM      = role === 'purchase_manager'
+  const isSecretary = role === 'secretary'
+
+  const canEdit = po?.status === 'draft' && (isPM || isSecretary)
 
   const transitions  = po ? getAvailableTransitions(po, role, profile?.id) : []
   const canRelease   = transitions.includes('finance_release_from_approved')
@@ -351,9 +354,19 @@ export default function PODetail() {
         <button className="po-detail__back" onClick={() => navigate(-1)}>
           <NavIcon name="chevron-right" size={16} />
         </button>
-        {/* <span className="po-detail__header-title">{po.title}</span> */}
         <span className="po-detail__po-number mono">{po.po_number}</span>
         <StatusBadge status={po.status} />
+
+        {/* Edit button — draft only, PM and Secretary */}
+        {canEdit && (
+          <button
+            className="po-detail__edit-btn"
+            onClick={() => navigate(`/po/${po.id}/edit`)}
+            title="تعديل المسودة"
+          >
+            <NavIcon name="edit" size={16} />
+          </button>
+        )}
       </div>
 
       <div className="po-detail__content">
@@ -369,7 +382,6 @@ export default function PODetail() {
             {po.requires_ceo && (
               <span className="po-detail__ceo-flag">⚑ موافقة المدير العام</span>
             )}
-
             {[...new Set(po.line_items?.map(i => i.department).filter(Boolean) ?? [])].map(dept => (
               <span key={dept} className="po-detail__meta-chip">{dept}</span>
             ))}
@@ -384,7 +396,6 @@ export default function PODetail() {
             <span>أنشئ بواسطة <strong>{po.creator?.full_name ?? '—'}</strong></span>
           </div>
         </div>
-
 
         {/* ── Line items card ── */}
         <div className="po-detail__card">
@@ -435,24 +446,24 @@ export default function PODetail() {
           <span className="po-detail__section-label">المرفقات</span>
           {po.attachments?.length > 0 ? (
             <div className="po-detail__attachments">
-              {po.attachments.map((att) => (                
- <div
- key={att.id}
- className="po-detail__attachment"
- onClick={() => att.url && window.open(att.url, '_blank', 'noopener,noreferrer')}
- style={{ cursor: 'pointer' }}
->
- <span className="po-detail__attachment-icon">
-   {fileIcon(att.file_type)}
- </span>
- <div className="po-detail__attachment-info">
-   <span className="po-detail__attachment-name">{att.file_name}</span>
-   <span className="po-detail__attachment-size mono">
-     {fmtFileSize(att.file_size)}
-   </span>
- </div>
- <span className="po-detail__attachment-arrow">↗</span>
-</div>
+              {po.attachments.map((att) => (
+                <div
+                  key={att.id}
+                  className="po-detail__attachment"
+                  onClick={() => att.url && window.open(att.url, '_blank', 'noopener,noreferrer')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <span className="po-detail__attachment-icon">
+                    {fileIcon(att.file_type)}
+                  </span>
+                  <div className="po-detail__attachment-info">
+                    <span className="po-detail__attachment-name">{att.file_name}</span>
+                    <span className="po-detail__attachment-size mono">
+                      {fmtFileSize(att.file_size)}
+                    </span>
+                  </div>
+                  <span className="po-detail__attachment-arrow">↗</span>
+                </div>
               ))}
             </div>
           ) : (

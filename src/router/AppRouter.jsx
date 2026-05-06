@@ -7,6 +7,7 @@ import POList from '@/features/po/POList'
 import CreatePO from '@/features/po/create/CreatePO'
 import Dashboard from '@/features/dashboard/Dashboard'
 import PODetail from '../features/po/PODetail'
+import POEdit from '@/features/po/POEdit'
 
 import AssetsPage from '../features/assets/AssetsPage';
 import AssetDetail from '../features/assets/AssetDetail';
@@ -21,6 +22,7 @@ import PrimitivesPreview from '@/components/dev/PrimitivesPreview'
 import TeamPage   from '../features/team/TeamPage';
 import TeamDetail from '../features/team/TeamDetail';
 import TeamForm   from '../features/team/TeamForm';
+
 
 const Placeholder = ({ name }) => (
   <div style={{ padding: '2rem', color: '#fff', fontFamily: 'monospace' }}>
@@ -89,6 +91,7 @@ export default function AppRouter() {
         <Route path="/po/list"   element={<POList />} />
         <Route path="/po/create" element={<CreatePO />} />
         <Route path="/po/:id"    element={<PODetail />} />
+        <Route path="/po/:id/edit" element={<POEdit />} />
 
         {/* HR — placeholders until HR module is built */}
         <Route path="/hr/dashboard"        element={<Placeholder name="HR Dashboard" />} />
