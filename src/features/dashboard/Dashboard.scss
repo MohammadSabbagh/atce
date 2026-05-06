@@ -1,4 +1,5 @@
 .dashboard {
+  position:       relative; // anchor for the bottom sheet
   display:        flex;
   flex-direction: column;
   gap:            20px;
@@ -9,10 +10,13 @@
   // ── Header ───────────────────────────────
   &__header {
     display:         flex;
-    justify-content: space-between;
-    align-items:     flex-start;
+    justify-content: flex-start;
+    align-items: center;
     gap:             12px;
     padding-top:     8px;
+    & > :last-child{
+      margin-inline-start: auto;
+    }
   }
 
   &__greeting {
@@ -28,12 +32,45 @@
     margin:      0;
   }
 
+  // Name + avatar on same row
+  &__greeting-name-row {
+    display:     flex;
+    align-items: center;
+    gap:         10px;
+  }
+
   &__greeting-name {
     font-family: $font-ui;
     font-size:   22px;
     font-weight: 700;
     color:       $text-primary;
     margin:      0;
+  }
+
+  // ── Avatar button ─────────────────────────
+  &__avatar-btn {
+    flex-shrink:     0;
+    width:           34px;
+    height:          34px;
+    border-radius:   $radius-full;
+    background:      $accent-soft;
+    border:          1.5px solid $accent;
+    color:           $accent;
+    font-family:     $font-ui;
+    font-size:       15px;
+    font-weight:     700;
+    line-height:     1;
+    cursor:          pointer;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    transition:      $transition-fast;
+    padding:         0;
+
+    &:active {
+      transform:  scale(0.92);
+      background: $accent-dim;
+    }
   }
 
   // ── Error banner ─────────────────────────
@@ -60,6 +97,121 @@
     display:        flex;
     flex-direction: column;
     gap:            10px;
+  }
+
+  // ── Sheet overlay ─────────────────────────
+  &__sheet-overlay {
+    position: fixed;
+    inset:    0;
+    background: rgba($aste-ink-800, 0.4);
+    z-index:  $z-dialog - 1;
+  }
+
+  // ── Bottom sheet ──────────────────────────
+  &__sheet {
+    position:      fixed;
+    bottom:        0;
+    left:          0;
+    right:         0;
+    background:    $bg-card;
+    border-radius: 20px 20px 0 0;
+    border-top:    1px solid $border;
+    z-index:       $z-dialog;
+    transform:     translateY(100%);
+    transition:    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    // safe area padding for iPhone home indicator
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    &--open {
+      transform: translateY(0);
+    }
+  }
+
+  &__sheet-handle {
+    width:         36px;
+    height:        4px;
+    border-radius: 2px;
+    background:    $border-strong;
+    margin:        12px auto 0;
+  }
+
+  &__sheet-profile {
+    display:     flex;
+    align-items: center;
+    gap:         12px;
+    padding:     16px 20px 14px;
+    direction:   rtl;
+  }
+
+  &__sheet-avatar {
+    flex-shrink:     0;
+    width:           48px;
+    height:          48px;
+    border-radius:   $radius-full;
+    background:      $accent-soft;
+    border:          1.5px solid $accent;
+    color:           $accent;
+    font-family:     $font-ui;
+    font-size:       20px;
+    font-weight:     700;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+  }
+
+  &__sheet-info {
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+    min-width:      0;
+    text-align:     right;
+  }
+
+  &__sheet-name {
+    font-family:  $font-ui;
+    font-size:    16px;
+    font-weight:  700;
+    color:        $text-primary;
+    line-height:  $leading-tight;
+  }
+
+  &__sheet-role {
+    font-family: $font-ui;
+    font-size:   13px;
+    color:       $text-muted;
+    line-height: $leading-snug;
+  }
+
+  &__sheet-divider {
+    height:     1px;
+    background: $border;
+    margin:     0 20px;
+  }
+
+  &__sheet-signout {
+    display:     flex;
+    align-items: center;
+    //justify-content: flex-end;
+    gap:         10px;
+    width:       100%;
+    padding:     16px 20px;
+    background:  none;
+    border:      none;
+    cursor:      pointer;
+    font-family: $font-ui;
+    font-size:   15px;
+    font-weight: 500;
+    color:       $color-rejected;
+    transition:  $transition-fast;
+
+    &:active {
+      opacity: 0.7;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor:  not-allowed;
+    }
   }
 }
 

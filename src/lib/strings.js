@@ -284,6 +284,16 @@ export const S = {
 
   moEditTitle: 'تعديل أمر الصيانة',
   moSaveEdit: 'حفظ التعديلات',
+
+  openUserMenu:  'قائمة المستخدم',
+  userMenuLabel: 'قائمة المستخدم',
+  signOut:       'تسجيل الخروج',
+  signingOut:    'جارٍ الخروج...',
+  rolePurchaseManager: 'مدير المشتريات',
+  roleSecretary:       'سكرتيرة',
+  roleCeo:             'المدير التنفيذي',
+  roleFinance:         'المالية',
+  roleHr:              'الموارد البشرية',
   
 }
 
