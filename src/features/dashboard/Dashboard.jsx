@@ -11,7 +11,7 @@ import { LiveIndicator } from '@/features/sync/LiveIndicator'
 import { DashboardStatCards } from './components/DashboardStatCards'
 import { SpendingChart } from './components/SpendingChart'
 import './Dashboard.scss'
-import { PersonIcon, CubeIcon } from '@radix-ui/react-icons'
+import { PersonIcon, CubeIcon, IdCardIcon } from '@radix-ui/react-icons'
 import { S, getGreeting } from '@/lib/strings'
 import QuickActionCard from './components/QuickActionCard'
 
@@ -30,6 +30,14 @@ const QUICK_ACTIONS = [
     subtitle: S.quickActionAssetsSubtitle,
     icon: CubeIcon,
     to: '/assets',
+    roles: ['purchase_manager', 'secretary'],
+  },
+  {
+    id: 'providers-list',
+    label: S.quickActionProvidersLabel,
+    subtitle: S.quickActionProvidersSubtitle,
+    icon: IdCardIcon,
+    to: '/providers',
     roles: ['purchase_manager', 'secretary'],
   },
 ]

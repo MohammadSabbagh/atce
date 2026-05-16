@@ -11,9 +11,7 @@ import './po-list.scss'
 const STATUS_FILTERS = [
   { value: 'all',              label: S.filterAll },
   { value: 'draft',            label: S.filterDraft },
-  { value: 'ceo_pending',      label: S.filterCeoPending },
-  { value: 'finance_pending',  label: S.statFinancePending },
-  { value: 'pending',          label: S.statusPending },
+  { value: 'pending_ceo',      label: S.filterPendingCeo },
   { value: 'approved',         label: S.statusApproved },
   { value: 'released',         label: S.statusReleased },
   { value: 'rejected',         label: S.statusRejected },
@@ -29,7 +27,6 @@ export default function POList() {
     deptFilter,
     setDeptFilter,
     availableDepts,
-    filterKey,
     dateFrom,
     dateTo,
     setDateFrom,
@@ -42,14 +39,6 @@ export default function POList() {
 
   const [filtersOpen, setFiltersOpen] = useState(false)
   const navigate = useNavigate();
-  
-  const activeStatus = filterKey === 'ceo_pending'
-    ? 'ceo_pending'
-    : filterKey === 'finance_pending'
-      ? 'finance_pending'
-      : filterKey
-        ? 'all'
-        : statusFilter
 
   const hasDeptFilter   = deptFilter && deptFilter !== 'all'
   const hasDateFilter   = !!(dateFrom || dateTo)
@@ -226,7 +215,7 @@ export default function POList() {
       <div className="po-list__status-chips">
         <FilterChips
           options={STATUS_FILTERS}
-          value={activeStatus}
+          value={statusFilter}
           onChange={setStatusFilter}
         />
       </div>

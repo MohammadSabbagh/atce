@@ -11,6 +11,7 @@ const INITIAL_FORM = {
   currency: 'SYP',   // default: Syrian Pound
   tags: [],
   requires_ceo: false,
+  provider_id: null,
 
   // Step 2 — Line Items
   line_items: [{ id: crypto.randomUUID(), description: '', department: '', quantity: 1, unit_price: '' }],
@@ -122,8 +123,9 @@ export function useCreatePO() {
           description:  form.description.trim() || null,
           requires_ceo: form.requires_ceo,
           currency:     form.currency,
-          status:       profile.role === 'secretary' ? 'draft' : 'pending',
+          status:       'draft',
           total:        lineTotal,
+          provider_id:  form.provider_id || null,
           created_by:   profile.id,
         })
         .select('id')

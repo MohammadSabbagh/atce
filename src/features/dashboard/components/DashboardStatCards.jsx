@@ -7,11 +7,23 @@ import { formatCurrency } from '@/lib/utils'
 export function DashboardStatCards({ stats, role }) {
   const navigate = useNavigate()
 
-  const pmDrafts       = stats?.pmDraftCount        ?? 0
-  const ceoPending     = stats?.ceoPendingCount     ?? 0
-  const financePending = stats?.financePendingCount ?? 0
-  const rejected       = stats?.rejectedCount       ?? 0
-  const awaitingValue  = stats?.totalAwaitingValue  ?? 0
+  const pmDrafts          = stats?.pmDraftCount        ?? 0
+  const ceoPending        = stats?.ceoPendingCount     ?? 0
+  const financePending    = stats?.financePendingCount ?? 0
+  const rejected          = stats?.rejectedCount       ?? 0
+  const totalAwaitingUSD  = stats?.totalAwaitingUSD    ?? 0
+  const totalAwaitingLS   = stats?.totalAwaitingLS     ?? 0
+
+  // Format the awaiting value, showing both currencies if both are non-zero
+  const awaitingDisplay = () => {
+    const hasUSD = totalAwaitingUSD > 0
+    const hasLS  = totalAwaitingLS  > 0
+    if (hasUSD && hasLS) {
+      return `${formatCurrency(totalAwaitingUSD, 'USD')} • ${formatCurrency(totalAwaitingLS, 'SYP')}`
+    }
+    if (hasLS) return formatCurrency(totalAwaitingLS, 'SYP')
+    return formatCurrency(totalAwaitingUSD, 'USD')
+  }
 
   // ── PM / Secretary ───────────────────────────────────────────────
   if (role === 'purchase_manager' || role === 'secretary') {
@@ -35,10 +47,8 @@ export function DashboardStatCards({ stats, role }) {
         />
         <StatCard
           label={S.statAwaitingValue}
-          value={formatCurrency(awaitingValue)}
+          value={awaitingDisplay()}
           variant="neutral"
-          linkHint
-          onClick={() => navigate('/po/list?status=pending')}
         />
       </div>
     )
@@ -53,7 +63,7 @@ export function DashboardStatCards({ stats, role }) {
           value={ceoPending}
           variant="pending"
           linkHint
-          onClick={() => navigate('/po/list?filter=ceo_pending')}
+          onClick={() => navigate('/po/list?status=pending_ceo')}
         />
         <StatCard
           label={S.statRejected}
@@ -64,10 +74,8 @@ export function DashboardStatCards({ stats, role }) {
         />
         <StatCard
           label={S.statAwaitingValue}
-          value={formatCurrency(awaitingValue)}
+          value={awaitingDisplay()}
           variant="neutral"
-          linkHint
-          onClick={() => navigate('/po/list?status=pending')}
         />
       </div>
     )
@@ -82,7 +90,7 @@ export function DashboardStatCards({ stats, role }) {
           value={financePending}
           variant="accent"
           linkHint
-          onClick={() => navigate('/po/list?filter=finance_pending')}
+          onClick={() => navigate('/po/list?status=approved')}
         />
         <StatCard
           label={S.statRejected}
@@ -93,10 +101,8 @@ export function DashboardStatCards({ stats, role }) {
         />
         <StatCard
           label={S.statAwaitingValue}
-          value={formatCurrency(awaitingValue)}
+          value={awaitingDisplay()}
           variant="neutral"
-          linkHint
-          onClick={() => navigate('/po/list?status=pending')}
         />
       </div>
     )

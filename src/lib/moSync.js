@@ -23,16 +23,18 @@ const MO_CACHE_SELECT = `
   id,
   mo_number,
   title,
+  description,
   asset_id,
   type,
   department,
-  service_provider,
+  provider_id,
   handler,
   item_description,
   item_price,
   currency,
   requires_ceo,
   status,
+  parent_id,
   created_by,
   created_at,
   updated_at,
@@ -112,6 +114,7 @@ export async function startMOSync(userId) {
     await syncMOs()
     await syncAssets()
     await syncTeamMembers()
+    await syncProviders()
 
     setSyncState('updated')
     subscribeRealtime()
@@ -191,6 +194,29 @@ async function syncTeamMembers() {
   await db._meta.put({ key: 'team_lastSyncedAt', value: new Date().toISOString() })
 }
 
+async function syncProviders() {
+  const meta = await db._meta.get('providers_lastSyncedAt')
+  const lastSyncedAt = meta?.value ?? null
+
+  let query = supabase
+    .from('providers')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (lastSyncedAt) {
+    query = query.gte('updated_at', lastSyncedAt)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    console.error('[moSync] providers fetch error:', error)
+    throw error
+  }
+
+  if (data?.length) await db.providers.bulkPut(data)
+  await db._meta.put({ key: 'providers_lastSyncedAt', value: new Date().toISOString() })
+}
+
 export function stopMOSync() {
   if (channel) {
     supabase.removeChannel(channel)
@@ -205,17 +231,20 @@ export async function clearMOCache() {
     db.mo_tags,
     db.assets,
     db.team_members,
+    db.providers,
     db._meta,
     async () => {
       await db.maintenance_orders.clear()
       await db.mo_tags.clear()
       await db.assets.clear()
       await db.team_members.clear()
+      await db.providers.clear()
       // Clear MO-specific meta keys only — leave PO meta untouched
       await db._meta.delete('mo_userId')
       await db._meta.delete('mo_lastSyncedAt')
       await db._meta.delete('assets_lastSyncedAt')
       await db._meta.delete('team_lastSyncedAt')
+      await db._meta.delete('providers_lastSyncedAt')
     }
   )
 }

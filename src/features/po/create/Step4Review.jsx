@@ -1,3 +1,5 @@
+import { useLiveQuery } from 'dexie-react-hooks'
+import db from '@/lib/db'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useAuth } from '@/features/auth/AuthContext'
 import { S } from '@/lib/strings'
@@ -8,6 +10,11 @@ export default function Step4Review({ wizard }) {
   const { form, lineTotal } = wizard
   const { profile } = useAuth()
   const currency = form.currency ?? 'SYP'
+
+  const provider = useLiveQuery(
+    () => (form.provider_id ? db.providers.get(form.provider_id) : null),
+    [form.provider_id]
+  )
 
   return (
     <div className="form form--review">
@@ -34,13 +41,19 @@ export default function Step4Review({ wizard }) {
               {currency === 'SYP' ? S.currencyLS : S.currencyUSD}
             </span>
           </div>
+          {provider && (
+            <div className="review__row">
+              <span className="review__label">{S.providerLabel}</span>
+              <span className="review__value">{provider.name}</span>
+            </div>
+          )}
           <div className="review__row">
             <span className="review__label">{S.reviewSubmittedBy}</span>
             <span className="review__value">{profile.full_name}</span>
           </div>
           <div className="review__row">
             <span className="review__label">{S.reviewStatus}</span>
-            <StatusBadge status="pending" />
+            <StatusBadge status="draft" />
           </div>
           {form.requires_ceo && (
             <div className="review__row">

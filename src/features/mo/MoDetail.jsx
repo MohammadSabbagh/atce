@@ -34,12 +34,14 @@ const fileIcon = (type) => {
 
 const auditLabel = (action) => {
   const map = {
-    created:   'تم الإنشاء',
-    confirmed: 'تم التأكيد والإحالة',
-    approved:  'تم الاعتماد',
-    rejected:  'تم الرفض',
-    released:  'تم الإصدار',
-    cancelled: 'تم الإلغاء',
+    created:    'تم الإنشاء',
+    pm_confirm: 'تم التأكيد والإحالة',
+    approved:   'تم الاعتماد',
+    rejected:   'تم الرفض',
+    released:   'تم الإصدار',
+    cancelled:  'تم الإلغاء',
+    // legacy alias — kept for pre-migration audit rows
+    confirmed:  'تم التأكيد والإحالة',
   }
   return map[action] ?? action
 }
@@ -255,7 +257,7 @@ function PMActionBar({ mo, role, onConfirm, onCancel, onEdit, onDelete, acting }
   )
 }
 
-function CEOActionBar({ status, onApprove, onReject, acting }) {
+function CEOActionBar({ status, canApprove, canReject, onApprove, onReject, acting }) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   if (status === 'approved' || status === 'released') {
@@ -275,20 +277,24 @@ function CEOActionBar({ status, onApprove, onReject, acting }) {
   return (
     <>
       <div className="mo-detail__action-bar">
-        <button
-          className="mo-detail__action-btn mo-detail__action-btn--approve"
-          onClick={onApprove}
-          disabled={acting}
-        >
-          {acting ? 'جارٍ الحفظ…' : 'اعتماد'}
-        </button>
-        <button
-          className="mo-detail__action-btn mo-detail__action-btn--reject"
-          onClick={() => setDialogOpen(true)}
-          disabled={acting}
-        >
-          رفض
-        </button>
+        {canApprove && (
+          <button
+            className="mo-detail__action-btn mo-detail__action-btn--approve"
+            onClick={onApprove}
+            disabled={acting}
+          >
+            {acting ? 'جارٍ الحفظ…' : 'اعتماد'}
+          </button>
+        )}
+        {canReject && (
+          <button
+            className="mo-detail__action-btn mo-detail__action-btn--reject"
+            onClick={() => setDialogOpen(true)}
+            disabled={acting}
+          >
+            رفض
+          </button>
+        )}
       </div>
       {dialogOpen && (
         <RejectDialog
@@ -425,8 +431,9 @@ export default function MODetail() {
   const isSecretary = role === 'secretary'
 
   const transitions = mo ? getAvailableTransitions(mo, role, profile?.id) : []
-  const canRelease  = transitions.includes('finance_release_from_approved')
-                   || transitions.includes('finance_release_from_pending')
+  const canApprove  = transitions.includes('ceo_approve')
+  const canCeoReject = transitions.includes('ceo_reject')
+  const canRelease  = transitions.includes('finance_release')
   const canReject   = transitions.includes('finance_reject')
   const canConfirm  = transitions.includes('pm_confirm')
   const canCancel   = transitions.includes('cancel')
@@ -505,11 +512,17 @@ export default function MODetail() {
           )}
 
           <div className="mo-detail__field-row">
-            {mo.service_provider && (
-              <div className="mo-detail__field">
+            {mo.provider && (
+              <button
+                type="button"
+                className="mo-detail__field mo-detail__field--link"
+                onClick={() => navigate(`/providers/${mo.provider.id}`)}
+              >
                 <span className="mo-detail__field-label">مزود الخدمة</span>
-                <span className="mo-detail__field-value">{mo.service_provider}</span>
-              </div>
+                <span className="mo-detail__field-value">
+                  {mo.provider.name} <span className="mo-detail__field-arrow">↗</span>
+                </span>
+              </button>
             )}
             {mo.handler && (
               <div className="mo-detail__field">
@@ -593,9 +606,11 @@ export default function MODetail() {
       </div>
 
       {/* ── CEO bottom action bar ── */}
-      {isCEO && mo.requires_ceo && (
+      {isCEO && (canApprove || canCeoReject || mo.status === 'approved' || mo.status === 'released' || mo.status === 'rejected') && (
         <CEOActionBar
           status={mo.status}
+          canApprove={canApprove}
+          canReject={canCeoReject}
           onApprove={approveMO}
           onReject={rejectMO}
           acting={acting}

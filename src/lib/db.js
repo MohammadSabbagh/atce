@@ -64,4 +64,36 @@ db.version(7).stores({
   _meta: 'key',
 })
 
+// version(8): 2026-05-15 migration.
+//
+// - Status rename: 'pending' → 'pending_ceo' (handled in app code; no Dexie index change)
+// - parent_id on purchase_orders + maintenance_orders (self-FK; indexed for tree lookups)
+// - provider_id on purchase_orders, maintenance_orders, assets (FK to new providers table)
+// - service_provider column dropped from maintenance_orders
+// - New tables: providers, notifications, asset_reviews
+//
+// Upgrade hook clears cached POs/MOs/_meta to force a full re-fetch with the new schema.
+// Without this, existing cached rows would lack provider_id, parent_id, and would still
+// carry stale 'pending' status strings.
+db.version(8).stores({
+  purchase_orders:    'id, po_number, status, created_at, requires_ceo, updated_at, created_by, parent_id, provider_id',
+  po_line_items:      'id, po_id, department',
+  po_tags:            'id, po_id',
+  assets:             'id, type, department, is_active, updated_at, provider_id',
+  team_members:       'id, department, is_active, updated_at',
+  maintenance_orders: 'id, mo_number, status, type, asset_id, created_at, requires_ceo, updated_at, created_by, parent_id, provider_id',
+  mo_tags:            'id, mo_id',
+  providers:          'id, name, is_active, updated_at',
+  notifications:      'id, recipient_id, seen, created_at, [recipient_id+seen]',
+  asset_reviews:      'id, asset_id, handler_id, created_at',
+  _meta: 'key',
+}).upgrade(async (tx) => {
+  // Force full re-fetch of POs/MOs so renamed status + new columns land cleanly.
+  // Assets cleared too so provider_id surfaces.
+  await tx.table('purchase_orders').clear()
+  await tx.table('maintenance_orders').clear()
+  await tx.table('assets').clear()
+  await tx.table('_meta').clear()
+})
+
 export default db

@@ -44,7 +44,7 @@
   &--status {
     .filter-chips__chip--active {
       // pending
-      &[data-status='pending'] {
+      &[data-status='pending_ceo'] {
         background: rgba($color-pending, 0.15);
         border-color: rgba($color-pending, 0.5);
         color: darken($color-pending, 8%);

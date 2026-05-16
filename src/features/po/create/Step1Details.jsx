@@ -1,5 +1,6 @@
 import * as RadioGroup from '@radix-ui/react-radio-group'
 import TagInput from '@/components/form/TagInput'
+import ProviderPicker from '@/components/form/ProviderPicker'
 import { S } from '@/lib/strings'
 
 // Tag values stay in English/Arabic data form — they are stored in the DB.
@@ -71,6 +72,15 @@ export default function Step1Details({ wizard }) {
           onRemove={removeTag}
           suggestions={SUGGESTED_TAGS}
           placeholder={S.poTagsPlaceholder}
+        />
+      </div>
+
+      {/* ── Provider (optional) ── */}
+      <div className="field">
+        <label className="field__label">{S.providerLabel}</label>
+        <ProviderPicker
+          value={form.provider_id}
+          onChange={(id) => setField('provider_id', id)}
         />
       </div>
 

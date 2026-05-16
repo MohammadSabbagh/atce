@@ -33,14 +33,16 @@ const fileIcon = (type) => {
 
 const auditLabel = (action) => {
   const map = {
-    created:   'تم الإنشاء',
-    submitted: 'تم التقديم',
-    approved:  'تم الاعتماد',
-    rejected:  'تم الرفض',
-    released:  'تم الإصدار',
-    confirmed: 'تم التأكيد والإحالة',
-    cancelled: 'تم الإلغاء',
-    fulfilled: 'تم التنفيذ',
+    created:    'تم الإنشاء',
+    pm_confirm: 'تم التأكيد والإحالة',
+    approved:   'تم الاعتماد',
+    rejected:   'تم الرفض',
+    released:   'تم الإصدار',
+    cancelled:  'تم الإلغاء',
+    // legacy aliases — kept for pre-migration audit rows
+    submitted:  'تم التقديم',
+    confirmed:  'تم التأكيد والإحالة',
+    fulfilled:  'تم التنفيذ',
   }
   return map[action] ?? action
 }
@@ -257,7 +259,7 @@ function CancelDialog({ onConfirm, onCancel, acting }) {
   )
 }
 
-function CEOActionBar({ status, onApprove, onReject, acting }) {
+function CEOActionBar({ status, canApprove, canReject, onApprove, onReject, acting }) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   if (status === 'approved' || status === 'released') {
@@ -277,20 +279,24 @@ function CEOActionBar({ status, onApprove, onReject, acting }) {
   return (
     <>
       <div className="po-detail__action-bar">
-        <button
-          className="po-detail__action-btn po-detail__action-btn--approve"
-          onClick={onApprove}
-          disabled={acting}
-        >
-          {acting ? 'جارٍ الحفظ…' : 'اعتماد'}
-        </button>
-        <button
-          className="po-detail__action-btn po-detail__action-btn--reject"
-          onClick={() => setDialogOpen(true)}
-          disabled={acting}
-        >
-          رفض
-        </button>
+        {canApprove && (
+          <button
+            className="po-detail__action-btn po-detail__action-btn--approve"
+            onClick={onApprove}
+            disabled={acting}
+          >
+            {acting ? 'جارٍ الحفظ…' : 'اعتماد'}
+          </button>
+        )}
+        {canReject && (
+          <button
+            className="po-detail__action-btn po-detail__action-btn--reject"
+            onClick={() => setDialogOpen(true)}
+            disabled={acting}
+          >
+            رفض
+          </button>
+        )}
       </div>
       {dialogOpen && (
         <RejectDialog
@@ -427,8 +433,9 @@ export default function PODetail() {
   const isSecretary = role === 'secretary'
 
   const transitions = po ? getAvailableTransitions(po, role, profile?.id) : []
-  const canRelease  = transitions.includes('finance_release_from_approved')
-                   || transitions.includes('finance_release_from_pending')
+  const canApprove  = transitions.includes('ceo_approve')
+  const canCeoReject = transitions.includes('ceo_reject')
+  const canRelease  = transitions.includes('finance_release')
   const canReject   = transitions.includes('finance_reject')
   const canConfirm  = transitions.includes('pm_confirm')
   const canCancel   = transitions.includes('cancel')
@@ -496,6 +503,17 @@ export default function PODetail() {
             <NavIcon name="user" size={13} />
             <span>أنشئ بواسطة <strong>{po.creator?.full_name ?? '—'}</strong></span>
           </div>
+
+          {po.provider && (
+            <button
+              type="button"
+              className="po-detail__provider-link"
+              onClick={() => navigate(`/providers/${po.provider.id}`)}
+            >
+              <span className="po-detail__provider-label">المورد:</span>
+              <strong>{po.provider.name}</strong>
+            </button>
+          )}
         </div>
 
         {/* ── Line items card ── */}
@@ -583,9 +601,11 @@ export default function PODetail() {
       </div>
 
       {/* ── CEO bottom action bar ── */}
-      {isCEO && po.requires_ceo && (
+      {isCEO && (canApprove || canCeoReject || po.status === 'approved' || po.status === 'released' || po.status === 'rejected') && (
         <CEOActionBar
           status={po.status}
+          canApprove={canApprove}
+          canReject={canCeoReject}
           onApprove={approvePO}
           onReject={rejectPO}
           acting={acting}

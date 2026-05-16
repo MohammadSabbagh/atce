@@ -7,6 +7,7 @@ import { useAuth } from '../auth/AuthContext';
 import { S } from '../../lib/strings';
 import { DEPARTMENTS, ASSET_TYPES } from '@/lib/constants';
 import FormShell from '@/components/form/FormShell';
+import ProviderPicker from '@/components/form/ProviderPicker';
 import './AssetForm.scss';
 
 const EMPTY_FORM = {
@@ -17,6 +18,7 @@ const EMPTY_FORM = {
   plate_number: '',
   model: '',
   assigned_to: '',
+  provider_id: null,
   source_po_number: '',
   notes: '',
   is_active: true,
@@ -92,6 +94,7 @@ export default function AssetForm() {
         plate_number: data.plate_number ?? '',
         model: data.model ?? '',
         assigned_to: data.assigned_to ?? '',
+        provider_id: data.provider_id ?? null,
         source_po_number: data.source_po_number ?? '',
         notes: data.notes ?? '',
         is_active: data.is_active ?? true,
@@ -151,6 +154,7 @@ export default function AssetForm() {
         plate_number: form.type === 'car' ? (form.plate_number.trim() || null) : null,
         model: form.type === 'car' ? (form.model.trim() || null) : null,
         assigned_to: form.assigned_to || null,
+        provider_id: form.provider_id || null,
         source_po_number: form.source_po_number.trim() || null,
         notes: form.notes.trim() || null,
         is_active: form.is_active,
@@ -405,6 +409,15 @@ export default function AssetForm() {
           onChange={set('source_po_number')}
           placeholder="PO-001"
           dir="ltr"
+        />
+      </div>
+
+      {/* Provider — who services this asset */}
+      <div className="field">
+        <label className="field__label">{S.providerLabel}</label>
+        <ProviderPicker
+          value={form.provider_id}
+          onChange={(id) => setForm((prev) => ({ ...prev, provider_id: id }))}
         />
       </div>
 

@@ -1,0 +1,92 @@
+.providers-page {
+  padding: 16px 16px 80px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  &__title {
+    font-family: $font-ui;
+    font-weight: 700;
+    font-size: 22px;
+    color: $text-primary;
+    margin: 0;
+  }
+
+  &__add-btn {
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $accent;
+    background: $accent-dim;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover {
+      background: darken($accent-dim, 3%);
+    }
+  }
+
+  &__search-wrap {
+    margin-bottom: 12px;
+  }
+
+  &__search {
+    width: 100%;
+    padding: 12px 14px;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: 10px;
+    outline: none;
+    direction: rtl;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__skeleton {
+    height: 72px;
+    background: linear-gradient(
+      90deg,
+      $bg-card 0%,
+      lighten($bg-card, 2%) 50%,
+      $bg-card 100%
+    );
+    background-size: 200% 100%;
+    border: 1px solid $border-subtle;
+    border-radius: 12px;
+    animation: shimmer 1.4s linear infinite;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 32px 16px;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-muted;
+  }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

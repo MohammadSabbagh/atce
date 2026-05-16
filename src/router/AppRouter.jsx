@@ -25,6 +25,10 @@ import TeamPage   from '../features/team/TeamPage';
 import TeamDetail from '../features/team/TeamDetail';
 import TeamForm   from '../features/team/TeamForm';
 
+import ProvidersPage  from '../features/providers/ProvidersPage';
+import ProviderDetail from '../features/providers/ProviderDetail';
+import ProviderForm   from '../features/providers/ProviderForm';
+
 
 const Placeholder = ({ name }) => (
   <div style={{ padding: '2rem', color: '#fff', fontFamily: 'monospace' }}>
@@ -116,7 +120,12 @@ export default function AppRouter() {
         <Route path="/team"          element={<TeamPage />} />
         <Route path="/team/new"      element={<TeamForm />} />
         <Route path="/team/:id"      element={<TeamDetail />} />
-        <Route path="/team/:id/edit" element={<TeamForm />} />        
+        <Route path="/team/:id/edit" element={<TeamForm />} />
+
+        <Route path="/providers"          element={<ProvidersPage />} />
+        <Route path="/providers/new"      element={<ProviderForm />} />
+        <Route path="/providers/:id"      element={<ProviderDetail />} />
+        <Route path="/providers/:id/edit" element={<ProviderForm />} />
 
         {/* DEV */}
         <Route path="/dev/primitives" element={<PrimitivesPreview />} />

@@ -1,0 +1,181 @@
+.provider-picker {
+  position: relative;
+  width: 100%;
+
+  &__btn {
+    width: 100%;
+    padding: 11px 13px;
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: 10px;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-muted;
+    text-align: right;
+    cursor: pointer;
+    transition: border-color 0.15s;
+
+    &:hover { border-color: $border; }
+  }
+
+  &__selected {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+
+    &:hover { border-color: $accent; }
+  }
+
+  &__name {
+    flex: 1;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__phone {
+    font-family: $font-mono;
+    font-size: 12px;
+    color: $text-muted;
+  }
+
+  &__clear {
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 18px;
+    line-height: 1;
+    padding: 2px 6px;
+    cursor: pointer;
+    border-radius: 4px;
+
+    &:hover {
+      color: $color-rejected;
+      background: rgba($color-rejected, 0.08);
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    z-index: $z-dialog;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 320px;
+  }
+
+  &__search {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid $border-subtle;
+    border-radius: 8px;
+    background: $bg-base;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    outline: none;
+    box-sizing: border-box;
+
+    &::placeholder { color: $text-muted; }
+    &:focus { border-color: $accent; }
+  }
+
+  &__create {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba($accent, 0.10);
+    border: 1px dashed $accent;
+    border-radius: 8px;
+    color: $accent;
+    font-family: $font-ui;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: right;
+    transition: background 0.15s;
+
+    &:hover { background: rgba($accent, 0.16); }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+
+  &__error {
+    margin: 0;
+    padding: 6px 10px;
+    color: $color-rejected;
+    font-family: $font-ui;
+    font-size: 12px;
+  }
+
+  &__list {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 220px;
+  }
+
+  &__option {
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: right;
+    transition: background 0.12s;
+
+    &:hover { background: $bg-base; }
+  }
+
+  &__option-name {
+    display: block;
+    font-family: $font-ui;
+    font-size: 14px;
+    color: $text-primary;
+    font-weight: 500;
+  }
+
+  &__option-meta {
+    display: flex;
+    gap: 10px;
+    margin-top: 2px;
+    flex-wrap: wrap;
+  }
+
+  &__option-contact {
+    font-family: $font-ui;
+    font-size: 12px;
+    color: $text-secondary;
+  }
+
+  &__option-phone {
+    font-family: $font-mono;
+    font-size: 12px;
+    color: $text-muted;
+  }
+
+  &__empty {
+    padding: 18px 10px;
+    margin: 0;
+    text-align: center;
+    font-family: $font-ui;
+    font-size: 13px;
+    color: $text-muted;
+  }
+}

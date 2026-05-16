@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/AuthContext'
-import { getAvailableTransitions } from '@/lib/poStatusConfig'
+import { getAvailableTransitions, resolveTargetStatus } from '@/lib/poStatusConfig'
 
 const PO_SELECT = `
   id,
@@ -15,9 +15,12 @@ const PO_SELECT = `
   status,
   currency,
   total,
+  parent_id,
+  provider_id,
   created_at,
   created_by,
   creator:profiles!created_by(full_name),
+  provider:providers!provider_id(id, name),
   line_items:po_line_items(id, description, department, quantity, unit_price, sort_order),
   tags:po_tags(tag),
   attachments:po_attachments(id, file_name, file_path, file_type, file_size)
@@ -171,10 +174,7 @@ export function usePODetail() {
   // ─── Finance: Release ────────────────────────────────────
   async function releasePO() {
     if (!po || acting) return
-    const transitionKey = po.requires_ceo
-      ? 'finance_release_from_approved'
-      : 'finance_release_from_pending'
-    if (!canDo(transitionKey)) return
+    if (!canDo('finance_release')) return
     setActing(true)
     try {
       const { error: updateError } = await supabase
@@ -183,23 +183,7 @@ export function usePODetail() {
         .eq('id', po.id)
       if (updateError) throw updateError
 
-      const entries = []
-      if (!po.requires_ceo) {
-        entries.push({
-          entity_type:  'purchase_order',
-          entity_id:    po.id,
-          action:       'approved',
-          performed_by: profile.id,
-        })
-      }
-      entries.push({
-        entity_type:  'purchase_order',
-        entity_id:    po.id,
-        action:       'released',
-        performed_by: profile.id,
-      })
-      await supabase.from('audit_log').insert(entries)
-
+      await writeAudit('released')
       await fetchPO()
     } catch (err) {
       setError(err.message)
@@ -266,20 +250,22 @@ export function usePODetail() {
     // No finally setActing(false) — we're navigating away
   }
 
-  // ─── PM: Confirm draft → pending ────────────────────────
+  // ─── PM: Confirm draft → approved (direct) or pending_ceo (escalated) ──
   async function confirmPO() {
     if (!po || acting) return
     if (!canDo('pm_confirm')) return
+
+    const targetStatus = resolveTargetStatus('pm_confirm', po)
     setActing(true)
-    setPO(prev => prev ? { ...prev, status: 'pending' } : prev)
+    setPO(prev => prev ? { ...prev, status: targetStatus } : prev)
     try {
       const { error: updateError } = await supabase
         .from('purchase_orders')
-        .update({ status: 'pending', updated_at: new Date().toISOString() })
+        .update({ status: targetStatus, updated_at: new Date().toISOString() })
         .eq('id', po.id)
       if (updateError) throw updateError
 
-      await writeAudit('confirmed')
+      await writeAudit('pm_confirm')
 
       const [auditResult, notesResult] = await Promise.all([
         supabase
@@ -296,7 +282,7 @@ export function usePODetail() {
       ])
       setPO(prev => prev ? {
         ...prev,
-        status: 'pending',
+        status: targetStatus,
         audit:  auditResult.data ?? prev.audit,
         notes:  notesResult.data ?? prev.notes,
       } : prev)

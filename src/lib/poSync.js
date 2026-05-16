@@ -17,17 +17,20 @@
 import db from './db'
 import { supabase } from './supabase'
 
-// PO header fields + nested line items for cache.
+// PO header fields + nested line items + tags for cache.
 // department lives on each line item (not on the PO header) —
 // a single PO can span multiple departments across its line items.
 const PO_CACHE_SELECT = `
   id,
   po_number,
   title,
+  description,
   requires_ceo,
   status,
   currency,
   total,
+  parent_id,
+  provider_id,
   created_by,
   created_at,
   updated_at,

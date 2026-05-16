@@ -14,36 +14,33 @@ export function useDashboard() {
     const pos = allPOs.filter(p => p.status !== 'cancelled')
 
     // ── Stat card calculations ──────────────
-    // 1. PM Drafts: Secretary-created POs awaiting PM confirmation
+    // 1. PM Drafts: drafts awaiting PM action
     const pmDraftCount = pos.filter(
       p => p.status === 'draft'
     ).length
 
-    // 2. CEO Pending: pending AND requires_ceo=true
+    // 2. CEO Pending: status = pending_ceo (only set when requires_ceo)
     const ceoPendingCount = pos.filter(
-      p => p.status === 'pending' && p.requires_ceo === true
+      p => p.status === 'pending_ceo'
     ).length
 
-    // 3. Finance Pending Release:
-    //    approved (CEO done, Finance's turn)
-    //    OR pending + requires_ceo=false (Finance acts directly)
+    // 3. Finance Pending Release: status = approved (single condition, no compound)
     const financePendingCount = pos.filter(
-      p =>
-        p.status === 'approved' ||
-        (p.status === 'pending' && p.requires_ceo === false)
+      p => p.status === 'approved'
     ).length
 
     // 4. Rejected count
     const rejectedCount = pos.filter(p => p.status === 'rejected').length
 
     // 5. Awaiting value split by currency — no cross-currency aggregation.
-    //    Includes all pending POs regardless of path.
-    //    Falls back to 'USD' for POs created before the currency column existed.
-    const pendingPOs = pos.filter(p => p.status === 'pending')
-    const totalAwaitingUSD = pendingPOs
+    //    Counts everything in flight: pending_ceo + approved.
+    const inFlightPOs = pos.filter(
+      p => p.status === 'pending_ceo' || p.status === 'approved'
+    )
+    const totalAwaitingUSD = inFlightPOs
       .filter(p => (p.currency ?? 'USD') === 'USD')
       .reduce((sum, p) => sum + (p.total ?? 0), 0)
-    const totalAwaitingLS = pendingPOs
+    const totalAwaitingLS = inFlightPOs
       .filter(p => (p.currency ?? 'USD') === 'SYP')
       .reduce((sum, p) => sum + (p.total ?? 0), 0)
 

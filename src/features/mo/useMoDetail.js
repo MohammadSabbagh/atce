@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/AuthContext'
-import { getAvailableTransitions } from '@/lib/moStatusConfig'
+import { getAvailableTransitions, resolveTargetStatus } from '@/lib/moStatusConfig'
 
 const MO_SELECT = `
   id,
@@ -18,13 +18,15 @@ const MO_SELECT = `
   item_price,
   type,
   department,
-  service_provider,
+  provider_id,
   handler,
+  parent_id,
   asset_id,
   created_at,
   created_by,
   creator:profiles!created_by(full_name),
   asset:assets!asset_id(id, name, type, plate_number),
+  provider:providers!provider_id(id, name),
   tags:mo_tags(tag),
   attachments:mo_attachments(id, file_name, file_path, file_type, file_size)
 `
@@ -161,10 +163,7 @@ export function useMODetail() {
   // ─── Finance: Release ────────────────────────────────────
   async function releaseMO() {
     if (!mo || acting) return
-    const transitionKey = mo.requires_ceo
-      ? 'finance_release_from_approved'
-      : 'finance_release_from_pending'
-    if (!canDo(transitionKey)) return
+    if (!canDo('finance_release')) return
     setActing(true)
     try {
       const { error: updateError } = await supabase
@@ -173,23 +172,7 @@ export function useMODetail() {
         .eq('id', mo.id)
       if (updateError) throw updateError
 
-      const entries = []
-      if (!mo.requires_ceo) {
-        entries.push({
-          entity_type:  'maintenance_order',
-          entity_id:    mo.id,
-          action:       'approved',
-          performed_by: profile.id,
-        })
-      }
-      entries.push({
-        entity_type:  'maintenance_order',
-        entity_id:    mo.id,
-        action:       'released',
-        performed_by: profile.id,
-      })
-      await supabase.from('audit_log').insert(entries)
-
+      await writeAudit('released')
       await fetchMO()
     } catch (err) {
       setError(err.message)
@@ -253,20 +236,22 @@ export function useMODetail() {
     }
   }
 
-  // ─── PM: Confirm draft → pending ─────────────────────────
+  // ─── PM: Confirm draft → approved (direct) or pending_ceo (escalated) ──
   async function confirmMO() {
     if (!mo || acting) return
     if (!canDo('pm_confirm')) return
+
+    const targetStatus = resolveTargetStatus('pm_confirm', mo)
     setActing(true)
-    setMO(prev => prev ? { ...prev, status: 'pending' } : prev)
+    setMO(prev => prev ? { ...prev, status: targetStatus } : prev)
     try {
       const { error: updateError } = await supabase
         .from('maintenance_orders')
-        .update({ status: 'pending', updated_at: new Date().toISOString() })
+        .update({ status: targetStatus, updated_at: new Date().toISOString() })
         .eq('id', mo.id)
       if (updateError) throw updateError
 
-      await writeAudit('confirmed')
+      await writeAudit('pm_confirm')
 
       const [auditResult, notesResult] = await Promise.all([
         supabase
@@ -283,7 +268,7 @@ export function useMODetail() {
       ])
       setMO(prev => prev ? {
         ...prev,
-        status: 'pending',
+        status: targetStatus,
         audit:  auditResult.data ?? prev.audit,
         notes:  notesResult.data ?? prev.notes,
       } : prev)

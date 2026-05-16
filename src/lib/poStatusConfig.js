@@ -1,120 +1,88 @@
 // poStatusConfig.js
 // Single source of truth for PO status flow and transition rules.
+//
 // Status labels live in src/lib/strings.js (S.statusXxx) — render via <StatusBadge />.
 // Action button labels also live in strings.js (S.pmConfirm, S.approve, S.reject, S.release, S.cancel).
+//
+// Lifecycle (new model, post 2026-05-15 migration):
+//
+//   requires_ceo = false:
+//     draft → approved → released
+//
+//   requires_ceo = true:
+//     draft → pending_ceo → approved → released
+//
+//   Either path, before released:
+//     → rejected  (terminal)
+//     → cancelled (terminal)
+//
+//   Drafts are deleted, not cancelled.
 
 import { S } from './strings'
 
 // ─────────────────────────────────────────
-// Status definitions
+// Status constants
 // ─────────────────────────────────────────
 export const PO_STATUS = {
-  DRAFT:     'draft',
-  PENDING:   'pending',
-  APPROVED:  'approved',
-  RELEASED:  'released',
-  REJECTED:  'rejected',
-  CANCELLED: 'cancelled',
+  DRAFT:       'draft',
+  PENDING_CEO: 'pending_ceo',
+  APPROVED:    'approved',
+  RELEASED:    'released',
+  REJECTED:    'rejected',
+  CANCELLED:   'cancelled',
 }
 
 // ─────────────────────────────────────────
-// Display config per status
-// label: Arabic UI string (legacy — prefer S.statusXxx via StatusBadge)
-// color: maps to $variable token in SCSS
-// cssClass: BEM modifier for status badges
-// ─────────────────────────────────────────
-export const STATUS_CONFIG = {
-  [PO_STATUS.DRAFT]: {
-    label:    'مسودة',
-    cssClass: 'draft',
-    color:    'muted',
-  },
-  [PO_STATUS.PENDING]: {
-    label:    'قيد الانتظار',
-    cssClass: 'pending',
-    color:    'amber',
-  },
-  [PO_STATUS.APPROVED]: {
-    label:    'معتمد — بانتظار الإصدار',
-    cssClass: 'approved',
-    color:    'blue',
-  },
-  [PO_STATUS.RELEASED]: {
-    label:    'صدر',
-    cssClass: 'released',
-    color:    'green',
-  },
-  [PO_STATUS.REJECTED]: {
-    label:    'مرفوض',
-    cssClass: 'rejected',
-    color:    'red',
-  },
-  [PO_STATUS.CANCELLED]: {
-    label:    'ملغى',
-    cssClass: 'cancelled',
-    color:    'muted',
-  },
-}
-
-// ─────────────────────────────────────────
-// Flow rules
-// Defines which roles can perform which transitions
-// and whether a note is required.
+// Flow rules — keyed by action id for stable references in audit_log,
+// analytics, and component code.
 //
-// actionLabel pulls from strings.js so all status-action button text
-// has a single source of truth (PO + MO + future HR).
+// Each entry shape:
+//   from         : status the PO must be in (string or array)
+//   to           : target status — string OR (po) => string
+//                  (dynamic when the same user action branches based on the PO)
+//   allowedRoles : roles permitted to perform this action
+//   requiresNote : whether a note is mandatory
+//   actionLabel  : Arabic button text (single source of truth across PO/MO)
+//   condition    : extra predicate beyond from/role; must return true to enable
 //
-// Full lifecycle:
-//   Secretary creates → draft
-//   PM confirms → pending          (PM-created POs start as pending directly)
-//   CEO (if requires_ceo) → approved / rejected
-//   Finance → released / rejected
-//   rejected is terminal — no resubmission
-//   cancelled is terminal
+// Resolve dynamic `to` at the call site:
+//   const target = typeof t.to === 'function' ? t.to(po) : t.to
 // ─────────────────────────────────────────
 export const STATUS_TRANSITIONS = {
-  // PM: confirm a Secretary's draft → pending
+  // PM confirms draft. System picks the next status based on requires_ceo.
+  //   requires_ceo = true  → pending_ceo
+  //   requires_ceo = false → approved
   pm_confirm: {
     from:         [PO_STATUS.DRAFT],
-    to:           PO_STATUS.PENDING,
+    to:           (po) => (po.requires_ceo ? PO_STATUS.PENDING_CEO : PO_STATUS.APPROVED),
     allowedRoles: ['purchase_manager'],
     requiresNote: false,
     actionLabel:  S.pmConfirm,
     condition:    () => true,
   },
 
-  // Secretary: cancel own draft before PM confirms
-  cancel_draft: {
-    from:         [PO_STATUS.DRAFT],
-    to:           PO_STATUS.CANCELLED,
-    allowedRoles: ['secretary'],
-    requiresNote: false,
-    actionLabel:  S.cancel,
-    condition:    (po, userId) => po.created_by === userId,
-  },
-
-  // CEO: approve requires_ceo POs
+  // CEO approves a pending_ceo PO.
   ceo_approve: {
-    from:         [PO_STATUS.PENDING],
+    from:         [PO_STATUS.PENDING_CEO],
     to:           PO_STATUS.APPROVED,
     allowedRoles: ['ceo'],
     requiresNote: false,
     actionLabel:  S.approve,
-    condition:    (po) => po.requires_ceo === true,
+    condition:    () => true,
   },
 
-  // CEO: reject requires_ceo POs
+  // CEO rejects a pending_ceo PO.
   ceo_reject: {
-    from:         [PO_STATUS.PENDING],
+    from:         [PO_STATUS.PENDING_CEO],
     to:           PO_STATUS.REJECTED,
     allowedRoles: ['ceo'],
     requiresNote: true,
     actionLabel:  S.reject,
-    condition:    (po) => po.requires_ceo === true,
+    condition:    () => true,
   },
 
-  // Finance: release approved POs (came through CEO)
-  finance_release_from_approved: {
+  // Finance releases an approved PO.
+  finance_release: {
     from:         [PO_STATUS.APPROVED],
     to:           PO_STATUS.RELEASED,
     allowedRoles: ['finance'],
@@ -123,43 +91,38 @@ export const STATUS_TRANSITIONS = {
     condition:    () => true,
   },
 
-  // Finance: release pending POs that don't need CEO
-  finance_release_from_pending: {
-    from:         [PO_STATUS.PENDING],
-    to:           PO_STATUS.RELEASED,
-    allowedRoles: ['finance'],
-    requiresNote: false,
-    actionLabel:  S.release,
-    condition:    (po) => po.requires_ceo === false,
-  },
-
-  // Finance: reject non-CEO-approved POs only
-  // Cannot reject after CEO has approved (approved status = CEO signed off)
+  // Finance rejects an approved PO.
+  // Note: Finance can reject any approved PO, including those that came from CEO.
+  // If you want to forbid Finance from overriding CEO approval, add a condition here.
   finance_reject: {
-    from:         [PO_STATUS.PENDING],
+    from:         [PO_STATUS.APPROVED],
     to:           PO_STATUS.REJECTED,
     allowedRoles: ['finance'],
     requiresNote: true,
     actionLabel:  S.reject,
-    condition:    (po) => po.requires_ceo === false,
+    condition:    () => true,
   },
 
-  // PM/Secretary: cancel own PO while pending or approved (before released)
+  // PM or Secretary cancel before released.
+  // Drafts are deleted, not cancelled — draft is not in the `from` list.
   cancel: {
-    from:         [PO_STATUS.PENDING, PO_STATUS.APPROVED],
+    from:         [PO_STATUS.PENDING_CEO, PO_STATUS.APPROVED],
     to:           PO_STATUS.CANCELLED,
     allowedRoles: ['purchase_manager', 'secretary'],
-    requiresNote: false,
+    requiresNote: true,
     actionLabel:  S.cancel,
-    condition:    (po, userId) => po.created_by === userId,
+    condition:    () => true,
   },
 }
 
 // ─────────────────────────────────────────
-// Helper: get available transitions for a PO given role + userId
-// Returns array of transition keys the user can perform
+// Helper: get available transition keys for a PO + role + userId.
+// Returns an array of keys (e.g. ['ceo_approve', 'ceo_reject']).
+// Consumers look up the full transition via STATUS_TRANSITIONS[key].
 // ─────────────────────────────────────────
 export function getAvailableTransitions(po, role, userId) {
+  if (!po || !role) return []
+
   return Object.entries(STATUS_TRANSITIONS)
     .filter(([, config]) => {
       const roleAllowed   = config.allowedRoles.includes(role)
@@ -171,47 +134,10 @@ export function getAvailableTransitions(po, role, userId) {
 }
 
 // ─────────────────────────────────────────
-// Helper: get label for a status key (legacy)
+// Helper: resolve the target status for a transition, accounting for dynamic `to`.
 // ─────────────────────────────────────────
-export function getStatusLabel(status) {
-  return STATUS_CONFIG[status]?.label ?? status
-}
-
-// ─────────────────────────────────────────
-// Helper: get CSS modifier class for a status
-// ─────────────────────────────────────────
-export function getStatusClass(status) {
-  return STATUS_CONFIG[status]?.cssClass ?? 'unknown'
-}
-
-// ─────────────────────────────────────────
-// Dashboard filter presets
-// Used by stat cards to navigate to PO list
-// with the correct filter pre-applied
-// ─────────────────────────────────────────
-export const DASHBOARD_FILTERS = {
-  // PM: drafts awaiting PM confirmation
-  PM_DRAFTS: {
-    status: PO_STATUS.DRAFT,
-    label:  'مسودات بانتظار التأكيد',
-  },
-  CEO_PENDING: {
-    status:      PO_STATUS.PENDING,
-    requires_ceo: true,
-    label:       'بانتظار موافقة الرئيس',
-  },
-  FINANCE_PENDING: {
-    // Two conditions — handled in useDashboard / usePOList
-    // status=approved OR (status=pending AND requires_ceo=false)
-    label:    'بانتظار الإصدار',
-    queryKey: 'finance_pending',
-  },
-  REJECTED: {
-    status: PO_STATUS.REJECTED,
-    label:  'مرفوضة',
-  },
-  AWAITING_VALUE: {
-    status: PO_STATUS.PENDING,
-    label:  'إجمالي القيمة المعلقة',
-  },
+export function resolveTargetStatus(transitionKey, po) {
+  const config = STATUS_TRANSITIONS[transitionKey]
+  if (!config) return null
+  return typeof config.to === 'function' ? config.to(po) : config.to
 }

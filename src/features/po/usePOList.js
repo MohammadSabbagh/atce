@@ -19,7 +19,6 @@ export function usePOList() {
   // ── Read filters from URL ──────────────────────────────────────────
   const statusFilter = searchParams.get('status')     ?? ALL
   const deptFilter   = searchParams.get('department') ?? ALL
-  const filterKey    = searchParams.get('filter')     // 'ceo_pending' | 'finance_pending' | null
   const dateFrom     = searchParams.get('date_from')  ?? ''
   const dateTo       = searchParams.get('date_to')    ?? ''
   const searchQuery  = searchParams.get('q')          ?? ''
@@ -28,13 +27,7 @@ export function usePOList() {
   function setStatusFilter(value) {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev)
-      next.delete('filter')
-      next.delete('requires_ceo')
-
-      if (value === 'ceo_pending' || value === 'finance_pending') {
-        next.delete('status')
-        next.set('filter', value)
-      } else if (value === ALL) {
+      if (value === ALL) {
         next.delete('status')
       } else {
         next.set('status', value)
@@ -155,22 +148,10 @@ export function usePOList() {
         (poDeptsMap[po.id]?.has(deptFilter) ?? false)
       if (!deptMatch) return false
 
-      // Special compound filter keys
-      if (filterKey === 'finance_pending') {
-        return (
-          po.status === 'approved' ||
-          (po.status === 'pending' && !po.requires_ceo)
-        )
-      }
-
-      if (filterKey === 'ceo_pending') {
-        return po.status === 'pending' && po.requires_ceo === true
-      }
-
       // Standard status filter
       return statusFilter === ALL || po.status === statusFilter
     })
-  }, [poArray, statusFilter, deptFilter, filterKey, dateFrom, dateTo, poDeptsMap, searchQuery])
+  }, [poArray, statusFilter, deptFilter, dateFrom, dateTo, poDeptsMap, searchQuery])
 
   // ── Available departments (for the dept dropdown) ──────────────────
   // Derived from line items, not PO headers.
@@ -191,7 +172,6 @@ export function usePOList() {
     deptFilter,
     setDeptFilter,
     availableDepts,
-    filterKey,
     dateFrom,
     dateTo,
     setDateFrom,

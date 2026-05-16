@@ -12,6 +12,7 @@ import { DEPARTMENTS } from '@/lib/constants';
 import WizardShell from '@/components/form/WizardShell';
 import TagInput from '@/components/form/TagInput';
 import AttachmentsInput from '@/components/form/AttachmentsInput';
+import ProviderPicker from '@/components/form/ProviderPicker';
 import { sanitizeDecimalInput } from '@/lib/utils'
 import './MoCreate.scss';
 
@@ -20,7 +21,7 @@ const EMPTY_FORM = {
   description: '',
   asset_id: '',
   department: '',
-  service_provider: '',
+  provider_id: null,
   handler: '',
   requires_ceo: false,
   currency: 'USD',
@@ -138,7 +139,7 @@ export default function CreateMO() {
           asset_id: form.asset_id,
           type: selectedAsset?.type ?? 'other',
           department: form.department,
-          service_provider: form.service_provider.trim() || null,
+          provider_id: form.provider_id || null,
           handler: form.handler.trim() || null,
           requires_ceo: form.requires_ceo,
           currency: form.currency,
@@ -220,6 +221,7 @@ export default function CreateMO() {
         <Step1
           form={form}
           set={set}
+          setForm={setForm}
           assets={filteredAssets}
           selectedAsset={selectedAsset}
           assetSearch={assetSearch}
@@ -259,7 +261,7 @@ export default function CreateMO() {
 
 // ─── Step 1: Details ─────────────────────────────────────────────────────────
 
-function Step1({ form, set, assets, selectedAsset, assetSearch, setAssetSearch, assetPickerOpen, setAssetPickerOpen, selectAsset }) {
+function Step1({ form, set, setForm, assets, selectedAsset, assetSearch, setAssetSearch, assetPickerOpen, setAssetPickerOpen, selectAsset }) {
   return (
     <div className="form">
       <Field label={`${S.moTitle} *`}>
@@ -360,13 +362,9 @@ function Step1({ form, set, assets, selectedAsset, assetSearch, setAssetSearch, 
       </Field>
 
       <Field label={S.moServiceProvider}>
-        <input
-          className="input"
-          type="text"
-          value={form.service_provider}
-          onChange={set('service_provider')}
-          placeholder={S.moServiceProviderPlaceholder}
-          dir="rtl"
+        <ProviderPicker
+          value={form.provider_id}
+          onChange={(id) => setForm((prev) => ({ ...prev, provider_id: id }))}
         />
       </Field>
 
@@ -483,6 +481,11 @@ function Step3({ attachments, addAttachment, removeAttachment }) {
 // ─── Step 4: Review ───────────────────────────────────────────────────────────
 
 function Step4({ form, selectedAsset, attachments }) {
+  const provider = useLiveQuery(
+    () => (form.provider_id ? db.providers.get(form.provider_id) : null),
+    [form.provider_id]
+  );
+
   return (
     <div className="form">
       <div className="create-mo__review-card">
@@ -490,7 +493,7 @@ function Step4({ form, selectedAsset, attachments }) {
         {form.description && <ReviewRow label={S.moDescription} value={form.description} />}
         <ReviewRow label={S.moAsset} value={selectedAsset?.name ?? '—'} />
         <ReviewRow label={S.assetDepartment} value={form.department} />
-        {form.service_provider && <ReviewRow label={S.moServiceProvider} value={form.service_provider} />}
+        {provider && <ReviewRow label={S.moServiceProvider} value={provider.name} />}
         {form.handler && <ReviewRow label={S.moHandler} value={form.handler} />}
         <ReviewRow
           label={S.requiresCEO}

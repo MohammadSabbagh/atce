@@ -16,7 +16,7 @@ export default function AssetDetail() {
       setLoading(true);
       const { data, error } = await supabase
         .from('assets')
-        .select('*, assignee:team_members!assigned_to(id, full_name, title)')
+        .select('*, assignee:team_members!assigned_to(id, full_name, title), provider:providers!provider_id(id, name)')
         .eq('id', id)
         .single();
 
@@ -96,6 +96,18 @@ export default function AssetDetail() {
             )}
             {asset.assignee?.full_name && (
               <DetailRow label={S.assetAssignedTo} value={asset.assignee.full_name} />
+            )}
+            {asset.provider?.name && (
+              <button
+                type="button"
+                className="asset-detail__field-row asset-detail__field-row--link"
+                onClick={() => navigate(`/providers/${asset.provider.id}`)}
+              >
+                <span className="asset-detail__field-label">{S.providerLabel}</span>
+                <span className="asset-detail__field-value">
+                  {asset.provider.name} ↗
+                </span>
+              </button>
             )}
             {asset.source_po_number && (
               <DetailRow label={S.assetSourcePO} value={asset.source_po_number} mono />

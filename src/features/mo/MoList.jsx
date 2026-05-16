@@ -11,7 +11,7 @@ import './MoList.scss'
 const STATUS_FILTERS = [
   { value: 'all',       label: S.filterAll },
   { value: 'draft',     label: S.statusDraft },
-  { value: 'pending',   label: S.statusPending },
+  { value: 'pending_ceo',   label: S.filterPendingCeo },
   { value: 'approved',  label: S.statusApproved },
   { value: 'released',  label: S.statusReleased },
   { value: 'rejected',  label: S.statusRejected },

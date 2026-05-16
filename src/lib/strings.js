@@ -23,9 +23,9 @@ export const S = {
   spendingByDept:     'الإنفاق حسب القسم',
   noSpendingData:     'لا توجد بيانات إنفاق بعد',
 
-  // ── PO Status labels ─────────────────────
+  // ── Status labels (shared between PO and MO) ──
   statusDraft:        'مسودة',
-  statusPending:      'معلق',
+  statusPendingCeo:   'بانتظار الرئيس',
   statusApproved:     'معتمد',
   statusReleased:     'صادر',
   statusRejected:     'مرفوض',
@@ -35,12 +35,11 @@ export const S = {
   poList:        'طلبات الشراء',
   filterAll:     'الكل',
   filterDraft:    'مسودة',
-  filterPending:  'قيد الانتظار',
+  filterPendingCeo:'بانتظار الرئيس',
   filterApproved:'معتمد',
   filterReleased:'صدر',
   filterRejected:'مرفوض',
   filterCancelled:'ملغى',
-  filterCeoPending:'يتطلب موافقة',
   viewDetails:   'عرض التفاصيل',
   noResults:     'لا توجد نتائج',
   filters:        'تصفية',
@@ -266,6 +265,50 @@ export const S = {
   teamErrorName:  'يرجى إدخال الاسم',
   teamErrorTitle: 'يرجى إدخال المسمى الوظيفي',
   teamErrorDept:  'يرجى اختيار القسم',
+
+  // ── Providers ────────────────────────────
+  providersTitle:             'الموردون',
+  providersAddNew:            '+ مورد جديد',
+  providersSearchPlaceholder: 'بحث بالاسم أو رقم الهاتف...',
+  providersEmpty:             'لا يوجد موردون',
+  providerActive:             'نشط',
+  providerInactive:           'غير نشط',
+
+  // ── Provider form ────────────────────────
+  providerCreateTitle:         'مورد جديد',
+  providerEditTitle:           'تعديل بيانات المورد',
+  providerName:                'اسم المورد',
+  providerNamePlaceholder:     'مثال: شركة الفجر للتجهيزات',
+  providerContactName:         'اسم جهة الاتصال',
+  providerContactPlaceholder:  'مثال: محمد علي',
+  providerPhone:               'رقم الهاتف',
+  providerPhonePlaceholder:    '+963 11 1234567',
+  providerEmail:               'البريد الإلكتروني',
+  providerEmailPlaceholder:    'info@example.com',
+  providerNotes:               'ملاحظات',
+  providerNotesPlaceholder:    'أي ملاحظات إضافية...',
+  providerActiveLabel:         'نشط',
+  providerSaveChanges:         'حفظ التعديلات',
+  providerCreate:              'إنشاء المورد',
+  providerErrorName:           'يرجى إدخال اسم المورد',
+
+  // ── Provider detail — linked sections ────
+  providerLinkedPOs:    'طلبات الشراء المرتبطة',
+  providerLinkedMOs:    'أوامر الصيانة المرتبطة',
+  providerLinkedAssets: 'الأصول المرتبطة',
+  providerNoPOs:        'لا توجد طلبات شراء',
+  providerNoMOs:        'لا توجد أوامر صيانة',
+  providerNoAssets:     'لا توجد أصول',
+
+  // ── Provider picker ──────────────────────
+  providerSelectPlaceholder: 'اختر مورداً',
+  providerAddInline:         'إضافة مورد جديد:',
+  providersNoMatch:          'لا توجد نتائج',
+  providerLabel:             'المورد',
+
+  // ── Dashboard quick-action for providers ─
+  quickActionProvidersLabel:    'الموردون',
+  quickActionProvidersSubtitle: 'إدارة الموردين والجهات',
 
   // assets type
   assetTypeCar: 'مركبة',
